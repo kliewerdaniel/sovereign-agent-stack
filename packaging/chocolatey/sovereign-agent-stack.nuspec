@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>sovereign-agent-stack</id>
+    <version>0.1.0</version>
+    <title>Sovereign Agent Stack</title>
+    <authors>Daniel Kliewer</authors>
+    <owners>Daniel Kliewer</owners>
+    <licenseUrl>https://github.com/kliewerdaniel/sovereign-agent-stack/blob/main/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/kliewerdaniel/sovereign-agent-stack</projectUrl>
+    <description>Local-first, compile-time AI agent framework</description>
+    <tags>ai agent sovereignty local-first</tags>
+    <dependencies>
+      <dependency id="python" version="3.11" />
+    </dependencies>
+  </metadata>
+</package>
