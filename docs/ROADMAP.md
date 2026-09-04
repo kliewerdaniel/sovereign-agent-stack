@@ -1,0 +1,161 @@
+# Roadmap
+
+> Phased implementation of the Sovereign Agent Stack. Each phase is a self-contained deliverable that can be used independently.
+
+---
+
+## Phase 0: Foundation ✅ (Current)
+
+**Goal:** Documentation-first. The architecture is specified before a line of code is written.
+
+- [x] README.md — vision, sovereignty thesis, quick start
+- [x] docs/ARCHITECTURE.md — 7-layer sovereignty model
+- [x] docs/ADR.md — architectural decision records
+- [x] docs/SOVEREIGNTY.md — the sovereignty thesis operationalized
+- [x] docs/LAYERS.md — detailed layer specifications
+- [x] docs/ROADMAP.md — this file
+
+**Exit criteria:** A reader can understand what SAS is, why it exists, and how it's structured without reading source code.
+
+---
+
+## Phase 1: Core — Sovereignty Dashboard + Layer Registry
+
+**Goal:** The sovereignty score is computable and visible.
+
+**Deliverables:**
+- [ ] `sas.yaml` parser and validator
+- [ ] Layer registry (each layer declares its ownership model)
+- [ ] Sovereignty scorer (owned / total, with manual override)
+- [ ] Sovereignty dashboard CLI (`python -m sas dashboard`)
+- [ ] Sovereignty report generator (markdown, versionable)
+- [ ] Drift detection (compare current score to previous, flag changes)
+- [ ] Unit tests for scorer, registry, parser
+
+**Exit criteria:** `python -m sas dashboard` produces a sovereignty report with a score, and the score changes when `sas.yaml` is modified.
+
+---
+
+## Phase 2: Compile-Time Knowledge Graph
+
+**Goal:** The layer that most differentiates SAS from ARGO alone.
+
+**Deliverables:**
+- [ ] Markdown parser (Obsidian-compatible: `[[wikilinks]]`, YAML frontmatter)
+- [ ] Entity and relationship extractor (local LLM or rule-based)
+- [ ] Graph materializer (SQLite adjacency list, Neo4j optional)
+- [ ] Compile step (cron + file watcher)
+- [ ] Query interface (query graph first, fall back to retrieval RAG)
+- [ ] Diff and audit interface
+- [ ] Integration with ARGO's RAG pipeline
+- [ ] Unit + integration tests
+
+**Exit criteria:** A markdown file added to the knowledge folder is compiled into the graph within 5 minutes, and the agent can query settled facts without invoking the LLM.
+
+---
+
+## Phase 3: Local Auth Broker / MCP Gateway
+
+**Goal:** Composio's convenience without Composio's centralization.
+
+**Deliverables:**
+- [ ] Local MCP gateway server
+- [ ] Encrypted credential vault (SQLite + libsodium)
+- [ ] Tool registration CLI wizard
+- [ ] Token refresh cron
+- [ ] Audit trail viewer
+- [ ] Integration with ARGO's MCP client
+- [ ] Unit + integration tests
+
+**Exit criteria:** A tool registered with the local gateway can be called by the agent without credentials leaving the machine.
+
+---
+
+## Phase 4: Payments Abstraction
+
+**Goal:** The payments layer is swappable from "Ramp card + computer-use" to "MPP native" with a config change.
+
+**Deliverables:**
+- [ ] `pay_for_resource()` tool interface
+- [ ] Virtual card implementation (computer-use + Ramp/Mercury)
+- [ ] MPP listener implementation (HTTP 402 → authorize → retry)
+- [ ] Spending limit enforcement
+- [ ] Receipt handling and audit
+- [ ] Unit + integration tests
+
+**Exit criteria:** The agent can pay for a resource using the virtual card implementation, and swapping to MPP is a one-line config change.
+
+---
+
+## Phase 5: Compute Substrate (Local VM/Container)
+
+**Goal:** The agent runs on a full desktop on your hardware, not a cloud VM.
+
+**Deliverables:**
+- [ ] Docker-based desktop container (XFCE/LXDE)
+- [ ] Pre-configured SAS template image
+- [ ] Container lifecycle manager (boot, capture, click, type, destroy)
+- [ ] Integration with ARGO's computer-use tools
+- [ ] Resource limits and auto-destroy
+- [ ] Unit + integration tests
+
+**Exit criteria:** `python -m sas substrate boot` spins up a local desktop container the agent can operate.
+
+---
+
+## Phase 6: Identity Adapters
+
+**Goal:** AgentMail and AgentPhone behind local adapters.
+
+**Deliverables:**
+- [ ] Email identity adapter (AgentMail API)
+- [ ] Phone identity adapter (AgentPhone API)
+- [ ] Local dev alternatives (Mailpit, mock telephony)
+- [ ] Webhook handler for incoming email/SMS
+- [ ] Unit + integration tests
+
+**Exit criteria:** The agent can send/receive email and SMS via the local adapter.
+
+---
+
+## Phase 7: Integration + Hardening
+
+**Goal:** All layers work together, production-ready.
+
+**Deliverables:**
+- [ ] End-to-end integration tests (all 8 layers)
+- [ ] Performance benchmarks (compile step latency, graph query latency)
+- [ ] Security audit (credential vault, inter-layer communication)
+- [ ] Documentation: deployment guide, operations runbook
+- [ ] Example configurations (agency worker, personal assistant, industry analyst)
+- [ ] Release v0.1.0
+
+**Exit criteria:** A user can `pip install sovereign-agent-stack`, configure `sas.yaml`, and run a sovereign agent with all 8 layers operational.
+
+---
+
+## Phase 8: Ecosystem
+
+**Goal:** The stack is extensible by the community.
+
+**Deliverables:**
+- [ ] Plugin system for custom layer implementations
+- [ ] Community layer registry (share implementations)
+- [ ] ARGO skill pack for SAS integration
+- [ ] Homebrew/apt/chocolatey packages
+- [ ] Release v1.0.0
+
+---
+
+## Out of Scope (For Now)
+
+- **Self-hosted model training/fine-tuning.** Use Ollama + GGUF. The model layer is a commodity.
+- **Self-hosted telephony infrastructure.** Not feasible in 2026. Use AgentPhone.
+- **Self-hosted payment settlement.** Not feasible. Use Stripe MPP.
+- **Multi-tenant deployments.** SAS is single-tenant by design (one user, one agent, one sovereignty score).
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). We welcome contributions to any phase. Phase 1 (Core) is the best place to start.
