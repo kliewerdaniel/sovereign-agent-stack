@@ -1,4 +1,4 @@
-# Sovereign Agent Stack (SAS) v0.1.0
+# Sovereign Agent Stack (SAS) v1.0.0
 
 > *"The model becoming free doesn't mean intelligence becomes sovereign. It just relocates the rent."*
 > — Daniel Kliewer, [The Rented Sovereign](https://www.danielkliewer.com/blog/2026-09-04-the-rented-sovereign-agent-agency-stack)
@@ -22,7 +22,7 @@ Every agentic AI system can be decomposed into 8 independent layers:
 
 **Default sovereignty score: 6/8 owned** vs. 2/9 in the typical agency stack.
 
-## What's in v0.1.0
+## What's in v1.0.0
 
 - **7-layer sovereignty model** — formalized in `docs/ARCHITECTURE.md`
 - **Compile-time knowledge graph** — the Obsidian layer, done intentionally (not accidentally)
@@ -30,9 +30,12 @@ Every agentic AI system can be decomposed into 8 independent layers:
 - **Payments abstraction** — swap from "Ramp card + computer-use" to Stripe MPP with a config change
 - **Compute substrate** — local Docker container lifecycle manager
 - **Identity adapters** — AgentMail + AgentPhone with mock dev alternatives
+- **Plugin system** — community-built layer implementations with priority-based override
+- **MCP server** — ARGO harness integration via MCP protocol
 - **Sovereignty dashboard** — a living, scored audit of which layers you own vs. rent
-- **96 unit tests + 23 integration tests + 14 benchmarks**
+- **156 unit tests + 23 integration tests + 14 benchmarks**
 - **3 example configurations** — agency worker, personal assistant, industry analyst
+- **Package manager distribution** — Homebrew, apt, Chocolatey, Docker
 
 ## Quick Start
 
@@ -136,6 +139,10 @@ python -m pytest tests/benchmarks/ -v
 - [Deployment](docs/DEPLOYMENT.md) — Production deployment guide
 - [Runbook](docs/RUNBOOK.md) — Operations and incident response
 - [Security](docs/SECURITY.md) — Security audit and hardening roadmap
+- [Plugins](docs/PLUGINS.md) — Plugin development guide
+- [Layer Registry](docs/LAYER_REGISTRY.md) — Community layer registry
+- [ARGO Skill Pack](docs/ARGO_SKILL_PACK.md) — ARGO harness integration
+- [Packages](docs/PACKAGES.md) — Package manager distribution
 
 ## Roadmap
 
