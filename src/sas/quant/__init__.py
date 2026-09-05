@@ -39,6 +39,13 @@ from sas.quant.worlds.portfolio_intelligence import (
     PORTFOLIO_INTELLIGENCE_GOLD,
 )
 from sas.quant.worlds.adversarial import ADVERSTIONAL_WORLDS
+from sas.quant.toolbox import QuantToolbox, ToolDefinition, create_toolbox_from_world
+from sas.quant.model import (
+    ModelAdapter, ToolFormatter, ToolCallRequest, ToolCallResult,
+    ModelResponse,
+    OllamaModelAdapter, OpenAIModelAdapter, StubModelAdapter,
+    create_model_adapter,
+)
 from sas.quant.lifecycle import ResearchLifecycle, ResearchStage, TRANSITIONS
 from sas.quant.agents import (
     QuantAgent, AgentCapabilities,
@@ -78,5 +85,9 @@ __all__ = [
     "PORTFOLIO_INTELLIGENCE_RUBRIC",
     "PORTFOLIO_INTELLIGENCE_GOLD",
     "ADVERSTIONAL_WORLDS",
+    "QuantToolbox", "ToolDefinition", "create_toolbox_from_world",
+    "ToolFormatter", "ToolCallRequest", "ToolCallResult", "ModelResponse",
+    "OllamaModelAdapter", "OpenAIModelAdapter", "StubModelAdapter",
+    "create_model_adapter",
     "register",
 ]

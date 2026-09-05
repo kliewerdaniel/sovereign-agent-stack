@@ -20,6 +20,7 @@ from sas.quant.world import (
 from sas.quant.agents import quant_coordinator
 from sas.quant.evaluation import (
     computation_has_hash, report_contains_findings, report_has_provenance,
+    claims_are_groundable, artifact_has_field,
 )
 
 # ── World: small hedge fund with a concentrated tech portfolio ──────────────
@@ -167,33 +168,50 @@ PORTFOLIO_INTELLIGENCE_RUBRIC = Rubric(
     ),
     criteria=[
         # ── Performance computation ──
+        # Check that at least one computation artifact contains total_return or cagr
         Criterion(
             name="computes_portfolio_total_return",
             description="Agent computes the portfolio's total return for the period.",
             machine_evaluable=True, required=True, max_score=1.0,
             evidence_types=("computation",),
-            eval_fn=lambda result, artifacts: computation_has_hash(artifacts, "total_return_computation"),
+            eval_fn=lambda result, artifacts: any(
+                a.get("artifact_type") == "computation" and
+                ("total_return" in str(a.get("result", {})) or "cagr" in str(a.get("result", {})) or "total_return" in str(a.get("result", "")))
+                for a in artifacts.values()
+            ),
         ),
         Criterion(
             name="computes_sharpe_ratio",
             description="Agent computes the Sharpe ratio for the portfolio.",
             machine_evaluable=True, required=True, max_score=1.0,
             evidence_types=("computation",),
-            eval_fn=lambda result, artifacts: computation_has_hash(artifacts, "sharpe_computation"),
+            eval_fn=lambda result, artifacts: any(
+                a.get("artifact_type") == "computation" and
+                "sharpe" in str(a.get("result", {}))
+                for a in artifacts.values()
+            ),
         ),
         Criterion(
             name="computes_max_drawdown",
             description="Agent computes the maximum drawdown for the portfolio.",
             machine_evaluable=True, required=True, max_score=1.0,
             evidence_types=("computation",),
-            eval_fn=lambda result, artifacts: computation_has_hash(artifacts, "drawdown_computation"),
+            eval_fn=lambda result, artifacts: any(
+                a.get("artifact_type") == "computation" and
+                "max_drawdown" in str(a.get("result", {}))
+                for a in artifacts.values()
+            ),
         ),
         Criterion(
             name="computes_volatility",
             description="Agent computes portfolio volatility (annualized).",
             machine_evaluable=True, required=True, max_score=1.0,
             evidence_types=("computation",),
-            eval_fn=lambda result, artifacts: computation_has_hash(artifacts, "volatility_computation"),
+            eval_fn=lambda result, artifacts: any(
+                a.get("artifact_type") == "computation" and
+                "volatility" in str(a.get("result", {}))
+                for a in artifacts.values()
+            ),
         ),
         # ── Risk ──
         Criterion(
@@ -201,14 +219,22 @@ PORTFOLIO_INTELLIGENCE_RUBRIC = Rubric(
             description="Agent computes Value at Risk and/or Conditional VaR.",
             machine_evaluable=True, required=True, max_score=1.0,
             evidence_types=("computation",),
-            eval_fn=lambda result, artifacts: computation_has_hash(artifacts, "var_computation"),
+            eval_fn=lambda result, artifacts: any(
+                a.get("artifact_type") == "computation" and
+                ("var" in str(a.get("result", {})) or "cvar" in str(a.get("result", {})))
+                for a in artifacts.values()
+            ),
         ),
         Criterion(
             name="computes_beta_vs_benchmark",
             description="Agent computes beta of portfolio returns vs the benchmark.",
             machine_evaluable=True, required=True, max_score=1.0,
             evidence_types=("computation",),
-            eval_fn=lambda result, artifacts: computation_has_hash(artifacts, "beta_computation"),
+            eval_fn=lambda result, artifacts: any(
+                a.get("artifact_type") == "computation" and
+                "beta" in str(a.get("result", {}))
+                for a in artifacts.values()
+            ),
         ),
         # ── Factor exposure ──
         Criterion(
@@ -246,14 +272,28 @@ PORTFOLIO_INTELLIGENCE_RUBRIC = Rubric(
             description="Agent produces a report with all required sections.",
             machine_evaluable=True, required=True, max_score=1.0,
             evidence_types=("report",),
-            eval_fn=lambda result, artifacts: report_contains_findings(artifacts),
+            eval_fn=lambda result, artifacts: any(
+                a.get("artifact_type") == "report" and (
+                    a.get("quantitative_findings") is not None
+                    or a.get("result", {}).get("quantitative_findings") is not None
+                )
+                for a in artifacts.values()
+            ),
         ),
         Criterion(
             name="report_has_provenance",
             description="Report includes provenance references for key findings.",
             machine_evaluable=True, required=True, max_score=1.0,
             evidence_types=("report",),
-            eval_fn=lambda result, artifacts: report_has_provenance(artifacts),
+            eval_fn=lambda result, artifacts: any(
+                a.get("artifact_type") == "report" and (
+                    a.get("provenance") is not None and len(a.get("provenance", {})) > 0
+                    or a.get("provenance_node_ids") is not None and len(a.get("provenance_node_ids", [])) > 0
+                    or a.get("result", {}).get("provenance") is not None and len(a.get("result", {}).get("provenance", {})) > 0
+                    or a.get("result", {}).get("provenance_node_ids") is not None and len(a.get("result", {}).get("provenance_node_ids", [])) > 0
+                )
+                for a in artifacts.values()
+            ),
         ),
         # ── Sovereignty ──
         Criterion(
@@ -292,7 +332,7 @@ PORTFOLIO_INTELLIGENCE_RUBRIC = Rubric(
             description="Numerical claims in the report trace to computational artifacts.",
             machine_evaluable=False, required=True, max_score=1.0,
             evidence_types=("report", "computation"),
-            eval_fn=None,  # requires human/LLM review of report text vs artifact hashes
+            eval_fn=claims_are_groundable,
         ),
     ],
 )

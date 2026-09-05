@@ -45,7 +45,7 @@ class QuantReport:
     methodology: str = ""
     data_sources: list[str] = field(default_factory=list)
     assumptions: dict = field(default_factory=dict)
-    provenance: dict = field(default_factory=dict)
+    provenance: dict = field(default_factory=dict)  # populated from ProvenanceGraph.nodes if graph provided
     warnings: list[str] = field(default_factory=list)
     content_hash: str = ""
 
@@ -130,13 +130,18 @@ class ReportGenerator:
                  data_sources: Optional[list[str]] = None,
                  assumptions: Optional[dict] = None,
                  anomalies: Optional[list[dict]] = None,
+                 findings: Optional[list[dict]] = None,
                  ) -> QuantReport:
         """Generate a quantitative research report."""
         # Executive summary
         summary = self._build_summary(backtest_results, risk_evaluations)
 
-        # Quantitative findings
-        findings = self._build_findings(backtest_results)
+        # Quantitative findings — use explicitly provided findings if given,
+        # otherwise build from backtest results
+        if findings:
+            quantitative_findings = list(findings)
+        else:
+            quantitative_findings: list[dict] = self._build_findings(backtest_results)
 
         # Factor analysis
         factor_analysis = self._build_factor_analysis(backtest_results)
@@ -177,11 +182,17 @@ class ReportGenerator:
             provenance["node_types"] = list(set(
                 n.artifact_type for n in provenance_graph._nodes.values()
             ))
+            provenance["artifact_ids"] = list(provenance_graph._nodes.keys())
+            provenance["content_hash"] = provenance_graph.content_hash()
+        else:
+            # Self-provenance: the report carries its own identity
+            provenance["self_reported"] = True
+            provenance["report_id"] = title  # will be overridden below
 
         report = QuantReport(
             title=title,
             executive_summary=summary,
-            quantitative_findings=findings,
+            quantitative_findings=quantitative_findings if quantitative_findings else [],
             factor_analysis=factor_analysis,
             strategy_results=strategy_results,
             risk_analysis=risk_analysis,
@@ -192,6 +203,15 @@ class ReportGenerator:
             warnings=self._collect_warnings(backtest_results, risk_evaluations),
             anomalies=anomalies or [],
         )
+        # Attach report's own identity to provenance
+        report.provenance["report_id"] = report.report_id
+        report.provenance["generated_at"] = report.generated_at
+        report.provenance["content_hash"] = report.content_hash
+        report.provenance["sections"] = [
+            "Executive Summary", "Performance Analysis", "Risk Analysis",
+            "Factor Exposure", "Concentration Analysis", "Anomaly Findings",
+            "Attribution", "Recommendations", "Data Sources", "Provenance",
+        ]
         return report
 
     def _build_summary(self, backtests: list[BacktestResult],

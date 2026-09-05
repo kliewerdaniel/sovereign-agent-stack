@@ -47,21 +47,109 @@ def artifact_has_field(artifacts: dict, artifact_type: str, field_name: str,
 
 
 def report_contains_findings(artifacts: dict) -> bool:
-    """Check that a report artifact contains quantitative findings."""
+    """Check that a report artifact contains quantitative findings.
+
+    Toolbox stores report data nested under ``result`` -- drill into it.
+    """
     for a in artifacts.values():
         if a.get("artifact_type") == "report":
-            findings = a.get("findings") or a.get("quantitative_findings") or []
-            return len(findings) > 0
+            # The artifact dict itself may carry findings at top level (legacy),
+            # or the report data may be nested under ``result`` (toolbox convention).
+            findings = (
+                a.get("findings")
+                or a.get("quantitative_findings")
+                or (a.get("result") or {}).get("findings")
+                or (a.get("result") or {}).get("quantitative_findings")
+                or []
+            )
+            if findings:
+                return True
     return False
 
 
 def report_has_provenance(artifacts: dict) -> bool:
-    """Check that a report artifact includes provenance information."""
+    """Check that a report artifact includes provenance information.
+
+    Toolbox stores report data nested under ``result`` -- drill into it.
+    """
     for a in artifacts.values():
         if a.get("artifact_type") == "report":
-            prov = a.get("provenance") or a.get("provenance_node_ids") or []
-            return len(prov) > 0
+            prov = (
+                a.get("provenance")
+                or a.get("provenance_node_ids")
+                or (a.get("result") or {}).get("provenance")
+                or (a.get("result") or {}).get("provenance_node_ids")
+                or []
+            )
+            if prov:
+                return True
     return False
+
+
+def claims_are_groundable(result: Any, artifacts: dict) -> bool:
+    """Check that numerical claims in the report trace to computation artifacts.
+
+    Each quantitative finding in the report artifact (name + value) should
+    correspond to at least one registered computation artifact that carries a
+    content_hash, forming a groundable lineage.  Machine-evaluable structural
+    check: enough for stub- and deterministic-model runs; LLM-based semantic
+    review of exact value-match is a future enhancement.
+    """
+    # 1. Find the report artifact
+    report = None
+    for a in artifacts.values():
+        if a.get("artifact_type") == "report":
+            report = a
+            break
+    if report is None:
+        return False
+
+    # 2. Extract quantitative findings from either top-level or result sub-dict
+    top_level_findings = report.get("findings") or report.get("quantitative_findings") or []
+    result_findings = (report.get("result") or {}).get("findings") or \
+                      (report.get("result") or {}).get("quantitative_findings") or []
+    all_findings = top_level_findings + result_findings
+    if not all_findings:
+        return False
+
+    # 3. Collect every computation artifact that carries a content_hash
+    grounded_computations: set[str] = set()
+    for a in artifacts.values():
+        if a.get("artifact_type") == "computation" and a.get("content_hash"):
+            result_dict = a.get("result", {}) or {}
+            # Metric "name" is whichever non-empty descriptive key the artifact carries
+            metric_key = (result_dict.get("name") or
+                          result_dict.get("metric") or
+                          result_dict.get("symbol") or
+                          result_dict.get("tool") or "")
+            if metric_key:
+                grounded_computations.add(str(metric_key))
+
+    # 4. For each finding, check if any grounded computation covers it
+    for f in all_findings:
+        if not isinstance(f, dict):
+            continue
+        val = f.get("value")
+        if val is None:
+            continue
+        # Skip non-numerical findings
+        if not isinstance(val, (int, float)):
+            continue
+        name = (f.get("name") or
+                f.get("artifact_type") or
+                "unknown")
+        # A finding is grounded if its name matches a grounded computation,
+        # or if its artifact_type is computation and there exists any
+        # computation artifact with a content_hash.
+        if name in grounded_computations:
+            continue
+        if f.get("artifact_type") == "computation" and grounded_computations:
+            continue
+        # Finding not traceable → fail
+        return False
+
+    # 5. At least one grounded computation must exist
+    return len(grounded_computations) > 0
 
 
 def computation_has_hash(artifacts: dict, artifact_type: str) -> bool:
