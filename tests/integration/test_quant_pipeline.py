@@ -32,8 +32,14 @@ from sas.quant import (
     PORTFOLIO_INTELLIGENCE_RUBRIC,
 )
 
+from sas.quant.market import MarketDataProvider, DatasetInfo
+
 
 # ── Synthetic Data Generator ──────────────────────────────────────────────────
+
+_SYNTHETIC_START = "2024-01-02"
+_SYNTHETIC_END = "2024-12-31"
+
 
 def generate_synthetic_prices(symbol: str, start: str, end: str,
                                seed: int = 42) -> pd.DataFrame:
@@ -58,13 +64,64 @@ def generate_synthetic_prices(symbol: str, start: str, end: str,
     return df
 
 
+class SyntheticProvider(MarketDataProvider):
+    """In-memory synthetic price source for CI / offline pipeline tests.
+
+    Returned frames carry a tz-naive UTC index so they are
+    indistinguishable from cached yfinance / stooq / alpaca frames
+    downstream (the pipeline's `get_prices` helpers strip TZinfo).
+    """
+
+    def __init__(self, data: dict[str, pd.DataFrame],
+                 source_version: str = "test-1.0"):
+        self._data = data
+        self._source_version = source_version
+
+    def get_prices(self, symbol: str, start: str, end: str) -> pd.DataFrame:
+        if symbol not in self._data:
+            return pd.DataFrame()
+        df = self._data[symbol]
+        mask = (df.index >= start) & (df.index <= end)
+        return df[mask]
+
+    def get_bars(self, symbol: str, start: str, end: str,
+                 interval: str = "1d") -> pd.DataFrame:
+        return self.get_prices(symbol, start, end)
+
+    def validate(self, symbol: str, start: str, end: str) -> dict:
+        df = self.get_prices(symbol, start, end)
+        issues: list[str] = []
+        if df.empty:
+            issues.append("No data found")
+        if df.isnull().any().any():
+            issues.append("Contains null values")
+        if (df["high"] < df["low"]).any():
+            issues.append("High < Low violations")
+        return {
+            "symbol": symbol,
+            "valid": len(issues) == 0,
+            "issues": issues,
+            "rows": len(df),
+        }
+
+    def source_info(self) -> DatasetInfo:
+        return DatasetInfo(
+            source="synthetic",
+            version=self._source_version,
+            symbols=list(self._data.keys()),
+            start_date=_SYNTHETIC_START,
+            end_date=_SYNTHETIC_END,
+            row_count=sum(len(d) for d in self._data.values()),
+        )
+
+
 def create_test_data_provider(world: QuantWorld) -> dict[str, pd.DataFrame]:
     """Create synthetic price data for all universe symbols."""
-    start = "2024-01-02"
-    end = "2024-12-31"
-    data = {}
+    data: dict[str, pd.DataFrame] = {}
     for i, sym in enumerate(world.universe):
-        data[sym] = generate_synthetic_prices(sym, start, end, seed=42 + i)
+        data[sym] = generate_synthetic_prices(
+            sym, _SYNTHETIC_START, _SYNTHETIC_END, seed=42 + i
+        )
     return data
 
 
@@ -185,55 +242,44 @@ def create_portfolio_intelligence_script() -> list[dict]:
 
 # ── Run the Full Pipeline ────────────────────────────────────────────────────
 
-def run_portfolio_intelligence_pipeline() -> dict:
-    """Run the full pipeline: world → toolbox → model → evaluation."""
+
+def run_portfolio_intelligence_pipeline(
+    data_provider: MarketDataProvider | None = None,
+) -> dict:
+    """Run the full pipeline: world → toolbox → model → evaluation.
+
+    Parameters
+    ----------
+    data_provider:
+        If ``None`` (default), the pipeline runs against an in-memory
+        ``SyntheticProvider`` — deterministic and CI-safe.
+
+        If passed, the toolbox is wired to that provider directly.
+        In dev, call with e.g.
+        ``YFinanceProvider(symbols=..., start=..., end=...)``
+        to run the scripted model against real downloaded data.
+        Credentials-optional adapters (Stooq, YFinance, Alpaca when
+        creds absent) will return empty frames if blocked — the
+        scripted model still completes, but toolbox metrics reflect
+        live endpoint reality rather than synthetic noise.
+    """
     # 1. Load the world + task + rubric
     world = PORTFOLIO_INTELLIGENCE_WORLD
     task = PORTFOLIO_INTELLIGENCE_TASK
     rubric = PORTFOLIO_INTELLIGENCE_RUBRIC
 
-    # 2. Create synthetic data provider
-    data = create_test_data_provider(world)
-
-    # 3. Create toolbox configured for the world
+    # 2. Create toolbox configured for the world
     toolbox = create_toolbox_from_world(
         world,
         seed=42,
     )
 
-    # Inject synthetic data into toolbox
-    from sas.quant.market import MarketDataProvider, DatasetInfo
+    # 3. Wire the data provider
+    if data_provider is None:
+        data = create_test_data_provider(world)
+        data_provider = SyntheticProvider(data)
 
-    class SyntheticProvider(MarketDataProvider):
-        def __init__(self, data: dict[str, pd.DataFrame]):
-            self._data = data
-        def get_prices(self, symbol, start, end):
-            if symbol not in self._data:
-                return pd.DataFrame()
-            df = self._data[symbol]
-            mask = (df.index >= start) & (df.index <= end)
-            return df[mask]
-        def get_bars(self, symbol, start, end, interval="1d"):
-            return self.get_prices(symbol, start, end)
-        def validate(self, symbol, start, end):
-            df = self.get_prices(symbol, start, end)
-            issues = []
-            if df.empty:
-                issues.append("No data found")
-            if df.isnull().any().any():
-                issues.append("Contains null values")
-            if (df["high"] < df["low"]).any():
-                issues.append("High < Low violations")
-            return {"symbol": symbol, "valid": len(issues) == 0, "issues": issues, "rows": len(df)}
-        def source_info(self):
-            return DatasetInfo(
-                source="synthetic", version="test-1.0",
-                symbols=list(self._data.keys()),
-                start_date="2024-01-02", end_date="2024-12-31",
-                row_count=sum(len(d) for d in self._data.values())
-            )
-
-    toolbox.data_provider = SyntheticProvider(data)
+    toolbox.data_provider = data_provider
 
     # 4. Create stub model with the scripted workflow
     script = create_portfolio_intelligence_script()
@@ -294,8 +340,12 @@ if __name__ == "__main__":
     print("Sovereign Quant — End-to-End Pipeline Test")
     print("=" * 60)
 
-    result = run_portfolio_intelligence_pipeline()
+    provider = SyntheticProvider(
+        create_test_data_provider(PORTFOLIO_INTELLIGENCE_WORLD)
+    )
+    result = run_portfolio_intelligence_pipeline(data_provider=provider)
 
+    print(f"\nData Provider: {result['model_loop_result'].get('data_provider', 'synthetic')}")
     print(f"\nWorld: {result['world_id']}")
     print(f"Task: {result['task_id']}")
     print(f"Run: {result['run_id']}")
