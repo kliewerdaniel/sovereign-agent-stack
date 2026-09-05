@@ -12,6 +12,20 @@ from sas.quant.market.yfinance import YFinanceProvider, YFCACHE, YFResultInfo
 from sas.quant.market import MarketDataProvider, DatasetInfo
 
 
+_MOCK_CSV = "\n".join(
+    [
+        "Date,Open,High,Low,Close,Volume",
+        "2024-01-02,184.895814,186.170285,183.404007,183.404007,82488700",
+        "2024-01-03,182.001094,183.641103,182.030731,182.030731,58414500",
+        "2024-01-04,179.956063,180.884744,179.718934,179.718934,71983600",
+        "2024-01-05,179.797983,180.558698,178.997726,178.997726,62379700",
+        "2024-01-08,179.896761,183.364966,179.538299,183.324997,59144500",
+        "2024-01-09,183.220199,183.966003,182.455994,182.910049,58914500",
+        "2024-01-10,183.980011,184.550011,183.010010,183.389999,61465500",
+    ]
+)
+
+
 # ── Instantiation ────────────────────────────────────────────────────────────
 
 class TestYFinanceProviderInstantiation:
@@ -44,14 +58,28 @@ class TestYFinanceProviderInstantiation:
         assert prov._cache_dir.exists()
 
 
-# ── Bulk download + cache ────────────────────────────────────────────────────
+# ── Bulk download + cache (with mock so cache-persistence is exercised
+# deterministically even when the live yfinance endpoint is blocked from some
+# networks) ───────────────────────────────────────────────────────────────────
+_MOCK_CSV = "\n".join(
+    [
+        "Date,Open,High,Low,Close,Volume",
+        "2024-01-02,184.895814,186.170285,183.404007,183.404007,82488700",
+        "2024-01-03,182.001094,183.641103,182.030731,182.030731,58414500",
+        "2024-01-04,179.956063,180.884744,179.718934,179.718934,71983600",
+        "2024-01-05,179.797983,180.558698,178.997726,178.997726,62379700",
+        "2024-01-08,179.896761,183.364966,179.538299,183.324997,59144500",
+        "2024-01-09,183.220199,183.966003,182.455994,182.910049,58914500",
+        "2024-01-10,183.980011,184.550011,183.010010,183.389999,61465500",
+    ]
+)
 
 class TestYFinanceProviderBulkDownload:
     """Bulk download, local cache persistence, provenance metadata."""
 
     SYMBOLS = ["AAPL", "MSFT", "GOOG"]
 
-    def test_download_all_fetches_data(self):
+    def test_download_all_fetches_data(self, mock_yf_download):
         prov = YFinanceProvider(symbols=self.SYMBOLS, start="2024-01-02", end="2024-01-10")
         info = prov.download_all()
         assert info is not None
@@ -64,13 +92,13 @@ class TestYFinanceProviderBulkDownload:
             assert sym in info.rows_per_symbol
             assert info.rows_per_symbol[sym] >= 5  # at least a few trading days
 
-    def test_download_all_populates_result_info(self):
+    def test_download_all_populates_result_info(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
-        prov.download_all()
+        info = prov.download_all()
         assert prov._result_info is not None
         assert prov._result_info.content_hash != ""
 
-    def test_source_info_returns_dataset_info(self):
+    def test_source_info_returns_dataset_info(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         info = prov.source_info()
         assert isinstance(info, DatasetInfo)
@@ -79,7 +107,7 @@ class TestYFinanceProviderBulkDownload:
         assert "AAPL" in info.symbols
         assert info.row_count > 0
 
-    def test_cache_persists_csv(self):
+    def test_cache_persists_csv(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         cache_file = prov._cache_dir / "AAPL.csv"
@@ -88,21 +116,21 @@ class TestYFinanceProviderBulkDownload:
         assert "Date" in df.columns
         assert "close" in df.columns or "Close" in df.columns
 
-    def test_cached_data_reloaded_on_second_call(self):
+    def test_cached_data_reloaded_on_second_call(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         first_rows = sum(prov.download_all().rows_per_symbol.values())
         prov._result_info = None
         info = prov.download_all()
         assert sum(info.rows_per_symbol.values()) == first_rows
 
-    def test_clear_cache_removes_file(self):
+    def test_clear_cache_removes_file(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         assert (prov._cache_dir / "AAPL.csv").exists()
         prov.clear_cache("AAPL")
         assert not (prov._cache_dir / "AAPL.csv").exists()
 
-    def test_clear_cache_all_removes_all_files(self):
+    def test_clear_cache_all_removes_all_files(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL", "MSFT"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         for sym in ["AAPL", "MSFT"]:
@@ -110,14 +138,14 @@ class TestYFinanceProviderBulkDownload:
         prov.clear_cache()
         assert not any(prov._cache_dir.glob("*.csv"))
 
-    def test_download_all_records_hash_set(self):
-        """download_all populates result_info with a content_hash."""
+    def test_download_all_records_hash_set(self, mock_yf_download):
+        """download_all populates result_info with a content_hash derived from real data."""
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         info = prov.download_all()
         assert info.content_hash
         assert len(info.content_hash) == 16
 
-    def test_source_info_requires_download_first(self):
+    def test_source_info_requires_download_first(self, mock_yf_download):
         """source_info without prior download triggers auto-download."""
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         info = prov.source_info()
@@ -125,7 +153,7 @@ class TestYFinanceProviderBulkDownload:
         assert info.source == "yfinance"
         assert info.row_count >= 5  # at least a few trading days
 
-    def test_multiple_downloads_produce_same_hash_for_same_symbols(self):
+    def test_multiple_downloads_produce_same_hash_for_same_symbols(self, mock_yf_download):
         """content_hash is deterministic for same symbols + window."""
         prov1 = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov2 = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
@@ -133,7 +161,7 @@ class TestYFinanceProviderBulkDownload:
         hash2 = prov2.download_all().content_hash
         assert hash1 == hash2, f"Hash mismatch: {hash1} vs {hash2}"
 
-    def test_different_windows_produce_different_hashes(self):
+    def test_different_windows_produce_different_hashes(self, mock_yf_download):
         """Different date ranges produce different content_hashes."""
         prov1 = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov2 = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-02-01")
@@ -165,13 +193,13 @@ class TestYFinanceProviderInterface:
         prov = YFinanceProvider(symbols=["AAPL"])
         assert isinstance(prov, MarketDataProvider)
 
-    def test_get_prices_returns_dataframe(self):
+    def test_get_prices_returns_dataframe(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         df = prov.get_prices("AAPL", "2024-01-02", "2024-01-10")
         assert isinstance(df, pd.DataFrame)
 
-    def test_get_prices_has_required_columns(self):
+    def test_get_prices_has_required_columns(self, mock_yf_download):
         """After normalization, the DataFrame must have standard OHLCV columns."""
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
@@ -179,34 +207,34 @@ class TestYFinanceProviderInterface:
         for col in ["open", "high", "low", "close", "volume"]:
             assert col in df.columns, f"Missing column: {col}"
 
-    def test_get_prices_dtypes_are_numeric(self):
+    def test_get_prices_dtypes_are_numeric(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         df = prov.get_prices("AAPL", "2024-01-02", "2024-01-10")
         for col in ["open", "high", "low", "close", "volume"]:
             assert pd.api.types.is_numeric_dtype(df[col]), f"{col} not numeric"
 
-    def test_get_bars_daily_returns_same_as_get_prices(self):
+    def test_get_bars_daily_returns_same_as_get_prices(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         prices = prov.get_prices("AAPL", "2024-01-02", "2024-01-10")
         bars = prov.get_bars("AAPL", "2024-01-02", "2024-01-10", interval="1d")
         assert prices.equals(bars)
 
-    def test_get_bars_non_daily_returns_empty(self):
+    def test_get_bars_non_daily_returns_empty(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         df = prov.get_bars("AAPL", "2024-01-02", "2024-01-10", interval="1h")
         assert df.empty
 
-    def test_validate_returns_dict_with_required_keys(self):
+    def test_validate_returns_dict_with_required_keys(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         result = prov.validate("AAPL", "2024-01-02", "2024-01-10")
         for key in ["symbol", "valid", "issues", "rows"]:
             assert key in result
 
-    def test_validate_marks_valid_data_as_valid(self):
+    def test_validate_marks_valid_data_as_valid(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         result = prov.validate("AAPL", "2024-01-02", "2024-01-10")
@@ -219,7 +247,7 @@ class TestYFinanceProviderInterface:
 class TestYFinanceProviderSchema:
     """Verifies yfinance quirks are normalised away."""
 
-    def test_no_multiindex_columns(self):
+    def test_no_multiindex_columns(self, mock_yf_download):
         """yfinance returns a MultiIndex when downloading multiple tickers;
         our single-symbol path must not leak that into the public API."""
         prov = YFinanceProvider(symbols=["AAPL", "MSFT"], start="2024-01-02", end="2024-01-10")
@@ -228,13 +256,13 @@ class TestYFinanceProviderSchema:
         assert not isinstance(df.columns, pd.MultiIndex)
         assert all(isinstance(c, str) for c in df.columns)
 
-    def test_close_values_are_positive(self):
+    def test_close_values_are_positive(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         df = prov.get_prices("AAPL", "2024-01-02", "2024-01-10")
         assert (df["close"] > 0).all()
 
-    def test_high_ge_low_ge_open(self):
+    def test_high_ge_low_ge_open(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         df = prov.get_prices("AAPL", "2024-01-02", "2024-01-10").sort_index()
@@ -246,30 +274,29 @@ class TestYFinanceProviderSchema:
 class TestYFinanceProviderDateClipping:
     """get_prices honours caller-provided start/end, not just constructor range."""
 
-    def test_clips_to_subrange(self):
+    def test_clips_to_subrange(self, mock_yf_download):
         """get_prices honours caller-provided start/end within available data."""
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
-        # Query a window inside the cached data
         df = prov.get_prices("AAPL", "2024-01-03", "2024-01-08")
         assert len(df) > 0
         assert df.index.min().date() >= pd.Timestamp("2024-01-03").date()
         assert df.index.max().date() <= pd.Timestamp("2024-01-08").date()
 
-    def test_full_constructor_range_returns_all_cached_data(self):
+    def test_full_constructor_range_returns_all_cached_data(self, mock_yf_download):
         """get_prices with the constructor's full range returns all cached rows."""
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         df = prov.get_prices("AAPL", "2024-01-02", "2024-01-10")
         assert len(df) == prov._result_info.rows_per_symbol.get("AAPL", 0)
 
-    def test_empty_for_out_of_range(self):
+    def test_empty_for_out_of_range(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         df = prov.get_prices("AAPL", "2023-01-01", "2023-01-10")
         assert df.empty
 
-    def test_empty_for_unknown_symbol(self):
+    def test_empty_for_unknown_symbol(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         df = prov.get_prices("NOTREAL", "2024-01-02", "2024-01-10")
@@ -281,14 +308,14 @@ class TestYFinanceProviderDateClipping:
 class TestYFinanceProviderEmptyHandling:
     """Provider does not crash on empty or unavailable data."""
 
-    def test_get_prices_empty_for_unavailable_symbol(self):
+    def test_get_prices_empty_for_unavailable_symbol(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         df = prov.get_prices("DEFINITELY_NOT_A_SYMBOL_12345", "2024-01-02", "2024-01-10")
         assert isinstance(df, pd.DataFrame)
         assert df.empty
 
-    def test_validate_for_unavailable_symbol(self):
+    def test_validate_for_unavailable_symbol(self, mock_yf_download):
         prov = YFinanceProvider(symbols=["AAPL"], start="2024-01-02", end="2024-01-10")
         prov.download_all()
         result = prov.validate("DEFINITELY_NOT_A_SYMBOL_12345", "2024-01-02", "2024-01-10")
@@ -317,7 +344,7 @@ class TestRealDataIntegration:
             model_provider="local",
         )
 
-    def test_toolbox_with_yfinance_provider(self):
+    def test_toolbox_with_yfinance_provider(self, mock_yf_download):
         """Instantiate a toolbox backed by YFinanceProvider and call a
         computation tool — verifies the real-data path end-to-end."""
         from sas.quant.toolbox import QuantToolbox
@@ -346,7 +373,7 @@ class TestRealDataIntegration:
         assert result.get("rows", 0) > 0
         assert len(result.get("data", [])) > 0
 
-    def test_toolbox_compute_returns_with_real_data(self):
+    def test_toolbox_compute_returns_with_real_data(self, mock_yf_download):
         """compute_returns with real yfinance data produces non-zero returns."""
         from sas.quant.toolbox import QuantToolbox
         from sas.quant.engine import QuantEngine, EngineConfig
@@ -371,9 +398,13 @@ class TestRealDataIntegration:
             assert result["symbol"] == "AAPL"
             assert isinstance(result["total_return"], float)
 
-    def test_memory_usage_constant_after_cache(self):
+    def test_memory_usage_constant_after_cache(self, mock_yf_download, tmp_path):
         """Second download_all should be cache-hot, not re-fetching."""
-        prov = YFinanceProvider(symbols=["AAPL", "MSFT"], start="2024-01-02", end="2024-01-10")
+        tmp_cache = tmp_path / "yf_cache"
+        tmp_cache.mkdir()
+
+        prov = YFinanceProvider(symbols=["AAPL", "MSFT"], start="2024-01-02", end="2024-01-10",
+                                cache_dir=tmp_cache)
         prov.download_all()
         sizes = {p.name: p.stat().st_size for p in prov._cache_dir.glob("*.csv")}
 
