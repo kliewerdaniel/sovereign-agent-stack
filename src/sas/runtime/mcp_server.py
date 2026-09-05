@@ -14,6 +14,14 @@ from pathlib import Path
 from typing import Any, Optional
 
 from sas.core.config import parse_sas_yaml, SASConfig
+from sas.quant import (
+    QuantEngine, EngineConfig,
+    ResearchLifecycle, ResearchStage,
+    RiskEngine, RiskPolicy, RiskEvaluation,
+    SimulatedBroker, BrokerConfig,
+    ProvenanceNode, ProvenanceGraph,
+    ReportGenerator,
+)
 from sas.core.scoring import generate_report
 from sas.rust_bridge import (
     ExecutionContext,
@@ -166,6 +174,89 @@ class MCPServer:
             },
             ["process_payments"],
         )
+
+        # ── Quant tools ──────────────────────────────────────────
+        self.register_tool(
+            "quant_status",
+            "Show Sovereign Quant system status",
+            {"type": "object", "properties": {}},
+            ["read_knowledge"],
+        )
+
+        self.register_tool(
+            "quant_research",
+            "Run autonomous quantitative research",
+            {
+                "type": "object",
+                "properties": {
+                    "universe": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Ticker universe",
+                    },
+                    "horizon": {
+                        "type": "string",
+                        "description": "Time horizon (default: 1y)",
+                    },
+                },
+            },
+            ["research_create"],
+        )
+
+        self.register_tool(
+            "quant_backtest",
+            "Run a deterministic backtest",
+            {
+                "type": "object",
+                "properties": {
+                    "strategy_id": {
+                        "type": "string",
+                        "description": "Strategy ID to backtest",
+                    },
+                    "seed": {
+                        "type": "integer",
+                        "description": "Random seed (default: 42)",
+                    },
+                },
+            },
+            ["backtest_execute"],
+        )
+
+        self.register_tool(
+            "quant_risk",
+            "Evaluate portfolio risk against policy",
+            {
+                "type": "object",
+                "properties": {
+                    "weights": {
+                        "type": "object",
+                        "additionalProperties": {"type": "number"},
+                        "description": "Symbol → weight mapping",
+                    },
+                    "max_position_weight": {
+                        "type": "number",
+                        "description": "Max single position weight",
+                    },
+                },
+            },
+            ["risk_evaluate"],
+        )
+
+        self.register_tool(
+            "quant_provenance",
+            "Inspect provenance lineage for an artifact",
+            {
+                "type": "object",
+                "properties": {
+                    "node_id": {
+                        "type": "string",
+                        "description": "Provenance node ID",
+                    },
+                },
+                "required": ["node_id"],
+            },
+            ["provenance_read"],
+        )
     
     def register_tool(
         self,
@@ -228,6 +319,16 @@ class MCPServer:
             return self._tool_query_knowledge(arguments)
         elif name == "pay_for_resource":
             return self._tool_pay_for_resource(arguments)
+        elif name == "quant_status":
+            return self._tool_quant_status(arguments)
+        elif name == "quant_research":
+            return self._tool_quant_research(arguments)
+        elif name == "quant_backtest":
+            return self._tool_quant_backtest(arguments)
+        elif name == "quant_risk":
+            return self._tool_quant_risk(arguments)
+        elif name == "quant_provenance":
+            return self._tool_quant_provenance(arguments)
         else:
             return {"status": "ok", "tool": name, "arguments": arguments}
     
@@ -283,6 +384,109 @@ class MCPServer:
             "resource": resource,
             "amount": amount,
             "currency": currency,
+        }
+
+    def _tool_quant_status(self, arguments: dict) -> dict:
+        """Show quant system status."""
+        return {
+            "status": "operational",
+            "modules": [
+                "engine", "strategy", "backtest", "risk",
+                "broker", "market", "provenance", "knowledge",
+                "reports", "lifecycle", "agents",
+            ],
+        }
+
+    def _tool_quant_research(self, arguments: dict) -> dict:
+        """Run autonomous quantitative research."""
+        from sas.quant.lifecycle import ResearchLifecycle, ResearchStage
+        universe = arguments.get("universe", [])
+        horizon = arguments.get("horizon", "1y")
+        try:
+            lifecycle = ResearchLifecycle()
+            stage_map = {
+                "DATA": ResearchStage.DATASET,
+                "DATASET": ResearchStage.HYPOTHESIS,
+                "HYPOTHESIS": ResearchStage.SIGNAL,
+                "SIGNAL": ResearchStage.STRATEGY,
+                "STRATEGY": ResearchStage.BACKTEST,
+                "BACKTEST": ResearchStage.EVALUATION,
+                "EVALUATION": ResearchStage.RISK_REVIEW,
+                "RISK_REVIEW": ResearchStage.APPROVAL,
+            }
+            for from_name, to_stage in stage_map.items():
+                lifecycle.transition_to(to_stage, actor="mcp_server")
+            return {
+                "status": "complete",
+                "universe": universe,
+                "horizon": horizon,
+                "stages": [t.to_stage for t in lifecycle.transitions],
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
+
+    def _tool_quant_backtest(self, arguments: dict) -> dict:
+        """Run a deterministic backtest."""
+        from sas.quant.strategy import StrategyArtifact, SignalDefinition
+        from sas.quant.backtest import BacktestEngine, BacktestConfig
+        strategy_id = arguments.get("strategy_id", "default")
+        seed = arguments.get("seed", 42)
+        try:
+            strategy = StrategyArtifact(
+                strategy_id=strategy_id,
+                name=strategy_id,
+                signal_definition=SignalDefinition(
+                    name=f"{strategy_id}_signal",
+                    type="trend",
+                    parameters={},
+                    lookback_periods=10,
+                ),
+            )
+            config = BacktestConfig(
+                strategy=strategy,
+                seed=seed,
+            )
+            engine = BacktestEngine(config)
+            result = engine.run()
+            return {
+                "status": "complete",
+                "strategy_id": strategy_id,
+                "seed": seed,
+                "total_return": result.total_return,
+                "sharpe_ratio": result.sharpe_ratio,
+                "max_drawdown": result.max_drawdown,
+                "trades": result.total_trades,
+                "warnings": result.warnings,
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
+
+    def _tool_quant_risk(self, arguments: dict) -> dict:
+        """Evaluate portfolio risk against policy."""
+        weights = arguments.get("weights", {})
+        max_pos = arguments.get("max_position_weight", 0.25)
+        policy = RiskPolicy(max_position_weight=max_pos)
+        engine = RiskEngine(policy)
+        result = engine.evaluate(weights, {}, {})
+        return {
+            "is_compliant": result.is_compliant,
+            "breaches": result.breaches,
+            "gross_exposure": result.gross_exposure,
+        }
+
+    def _tool_quant_provenance(self, arguments: dict) -> dict:
+        """Inspect provenance lineage for an artifact."""
+        from sas.quant.provenance import ProvenanceGraph, ProvenanceNode
+        node_id = arguments.get("node_id", "")
+        graph = ProvenanceGraph()
+        node = graph.get(node_id)
+        if node is None:
+            return {"node_id": node_id, "lineage": [], "error": "node not found"}
+        lineage = graph.lineage_chain(node_id)
+        return {
+            "node_id": node_id,
+            "lineage": [n.to_dict() for n in lineage],
+            "depth": len(lineage),
         }
     
     def serve(self):

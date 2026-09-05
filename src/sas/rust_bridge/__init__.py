@@ -248,7 +248,7 @@ class _PyAgentStateMachine:
     
     def __init__(self):
         self._current = "Idle"
-        self._history: list[dict] = []
+        self._history: list[_PyStateTransition] = []
     
     @property
     def current(self) -> str:
@@ -257,15 +257,13 @@ class _PyAgentStateMachine:
     def transition(self, to: str, reason: str | None = None) -> None:
         if to not in self.VALID_TRANSITIONS.get(self._current, []):
             raise ValueError(f"Invalid state transition: {self._current} -> {to}")
-        self._history.append({
-            "from": self._current,
-            "to": to,
-            "reason": reason,
-        })
+        self._history.append(
+            _PyStateTransition(self._current, to, reason)
+        )
         self._current = to
     
     @property
-    def history(self) -> list[dict]:
+    def history(self) -> list[_PyStateTransition]:
         return list(self._history)
     
     def can_transition_to(self, state: str) -> bool:
@@ -277,6 +275,42 @@ class _PyAgentStateMachine:
     
     def __repr__(self) -> str:
         return f"AgentStateMachine(current={self._current})"
+
+
+class _PyStateTransition:
+    """Pure Python fallback for StateTransition."""
+    
+    def __init__(
+        self,
+        from_state: str,
+        to_state: str,
+        timestamp: str | None = None,
+        reason: str | None = None,
+    ):
+        self.from_state = from_state
+        self.to_state = to_state
+        self.timestamp = timestamp
+        self.reason = reason
+    
+    @classmethod
+    def from_string(cls, s: str) -> "_PyStateTransition":
+        # Format: "Idle -> Executing (2024-01-01T00:00:00Z)"
+        import re
+        m = re.match(r"(\w+) -> (\w+)(?:\s+\(([^)]+)\))?", s)
+        if not m:
+            raise ValueError(f"Cannot parse StateTransition: {s}")
+        return cls(
+            from_state=m.group(1),
+            to_state=m.group(2),
+            timestamp=m.group(3) or None,
+        )
+    
+    def __repr__(self) -> str:
+        return f"StateTransition({self.from_state} -> {self.to_state})"
+
+
+# Expose StateTransition as part of public API
+StateTransition = _PyStateTransition
 
 
 # ── Public API: Use Rust if available, else fallback ─────────────────────────

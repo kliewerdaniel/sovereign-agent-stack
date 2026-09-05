@@ -14,6 +14,7 @@ from sas.core.config import parse_sas_yaml, generate_template
 from sas.core.scoring import generate_report
 from sas.runtime.orchestrator import AgentRuntime, FleetCoordinator
 from sas.runtime.mcp_server import MCPServer
+from sas.quant.cli import register as register_quant
 
 
 @click.group()
@@ -179,6 +180,9 @@ def verify(config: str, threshold: float):
         click.echo(f"✗ Sovereignty below threshold: {report.score:.2%} < {threshold:.2%}")
         sys.exit(1)
 
+
+# Register quant subcommands
+register_quant(cli)
 
 if __name__ == "__main__":
     cli()
