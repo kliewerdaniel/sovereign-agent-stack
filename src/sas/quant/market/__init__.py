@@ -17,9 +17,15 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+__all__ = [
+    "MarketDataPoint",
+    "DatasetInfo",
+    "MarketDataProvider",
+    "LocalCSVDataset",
+    "SyntheticDataProvider",
+]
 
 
-@dataclass
 class MarketDataPoint:
     """Single market data point."""
     symbol: str
