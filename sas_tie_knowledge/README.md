@@ -61,8 +61,8 @@ The plugin at `~/.sas/plugins/tie_knowledge.py` registers TIE as the
 outranks the built-in provider. SAS discovers it automatically:
 
 ```bash
-python -m sas registry list
-# → tie-knowledge (layer_6_long_term_knowledge) source=LOCAL
+python3 -c "from sas.plugins import discover_plugins; plugins = discover_plugins(); print([f'{p.name} ({p.layer_id})' for p in plugins])"
+# → ['tie-knowledge (layer_6_long_term_knowledge)']
 ```
 
 ## Known schema mismatches

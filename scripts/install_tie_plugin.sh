@@ -8,7 +8,7 @@
 #   bash scripts/install_tie_plugin.sh
 #
 # After install, verify with:
-#   python -m sas registry list
+#   python3 -c "from sas.plugins import discover_plugins; print([p.name for p in discover_plugins()])"
 
 set -euo pipefail
 
@@ -25,12 +25,12 @@ cp "$SRC" "$DEST"
 echo "Installed: $DEST"
 
 # Verify
-if /Users/danielkliewer/.hermes/hermes-agent/venv/bin/python -c "
+if python3 -c "
 from sas.plugins import discover_plugins
 plugins = discover_plugins()
 tie = [p for p in plugins if p.name == 'tie-knowledge']
 if tie:
-    print(f'Disovered: {tie[0].name} at {tie[0].layer_id} (source={tie[0].source.name})')
+    print(f'Discovered: {tie[0].name} at {tie[0].layer_id} (source={tie[0].source.name})')
 else:
     print('ERROR: tie-knowledge not discovered')
     exit(1)
