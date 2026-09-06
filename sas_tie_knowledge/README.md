@@ -54,11 +54,16 @@ python -m sas knowledge query "your search" --store ~/.sas/knowledge.db
 python -m sas knowledge audit --store ~/.sas/knowledge.db
 ```
 
-## Plugin registration
+## MCP query integration
 
-The plugin at `~/.sas/plugins/tie_knowledge.py` registers TIE as the
-`layer_6_long_term_knowledge` provider via `PluginSource.LOCAL`, which
-outranks the built-in provider. SAS discovers it automatically:
+The three SAS knowledge-query entry points — the CLI (`sas knowledge`), the plain-function MCP server (`sas.mcp_server.query_knowledge`), and the class-based MCP server (`sas.runtime.mcp_server.MCPServer.call_tool("query_knowledge")`) — all now route through the same plugin-aware resolver:
+
+```python
+from sas.layers.knowledge_resolver import resolve_knowledge_backend
+adapter, kind = resolve_knowledge_backend(store_path=...)
+```
+
+When no Layer 6 plugin is installed, all three use `CompileTimeKnowledge` exactly as before. When a plugin like TIE is installed, all three use the plugin's adapter — so an agent talking to SAS over MCP sees the same TIE-backed graph the CLI does.
 
 ```bash
 python3 -c "from sas.plugins import discover_plugins; plugins = discover_plugins(); print([f'{p.name} ({p.layer_id})' for p in plugins])"

@@ -29,13 +29,30 @@ def check_sovereignty(config_path: str = "sas.yaml") -> dict:
     }
 
 
-def query_knowledge(query: str, source: str = "~/sas-knowledge") -> list[dict]:
-    """Query the compile-time knowledge graph."""
-    from sas.layers.knowledge import CompileTimeKnowledge
+def query_knowledge(query: str, source: str = "~/sas-knowledge", store: str | None = None) -> list[dict]:
+    """Query the compile-time knowledge graph.
 
-    knowledge = CompileTimeKnowledge()
-    graph = knowledge.compile(Path(source).expanduser())
-    results = knowledge.query(graph, query)
+    When no Layer 6 plugin is registered, behaves exactly as before —
+    compiles fresh from the markdown directory ``source`` on every call
+    and returns ``[{"label": ..., "content": ...}]``.
+
+    When a plugin *is* registered (e.g. TIE), ``source`` is interpreted
+    by that plugin (typically a path to a pre-compiled graph export, not
+    a markdown directory). Pass ``store`` to query a persisted graph
+    instead of recompiling on every call.
+    """
+    from pathlib import Path
+    from sas.layers.knowledge_resolver import resolve_knowledge_backend, compile_source
+
+    store_path = store if store else ":memory:"
+    adapter, kind = resolve_knowledge_backend(store_path=store_path)
+
+    if store:
+        graph = adapter.load()
+    else:
+        graph = compile_source(adapter, Path(source).expanduser())
+
+    results = adapter.query(graph, query)
     return [
         {"label": r.label, "content": r.properties.get("content", "")}
         for r in results

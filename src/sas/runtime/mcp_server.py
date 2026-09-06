@@ -359,13 +359,39 @@ class MCPServer:
         """Query the knowledge graph."""
         query = arguments.get("query", "")
         source = arguments.get("source", "~/sas-knowledge")
-        # In a real implementation, this would query the knowledge graph
-        return {
-            "query": query,
-            "source": source,
-            "results": [],
-            "status": "ok",
-        }
+        store = arguments.get("store", None)
+
+        from pathlib import Path
+        from sas.layers.knowledge_resolver import resolve_knowledge_backend, compile_source
+
+        store_path = store if store else ":memory:"
+        adapter, kind = resolve_knowledge_backend(store_path=store_path)
+
+        if store:
+            graph = adapter.load()
+        else:
+            graph = compile_source(adapter, Path(source).expanduser())
+
+        results = adapter.query(graph, query)
+
+        if results:
+            return {
+                "query": query,
+                "source": source,
+                "results": [{"label": r.label, "content": r.properties.get("content", "")} for r in results],
+                "count": len(results),
+                "backend": kind,
+            }
+        else:
+            return {
+                "query": query,
+                "source": source,
+                "results": [],
+                "count": 0,
+                "status": "empty",
+                "reason": "No matching nodes found",
+                "backend": kind,
+            }
     
     def _tool_pay_for_resource(self, arguments: dict) -> dict:
         """Pay for a resource."""

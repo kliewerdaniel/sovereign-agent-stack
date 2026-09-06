@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import pytest
+from unittest.mock import patch
 
 from sas.mcp_server import (
     MCP_TOOLS,
@@ -40,7 +41,9 @@ class TestQueryKnowledge:
 # Test Node
 This is a test node with content.
 """)
-        results = query_knowledge("test", source=str(tmp_path))
+        # Explicitly test the built-in backend (no plugin)
+        with patch("sas.plugins.discover_plugins", return_value=[]):
+            results = query_knowledge("test", source=str(tmp_path))
         assert len(results) >= 1
         assert any("Test Node" in r["label"] for r in results)
 
@@ -50,8 +53,38 @@ This is a test node with content.
 # Test Node
 Some content.
 """)
-        results = query_knowledge("nonexistent", source=str(tmp_path))
+        # Explicitly test the built-in backend (no plugin)
+        with patch("sas.plugins.discover_plugins", return_value=[]):
+            results = query_knowledge("nonexistent", source=str(tmp_path))
         assert results == []
+
+    def test_with_plugin_uses_plugin(self, tmp_path) -> None:
+        """With a plugin registered, query_knowledge uses the plugin backend."""
+        from sas.plugins import LayerPlugin, PluginSource
+        from sas_tie_knowledge.adapter import TIEKnowledgeAdapter
+
+        # Create a TIE graph export
+        import json
+        (tmp_path / "tie_graph.json").write_text(json.dumps({
+            "nodes": [
+                {"id": "content:test", "label": "Test Content", "group": "content", "color": "#4fc3f7", "size": 15},
+            ],
+            "edges": [],
+        }))
+
+        mock_plugin = LayerPlugin(
+            name="tie-knowledge",
+            layer_id="layer_6_long_term_knowledge",
+            version="0.1.0",
+            source=PluginSource.LOCAL,
+            factory=lambda store_path=":memory:": TIEKnowledgeAdapter(store_path=store_path),
+        )
+
+        with patch("sas.plugins.discover_plugins", return_value=[mock_plugin]):
+            results = query_knowledge("Test Content", source=str(tmp_path / "tie_graph.json"))
+
+        assert len(results) >= 1
+        assert any("Test Content" in r["label"] for r in results)
 
 
 class TestPayForResource:

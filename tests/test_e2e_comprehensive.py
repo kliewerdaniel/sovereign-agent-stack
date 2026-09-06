@@ -244,7 +244,10 @@ def t19():
         kd = Path(tmpdir) / 'knowledge'
         kd.mkdir()
         (kd / 'test.md').write_text('# Test\nContent about sovereign architecture.')
-        results = query_knowledge(query='sovereign', source=str(kd))
+        # Explicitly test the built-in backend (no plugin)
+        from unittest.mock import patch
+        with patch("sas.plugins.discover_plugins", return_value=[]):
+            results = query_knowledge(query='sovereign', source=str(kd))
         assert len(results) >= 1
 run_test('query_knowledge', t19)
 

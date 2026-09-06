@@ -649,7 +649,6 @@ def _cmd_payments(args: argparse.Namespace) -> int:
 
 def _cmd_knowledge(args: argparse.Namespace) -> int:
     """Handle knowledge subcommands."""
-    from sas.layers.knowledge import CompileTimeKnowledge
     from pathlib import Path
 
     sub = args.knowledge_command or "help"
@@ -661,30 +660,20 @@ def _cmd_knowledge(args: argparse.Namespace) -> int:
             print(f"Source not found: {source}")
             return 1
 
-        # Check if a plugin is registered for Layer 6
-        from sas.plugins import get_plugin, discover_plugins, register_plugin, auto_register_discovered
-        auto_register_discovered()
-        plugin = get_plugin("layer_6_long_term_knowledge")
+        from sas.layers.knowledge_resolver import resolve_knowledge_backend, compile_source
+        adapter, kind = resolve_knowledge_backend(store_path=str(store_path))
+        try:
+            graph = compile_source(adapter, source)
+        except ValueError as e:
+            print(str(e))
+            return 1
 
-        if plugin is not None and plugin.name == "tie-knowledge":
-            # Use the TIE plugin factory
-            adapter = plugin.factory(store_path=str(store_path))
-            graph = adapter.compile(source)
-            print(f"Compiled (TIE plugin): {len(graph.nodes)} nodes, {len(graph.edges)} edges")
-            print(f"Store: {store_path}")
-            for node in graph.nodes[:20]:
-                print(f"  - {node.label}")
-            if len(graph.nodes) > 20:
-                print(f"  ... and {len(graph.nodes) - 20} more nodes")
-            return 0
-
-        # Default: built-in CompileTimeKnowledge
-        ctk = CompileTimeKnowledge(store_path=str(store_path))
-        graph = ctk.compile(source)
-        print(f"Compiled: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+        print(f"Compiled ({kind}): {len(graph.nodes)} nodes, {len(graph.edges)} edges")
         print(f"Store: {store_path}")
-        for node in graph.nodes:
+        for node in graph.nodes[:20]:
             print(f"  - {node.label}")
+        if len(graph.nodes) > 20:
+            print(f"  ... and {len(graph.nodes) - 20} more nodes")
         return 0
 
     elif sub == "query":
@@ -693,36 +682,19 @@ def _cmd_knowledge(args: argparse.Namespace) -> int:
             print("Run 'python -m sas knowledge compile <source>' first.")
             return 1
 
-        # Check if a plugin is registered for Layer 6
-        from sas.plugins import get_plugin, auto_register_discovered
-        auto_register_discovered()
-        plugin = get_plugin("layer_6_long_term_knowledge")
-
-        if plugin is not None and plugin.name == "tie-knowledge":
-            adapter = plugin.factory(store_path=str(store_path))
-            graph = adapter.load()
-            if not graph.nodes:
-                print("Graph is empty. Compile first.")
-                return 1
-            results = adapter.query(graph, args.query)
-            print(f"Query (TIE plugin): {args.query}")
-            print(f"Results: {len(results)}")
-            for r in results[:20]:
-                print(f"  - {r.label}")
-            if len(results) > 20:
-                print(f"  ... and {len(results) - 20} more")
-            return 0
-
-        ctk = CompileTimeKnowledge(store_path=str(store_path))
-        graph = ctk.load(store_path)
+        from sas.layers.knowledge_resolver import resolve_knowledge_backend
+        adapter, kind = resolve_knowledge_backend(store_path=str(store_path))
+        graph = adapter.load()
         if not graph.nodes:
             print("Graph is empty. Compile first.")
             return 1
-        results = ctk.query(graph, args.query)
-        print(f"Query: {args.query}")
+        results = adapter.query(graph, args.query)
+        print(f"Query ({kind}): {args.query}")
         print(f"Results: {len(results)}")
-        for r in results:
+        for r in results[:20]:
             print(f"  - {r.label}")
+        if len(results) > 20:
+            print(f"  ... and {len(results) - 20} more")
         return 0
 
     elif sub == "audit":
@@ -730,30 +702,14 @@ def _cmd_knowledge(args: argparse.Namespace) -> int:
             print(f"Graph store not found: {store_path}")
             return 1
 
-        # Check if a plugin is registered for Layer 6
-        from sas.plugins import get_plugin, auto_register_discovered
-        auto_register_discovered()
-        plugin = get_plugin("layer_6_long_term_knowledge")
-
-        if plugin is not None and plugin.name == "tie-knowledge":
-            adapter = plugin.factory(store_path=str(store_path))
-            graph = adapter.load()
-            if not graph.nodes:
-                print("Graph is empty. Compile first.")
-                return 1
-            report = adapter.audit(graph)
-            print(f"Audit (TIE plugin): {report.total_nodes} nodes, {report.total_edges} edges")
-            print(f"Orphaned: {len(report.orphaned_nodes)}")
-            print(f"Stale: {len(report.stale_nodes)} (not applicable — TIE has no timestamps)")
-            return 0
-
-        ctk = CompileTimeKnowledge(store_path=str(store_path))
-        graph = ctk.load(store_path)
+        from sas.layers.knowledge_resolver import resolve_knowledge_backend
+        adapter, kind = resolve_knowledge_backend(store_path=str(store_path))
+        graph = adapter.load()
         if not graph.nodes:
             print("Graph is empty. Compile first.")
             return 1
-        report = ctk.audit(graph)
-        print(f"Audit: {report.total_nodes} nodes, {report.total_edges} edges")
+        report = adapter.audit(graph)
+        print(f"Audit ({kind}): {report.total_nodes} nodes, {report.total_edges} edges")
         print(f"Orphaned: {len(report.orphaned_nodes)}")
         print(f"Stale: {len(report.stale_nodes)}")
         return 0
