@@ -1,0 +1,55 @@
+# Sovereign Agent Stack Configuration
+# TIE-backed Layer 6 (Long-term Knowledge)
+
+model:
+  primary:
+    provider: ollama
+    name: llama3.1:8b
+    location: local
+  fallback:
+    provider: openai
+    name: gpt-4o
+    location: api
+  auto_fallback: true
+
+compute:
+  substrate: local_docker
+  template: sas-desktop:latest
+  resources:
+    cpu: 4
+    memory: 8Gi
+  auto_destroy: 300
+
+memory:
+  short_term:
+    provider: local_rag
+    max_context_tokens: 8000
+  long_term:
+    provider: compile_time_graph
+    source: /Users/danielkliewer/Projects/a10/sovereign-ai-site/tie/data/tie_graph_export.json
+    graph_store: sqlite
+    compile_cron: "0 */6 * * *"
+    on_watch: true
+
+auth:
+  broker: local_mcp_gateway
+  vault: ~/.sas/vault.db
+  encryption: libsodium
+  refresh_cron: "0 */1 * * *"
+
+payments:
+  adapter: virtual_card
+  virtual_card:
+    provider: ramp
+    limit: 100
+  mpp:
+    provider: stripe
+    settlement: stablecoin
+
+identity:
+  email:
+    provider: agentmail
+    domain: agentmail.to
+  phone:
+    provider: agentphone
+    region: US
