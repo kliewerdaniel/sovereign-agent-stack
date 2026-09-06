@@ -247,6 +247,31 @@ class GraphMaterializer:
             source_path="",
         )
 
+    def load(self) -> KnowledgeGraph:
+        """Load a graph from the SQLite store.
+        Returns an empty graph if store is :memory: or does not exist.
+        """
+        import json
+        if self.store_path == ":memory:":
+            return KnowledgeGraph(nodes=[], edges=[], compiled_at="", source_path="")
+        conn = self._get_conn()
+        try:
+            nodes_row = conn.execute("SELECT id, label, properties, created_at, updated_at FROM nodes").fetchall()
+            edges_row = conn.execute("SELECT source, target, relationship, properties FROM edges").fetchall()
+        except sqlite3.OperationalError:
+            return KnowledgeGraph(nodes=[], edges=[], compiled_at="", source_path="")
+        nodes = [
+            Node(id=r[0], label=r[1], properties=json.loads(r[2]) if r[2] else {},
+                 created_at=r[3], updated_at=r[4])
+            for r in nodes_row
+        ]
+        edges = [
+            Edge(source=r[0], target=r[1], relationship=r[2],
+                 properties=json.loads(r[3]) if r[3] else {})
+            for r in edges_row
+        ]
+        return KnowledgeGraph(nodes=nodes, edges=edges, compiled_at="", source_path=str(self.store_path))
+
     def query(self, graph: KnowledgeGraph, query_text: str, transitive: bool = False) -> list[Node]:
         """Query nodes by label or content match."""
         results = []
@@ -362,6 +387,10 @@ class CompileTimeKnowledge:
         graph = self.materializer.materialize(nodes=merged.nodes, edges=merged.edges)
         graph.source_path = str(source)
         return graph
+
+    def load(self, source: Path) -> KnowledgeGraph:
+        """Load a graph from the SQLite store, or compile from source if not found."""
+        return self.materializer.load()
 
     def query(self, graph: KnowledgeGraph, query_text: str) -> list[Node]:
         """Query the knowledge graph."""

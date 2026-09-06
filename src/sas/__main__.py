@@ -269,6 +269,64 @@ def _cmd_quant(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_knowledge(args: argparse.Namespace) -> int:
+    """Handle knowledge subcommands."""
+    from sas.layers.knowledge import CompileTimeKnowledge
+    from pathlib import Path
+
+    sub = args.knowledge_command or "help"
+    store_path = Path(args.store).expanduser().resolve()
+
+    if sub == "compile":
+        source = Path(args.source).resolve()
+        if not source.exists():
+            print(f"Source not found: {source}")
+            return 1
+        ctk = CompileTimeKnowledge(store_path=str(store_path))
+        graph = ctk.compile(source)
+        print(f"Compiled: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+        print(f"Store: {store_path}")
+        for node in graph.nodes:
+            print(f"  - {node.label}")
+        return 0
+
+    elif sub == "query":
+        if not store_path.exists():
+            print(f"Graph store not found: {store_path}")
+            print("Run 'python -m sas knowledge compile <source>' first.")
+            return 1
+        ctk = CompileTimeKnowledge(store_path=str(store_path))
+        graph = ctk.load(store_path)
+        if not graph.nodes:
+            print("Graph is empty. Compile first.")
+            return 1
+        results = ctk.query(graph, args.query)
+        print(f"Query: {args.query}")
+        print(f"Results: {len(results)}")
+        for r in results:
+            print(f"  - {r.label}")
+        return 0
+
+    elif sub == "audit":
+        if not store_path.exists():
+            print(f"Graph store not found: {store_path}")
+            return 1
+        ctk = CompileTimeKnowledge(store_path=str(store_path))
+        graph = ctk.load(store_path)
+        if not graph.nodes:
+            print("Graph is empty. Compile first.")
+            return 1
+        report = ctk.audit(graph)
+        print(f"Audit: {report.total_nodes} nodes, {report.total_edges} edges")
+        print(f"Orphaned: {len(report.orphaned_nodes)}")
+        print(f"Stale: {len(report.stale_nodes)}")
+        return 0
+
+    else:
+        print("Unknown knowledge subcommand")
+        return 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="sas",
@@ -344,6 +402,22 @@ def main(argv: list[str] | None = None) -> int:
     quant_provenance_parser = quant_subparsers.add_parser("provenance", help="Inspect provenance")
     quant_provenance_parser.add_argument("node_id", nargs="?", default="")
 
+    # Knowledge subcommands
+    knowledge_parser = subparsers.add_parser("knowledge", help="Compile-time knowledge graph")
+    knowledge_subparsers = knowledge_parser.add_subparsers(dest="knowledge_command")
+
+    knowledge_compile_parser = knowledge_subparsers.add_parser("compile", help="Compile markdown into graph")
+    knowledge_compile_parser.add_argument("source", help="Path to markdown file or directory")
+    knowledge_compile_parser.add_argument("--store", default="~/.sas/knowledge.db", help="Graph store path")
+
+    knowledge_query_parser = knowledge_subparsers.add_parser("query", help="Query the graph")
+    knowledge_query_parser.add_argument("query", help="Query text")
+    knowledge_query_parser.add_argument("--store", default="~/.sas/knowledge.db", help="Graph store path")
+    knowledge_query_parser.add_argument("--transitive", action="store_true", help="Follow edges transitively")
+
+    knowledge_audit_parser = knowledge_subparsers.add_parser("audit", help="Audit the graph")
+    knowledge_audit_parser.add_argument("--store", default="~/.sas/knowledge.db", help="Graph store path")
+
     args = parser.parse_args(argv)
 
     if args.command == "dashboard":
@@ -354,6 +428,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_research(args)
     elif args.command == "quant":
         return _cmd_quant(args)
+    elif args.command == "knowledge":
+        return _cmd_knowledge(args)
     else:
         parser.print_help()
         return 1
