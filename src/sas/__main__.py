@@ -269,6 +269,77 @@ def _cmd_quant(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_auth(args: argparse.Namespace) -> int:
+    """Handle auth subcommands."""
+    from sas.layers.auth import Credentials, LocalAuthBroker
+    from pathlib import Path
+
+    sub = args.auth_command or "help"
+    store_path = Path(args.store).expanduser().resolve()
+
+    if sub == "register":
+        scopes = args.scopes.split(",") if args.scopes else None
+        creds = Credentials(
+            tool_name=args.tool_name,
+            auth_type=args.auth_type,
+            token=args.token,
+            refresh_token=args.refresh_token,
+            expires_at=args.expires_at,
+            scopes=scopes,
+        )
+        broker = LocalAuthBroker(store_path=str(store_path))
+        broker.register_tool(args.tool_name, creds)
+        print(f"Registered: {args.tool_name} ({args.auth_type})")
+        print(f"Store: {store_path}")
+        return 0
+
+    elif sub == "list":
+        broker = LocalAuthBroker(store_path=str(store_path))
+        tools = broker.list_tools()
+        if not tools:
+            print("No tools registered.")
+            return 0
+        print(f"Registered tools ({len(tools)}):")
+        for t in tools:
+            print(f"  - {t}")
+        return 0
+
+    elif sub == "get":
+        broker = LocalAuthBroker(store_path=str(store_path))
+        creds = broker.get_credentials(args.tool_name)
+        if creds is None:
+            print(f"Tool not found: {args.tool_name}")
+            return 1
+        print(f"Tool: {creds.tool_name}")
+        print(f"Auth type: {creds.auth_type}")
+        print(f"Token: {'*' * 8}{creds.token[-4:] if creds.token and len(creds.token) > 4 else ''}")
+        print(f"Refresh: {'set' if creds.refresh_token else 'none'}")
+        print(f"Expires: {creds.expires_at or 'never'}")
+        print(f"Scopes: {', '.join(creds.scopes) if creds.scopes else 'none'}")
+        return 0
+
+    elif sub == "unregister":
+        broker = LocalAuthBroker(store_path=str(store_path))
+        broker.unregister_tool(args.tool_name)
+        print(f"Unregistered: {args.tool_name}")
+        return 0
+
+    elif sub == "audit":
+        broker = LocalAuthBroker(store_path=str(store_path))
+        trail = broker.audit()
+        if not trail.entries:
+            print("No audit entries.")
+            return 0
+        print(f"Audit trail ({len(trail.entries)} entries):")
+        for e in trail.entries:
+            print(f"  {e.timestamp} {e.method} {e.path} ({e.credential_used})")
+        return 0
+
+    else:
+        print("Unknown auth subcommand")
+        return 1
+
+
 def _cmd_knowledge(args: argparse.Namespace) -> int:
     """Handle knowledge subcommands."""
     from sas.layers.knowledge import CompileTimeKnowledge
@@ -418,6 +489,33 @@ def main(argv: list[str] | None = None) -> int:
     knowledge_audit_parser = knowledge_subparsers.add_parser("audit", help="Audit the graph")
     knowledge_audit_parser.add_argument("--store", default="~/.sas/knowledge.db", help="Graph store path")
 
+    # Auth subcommands
+    auth_parser = subparsers.add_parser("auth", help="Local auth broker / MCP gateway")
+    auth_subparsers = auth_parser.add_subparsers(dest="auth_command")
+
+    auth_register_parser = auth_subparsers.add_parser("register", help="Register a tool")
+    auth_register_parser.add_argument("tool_name", help="Tool name")
+    auth_register_parser.add_argument("--auth-type", default="oauth", help="Auth type (oauth, api_key, basic)")
+    auth_register_parser.add_argument("--token", help="Token value")
+    auth_register_parser.add_argument("--refresh-token", help="Refresh token")
+    auth_register_parser.add_argument("--expires-at", help="Token expiry")
+    auth_register_parser.add_argument("--scopes", help="Comma-separated scopes")
+    auth_register_parser.add_argument("--store", default="~/.sas/auth.db", help="Credential store path")
+
+    auth_list_parser = auth_subparsers.add_parser("list", help="List registered tools")
+    auth_list_parser.add_argument("--store", default="~/.sas/auth.db", help="Credential store path")
+
+    auth_get_parser = auth_subparsers.add_parser("get", help="Get tool credentials")
+    auth_get_parser.add_argument("tool_name", help="Tool name")
+    auth_get_parser.add_argument("--store", default="~/.sas/auth.db", help="Credential store path")
+
+    auth_unregister_parser = auth_subparsers.add_parser("unregister", help="Unregister a tool")
+    auth_unregister_parser.add_argument("tool_name", help="Tool name")
+    auth_unregister_parser.add_argument("--store", default="~/.sas/auth.db", help="Credential store path")
+
+    auth_audit_parser = auth_subparsers.add_parser("audit", help="View audit trail")
+    auth_audit_parser.add_argument("--store", default="~/.sas/auth.db", help="Credential store path")
+
     args = parser.parse_args(argv)
 
     if args.command == "dashboard":
@@ -430,6 +528,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_quant(args)
     elif args.command == "knowledge":
         return _cmd_knowledge(args)
+    elif args.command == "auth":
+        return _cmd_auth(args)
     else:
         parser.print_help()
         return 1

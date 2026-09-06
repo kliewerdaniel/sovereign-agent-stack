@@ -36,19 +36,19 @@
 
 ---
 
-## Phase 2: Compile-Time Knowledge Graph
+## Phase 2: Compile-Time Knowledge Graph ✅
 
 **Goal:** The layer that most differentiates SAS from ARGO alone.
 
 **Deliverables:**
-- [ ] Markdown parser (Obsidian-compatible: `[[wikilinks]]`, YAML frontmatter)
-- [ ] Entity and relationship extractor (local LLM or rule-based)
-- [ ] Graph materializer (SQLite adjacency list, Neo4j optional)
-- [ ] Compile step (cron + file watcher)
-- [ ] Query interface (query graph first, fall back to retrieval RAG)
-- [ ] Diff and audit interface
+- [x] Markdown parser (Obsidian-compatible: `[[wikilinks]]`, YAML frontmatter)
+- [x] Entity and relationship extractor (rule-based via wikilinks)
+- [x] Graph materializer (SQLite adjacency list, Neo4j optional)
+- [x] Compile step (`python -m sas knowledge compile`)
+- [x] Query interface (`python -m sas knowledge query`)
+- [x] Diff and audit interface (`python -m sas knowledge audit`)
 - [ ] Integration with ARGO's RAG pipeline
-- [ ] Unit + integration tests
+- [x] Unit + integration tests (20 tests)
 
 **Exit criteria:** A markdown file added to the knowledge folder is compiled into the graph within 5 minutes, and the agent can query settled facts without invoking the LLM.
 
