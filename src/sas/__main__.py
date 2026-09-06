@@ -9,6 +9,64 @@ from sas.core.config import generate_template, parse_sas_yaml
 from sas.dashboard.report import run_dashboard, run_dashboard_json
 
 
+def _cmd_substrate(args: argparse.Namespace) -> int:
+    """Handle substrate subcommands."""
+    from sas.layers.substrate import LocalDockerSubstrate
+
+    sub = args.substrate_command or "help"
+    substrate = LocalDockerSubstrate()
+
+    if sub == "boot":
+        m = substrate.boot(args.template)
+        print(f"Machine booted: {m.id}")
+        print(f"Template: {m.template}")
+        print(f"Status: {m.status}")
+        print(f"Resources: {m.resources}")
+        return 0
+
+    elif sub == "list":
+        machines = substrate.list_machines()
+        if not machines:
+            print("No machines.")
+            return 0
+        print(f"Machines ({len(machines)}):")
+        for m in machines:
+            print(f"  - {m.id} ({m.template}) [{m.status}]")
+        return 0
+
+    elif sub == "exec":
+        machines = {m.id: m for m in substrate.list_machines()}
+        if args.machine_id not in machines:
+            print(f"Machine not found: {args.machine_id}")
+            return 1
+        m = machines[args.machine_id]
+        try:
+            output = substrate.execute(m, args.command)
+            print(f"Exit code: {output.exit_code}")
+            if output.stdout:
+                print(output.stdout)
+            if output.stderr:
+                print(output.stderr, file=sys.stderr)
+            return 0
+        except Exception as e:
+            print(f"Error: {e}")
+            return 1
+
+    elif sub == "destroy":
+        machines = {m.id: m for m in substrate.list_machines()}
+        if args.machine_id not in machines:
+            print(f"Machine not found: {args.machine_id}")
+            return 1
+        m = machines[args.machine_id]
+        substrate.destroy(m)
+        print(f"Destroyed: {args.machine_id}")
+        return 0
+
+    else:
+        print("Unknown substrate subcommand")
+        return 1
+
+
 def _cmd_dashboard(args: argparse.Namespace) -> int:
     """Run the sovereignty dashboard."""
     config_path = Path(args.config).resolve()
@@ -581,6 +639,22 @@ def main(argv: list[str] | None = None) -> int:
     payments_limit_parser.add_argument("--currency", default="USD", help="Currency")
     payments_limit_parser.add_argument("--adapter", default="virtual_card", choices=["virtual_card", "mpp"], help="Payment adapter")
 
+    # Substrate subcommands
+    substrate_parser = subparsers.add_parser("substrate", help="Compute substrate (local VM/container)")
+    substrate_subparsers = substrate_parser.add_subparsers(dest="substrate_command")
+
+    substrate_boot_parser = substrate_subparsers.add_parser("boot", help="Boot a machine")
+    substrate_boot_parser.add_argument("--template", default="xfce", help="Desktop template (xfce, lxde)")
+
+    substrate_list_parser = substrate_subparsers.add_parser("list", help="List machines")
+
+    substrate_exec_parser = substrate_subparsers.add_parser("exec", help="Execute a command")
+    substrate_exec_parser.add_argument("machine_id", help="Machine ID")
+    substrate_exec_parser.add_argument("command", help="Command to run")
+
+    substrate_destroy_parser = substrate_subparsers.add_parser("destroy", help="Destroy a machine")
+    substrate_destroy_parser.add_argument("machine_id", help="Machine ID")
+
     args = parser.parse_args(argv)
 
     if args.command == "dashboard":
@@ -597,6 +671,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_auth(args)
     elif args.command == "payments":
         return _cmd_payments(args)
+    elif args.command == "substrate":
+        return _cmd_substrate(args)
     else:
         parser.print_help()
         return 1

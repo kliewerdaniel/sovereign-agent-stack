@@ -1,137 +1,178 @@
-"""Tests for the compute substrate layer."""
+# — Unit tests for the Compute Substrate (Phase 5) —
 
+import time
 import pytest
 
 from sas.layers.substrate import (
     ComputeSubstrate,
-    Machine,
-    Screenshot,
-    Output,
     LocalDockerSubstrate,
+    Machine,
+    Output,
+    Screenshot,
     SubstrateError,
 )
 
 
+# ── Machine / Screenshot / Output dataclasses ───────────────────────────────────
+
 class TestMachine:
-    """Tests for the Machine dataclass."""
-
-    def test_create_machine(self) -> None:
-        """Machine has expected attributes."""
-        machine = Machine(
-            id="m1",
-            template="sas-desktop:latest",
+    def test_create_machine(self):
+        m = Machine(
+            id="test_001",
+            template="xfce",
             status="running",
-            created_at="2026-09-04T12:00:00",
+            created_at="2024-01-01T00:00:00Z",
         )
-        assert machine.id == "m1"
-        assert machine.template == "sas-desktop:latest"
-        assert machine.status == "running"
+        assert m.id == "test_001"
+        assert m.template == "xfce"
+        assert m.resources is None
 
+    def test_create_machine_with_resources(self):
+        m = Machine(
+            id="test_001",
+            template="xfce",
+            status="running",
+            created_at="2024-01-01T00:00:00Z",
+            resources={"cpu": 4, "memory": "8Gi"},
+        )
+        assert m.resources["cpu"] == 4
+
+
+class TestScreenshot:
+    def test_create_screenshot(self):
+        s = Screenshot(machine_id="m1", data=b"PNG", width=1920, height=1080)
+        assert s.machine_id == "m1"
+        assert s.data == b"PNG"
+        assert s.width == 1920
+        assert s.height == 1080
+
+
+class TestOutput:
+    def test_create_output(self):
+        o = Output(stdout="hello\n", stderr="", exit_code=0)
+        assert o.stdout == "hello\n"
+        assert o.exit_code == 0
+
+
+class TestSubstrateError:
+    def test_raise_error(self):
+        with pytest.raises(SubstrateError, match="test error"):
+            raise SubstrateError("test error")
+
+
+# ── LocalDockerSubstrate ────────────────────────────────────────────────────────
 
 class TestLocalDockerSubstrate:
-    """Tests for the local Docker substrate."""
+    def test_boot(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        assert m.id.startswith("machine_")
+        assert m.template == "xfce"
+        assert m.status == "running"
+        assert m.resources == {"cpu": 4, "memory": "8Gi"}
 
-    def test_boot_creates_machine(self) -> None:
-        """Booting creates a machine with running status."""
-        substrate = LocalDockerSubstrate()
-        machine = substrate.boot("sas-desktop:latest")
-        assert machine.status == "running"
-        assert machine.template == "sas-desktop:latest"
-        assert machine.id is not None
-
-    def test_capture_returns_screenshot(self) -> None:
-        """Capturing returns a screenshot."""
-        substrate = LocalDockerSubstrate()
-        machine = substrate.boot("sas-desktop:latest")
-        screenshot = substrate.capture(machine)
-        assert isinstance(screenshot, Screenshot)
-        assert screenshot.machine_id == machine.id
-
-    def test_click_does_not_raise(self) -> None:
-        """Clicking does not raise for a running machine."""
-        substrate = LocalDockerSubstrate()
-        machine = substrate.boot("sas-desktop:latest")
-        substrate.click(machine, x=100, y=200)
-        # No exception = pass
-
-    def test_type_does_not_raise(self) -> None:
-        """Typing does not raise for a running machine."""
-        substrate = LocalDockerSubstrate()
-        machine = substrate.boot("sas-desktop:latest")
-        substrate.type(machine, text="hello world")
-
-    def test_execute_returns_output(self) -> None:
-        """Executing a command returns output."""
-        substrate = LocalDockerSubstrate()
-        machine = substrate.boot("sas-desktop:latest")
-        output = substrate.execute(machine, "echo hello")
-        assert isinstance(output, Output)
-        assert "hello" in output.stdout
-
-    def test_destroy_stops_machine(self) -> None:
-        """Destroying a machine changes its status."""
-        substrate = LocalDockerSubstrate()
-        machine = substrate.boot("sas-desktop:latest")
-        substrate.destroy(machine)
-        assert machine.status == "stopped"
-
-    def test_operations_on_stopped_machine_raise(self) -> None:
-        """Operations on a stopped machine raise SubstrateError."""
-        substrate = LocalDockerSubstrate()
-        machine = substrate.boot("sas-desktop:latest")
-        substrate.destroy(machine)
-
-        with pytest.raises(SubstrateError):
-            substrate.capture(machine)
-
-        with pytest.raises(SubstrateError):
-            substrate.click(machine, x=100, y=200)
-
-        with pytest.raises(SubstrateError):
-            substrate.type(machine, text="hello")
-
-        with pytest.raises(SubstrateError):
-            substrate.execute(machine, "echo hello")
-
-    def test_boot_with_custom_resources(self) -> None:
-        """Booting with custom resource limits."""
-        substrate = LocalDockerSubstrate(
-            default_resources={"cpu": 2, "memory": "4Gi"},
-        )
-        machine = substrate.boot("sas-desktop:latest")
-        assert machine.status == "running"
-
-    def test_list_machines(self) -> None:
-        """List machines returns all booted machines."""
-        substrate = LocalDockerSubstrate()
-        m1 = substrate.boot("template1")
-        m2 = substrate.boot("template2")
-        machines = substrate.list_machines()
+    def test_list_machines(self):
+        sub = LocalDockerSubstrate()
+        m1 = sub.boot("xfce")
+        m2 = sub.boot("lxde")
+        machines = sub.list_machines()
         assert len(machines) == 2
         ids = {m.id for m in machines}
         assert m1.id in ids
         assert m2.id in ids
 
-    def test_auto_destroy_on_idle(self) -> None:
-        """Machine is destroyed after idle timeout."""
-        import time
-        substrate = LocalDockerSubstrate(idle_timeout=1)
-        machine = substrate.boot("sas-desktop:latest")
+    def test_capture(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        screenshot = sub.capture(m)
+        assert screenshot.machine_id == m.id
+        assert screenshot.width == 1920
+        assert screenshot.height == 1080
 
-        # Simulate idle time by manipulating last active timestamp
-        substrate._last_active[machine.id] = time.time() - 2
+    def test_click(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        sub.click(m, 100, 200)
+        # Should not raise
 
-        # Trigger auto-destroy check
-        substrate._auto_destroy_idle()
+    def test_type(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        sub.type(m, "hello world")
+        # Should not raise
 
-        # Machine should be destroyed
-        assert machine.status == "stopped"
+    def test_execute_echo(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        output = sub.execute(m, "echo hello")
+        assert output.stdout == "hello\n"
+        assert output.exit_code == 0
 
+    def test_execute_other(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        output = sub.execute(m, "ls -la")
+        assert output.exit_code == 0
 
-class TestSubstrateError:
-    """Tests for substrate errors."""
+    def test_destroy(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        sub.destroy(m)
+        assert m.status == "stopped"
 
-    def test_error_message(self) -> None:
-        """Error has a message."""
-        err = SubstrateError("test error")
-        assert str(err) == "test error"
+    def test_destroy_removes_from_list(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        sub.destroy(m)
+        # list_machines still returns it, but status is stopped
+        machines = sub.list_machines()
+        assert len(machines) == 1
+        assert machines[0].status == "stopped"
+
+    def test_operations_on_stopped_machine_raise(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        sub.destroy(m)
+        with pytest.raises(SubstrateError, match="not running"):
+            sub.capture(m)
+        with pytest.raises(SubstrateError, match="not running"):
+            sub.click(m, 0, 0)
+        with pytest.raises(SubstrateError, match="not running"):
+            sub.type(m, "test")
+        with pytest.raises(SubstrateError, match="not running"):
+            sub.execute(m, "test")
+
+    def test_default_resources(self):
+        sub = LocalDockerSubstrate()
+        m = sub.boot("xfce")
+        assert m.resources == {"cpu": 4, "memory": "8Gi"}
+
+    def test_custom_resources(self):
+        sub = LocalDockerSubstrate(default_resources={"cpu": 8, "memory": "16Gi"})
+        m = sub.boot("xfce")
+        assert m.resources == {"cpu": 8, "memory": "16Gi"}
+
+    def test_idle_timeout(self):
+        sub = LocalDockerSubstrate(idle_timeout=60)
+        assert sub.idle_timeout == 60
+
+    def test_auto_destroy_idle(self):
+        sub = LocalDockerSubstrate(idle_timeout=0)
+        m = sub.boot("xfce")
+        time.sleep(0.1)
+        sub._auto_destroy_idle()
+        assert m.status == "stopped"
+
+    def test_auto_destroy_does_not_destroy_active(self):
+        sub = LocalDockerSubstrate(idle_timeout=300)
+        m = sub.boot("xfce")
+        sub._auto_destroy_idle()
+        assert m.status == "running"
+
+    def test_multiple_machines_independent(self):
+        sub = LocalDockerSubstrate()
+        m1 = sub.boot("xfce")
+        m2 = sub.boot("lxde")
+        sub.destroy(m1)
+        assert m1.status == "stopped"
+        assert m2.status == "running"
