@@ -63,8 +63,12 @@ class TestMCPServer:
     def test_handle_request_tools_list(self):
         server = MCPServer.from_defaults()
         response = server.handle_request({"method": "tools/list"})
-        assert "tools" in response
-        assert len(response["tools"]) >= 3
+        # JSON-RPC 2.0 envelope
+        assert "jsonrpc" in response
+        assert response["jsonrpc"] == "2.0"
+        assert "result" in response
+        assert "tools" in response["result"]
+        assert len(response["result"]["tools"]) >= 3
     
     def test_handle_request_tools_call(self):
         server = MCPServer.from_defaults()
@@ -76,12 +80,46 @@ class TestMCPServer:
                 "arguments": {},
             },
         })
-        assert "content" in response
+        assert "jsonrpc" in response
+        assert "result" in response
+        assert "content" in response["result"]
+    
+    def test_handle_request_initialize(self):
+        """Initialize returns a well-formed response."""
+        server = MCPServer.from_defaults()
+        response = server.handle_request({
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": {"name": "test", "version": "1.0"},
+            },
+        })
+        assert response["jsonrpc"] == "2.0"
+        assert response["id"] == 1
+        assert "result" in response
+        assert response["result"]["protocolVersion"] == "2024-11-05"
+        assert "tools" in response["result"]["capabilities"]
+        assert response["result"]["serverInfo"]["name"] == "sovereign-agent-stack"
+    
+    def test_handle_request_notification_no_response(self):
+        """Notifications (no id) should return None."""
+        server = MCPServer.from_defaults()
+        response = server.handle_request({
+            "jsonrpc": "2.0",
+            "method": "notifications/initialized",
+        })
+        assert response is None
     
     def test_handle_request_unknown_method(self):
         server = MCPServer.from_defaults()
         response = server.handle_request({"method": "unknown"})
         assert "error" in response
+        # JSON-RPC 2.0 error shape
+        assert "code" in response["error"]
+        assert "message" in response["error"]
 
 
 class TestMCPToolResult:

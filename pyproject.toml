@@ -36,6 +36,7 @@ dev = [
 
 [project.scripts]
 sas = "sas.__main__:main"
+sas-mcp-serve = "sas.runtime.mcp_server:run_mcp_server"
 
 [tool.setuptools.packages.find]
 where = ["src"]

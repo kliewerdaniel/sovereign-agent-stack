@@ -527,29 +527,63 @@ class MCPServer:
             try:
                 request = json.loads(line)
                 response = self._handle_request(request)
-                print(json.dumps(response), flush=True)
+                # Notifications return None - don't print a response
+                if response is not None:
+                    print(json.dumps(response), flush=True)
             except json.JSONDecodeError:
                 print(json.dumps({"error": "Invalid JSON"}), flush=True)
     
-    def _handle_request(self, request: dict) -> dict:
-        """Handle an MCP request."""
+    def _handle_request(self, request: dict) -> dict | None:
+        """Handle an MCP request. Returns None for notifications (no response)."""
         method = request.get("method", "")
         params = request.get("params", {})
+        req_id = request.get("id")
         
+        # JSON-RPC 2.0 envelope
+        def make_response(result=None, error=None):
+            resp = {"jsonrpc": "2.0", "id": req_id}
+            if error is not None:
+                resp["error"] = error
+            else:
+                resp["result"] = result
+            return resp
+        
+        # Handle notifications (no id, no response expected)
+        if method == "notifications/initialized":
+            # Client signals it's ready - no response needed
+            return None
+        
+        # Handle initialize (the handshake)
+        if method == "initialize":
+            return make_response(result={
+                "protocolVersion": "2024-11-05",
+                "capabilities": {
+                    "tools": {"listChanged": True}
+                },
+                "serverInfo": {
+                    "name": "sovereign-agent-stack",
+                    "version": "1.0.0"
+                }
+            })
+        
+        # Handle tools/list
         if method == "tools/list":
-            return {"tools": self.list_tools()}
-        elif method == "tools/call":
+            return make_response(result={"tools": self.list_tools()})
+        
+        # Handle tools/call
+        if method == "tools/call":
             name = params.get("name", "")
             arguments = params.get("arguments", {})
             result = self.call_tool(name, arguments)
             if result.success:
-                return {"content": [{"type": "text", "text": json.dumps(result.data)}]}
+                return make_response(result={"content": [{"type": "text", "text": json.dumps(result.data)}]})
             else:
-                return {"error": {"message": result.error}}
-        else:
-            return {"error": {"message": f"Unknown method: {method}"}}
+                return make_response(error={"code": -32603, "message": result.error or "Tool execution failed"})
+        
+        # Unknown method
+        return make_response(error={"code": -32601, "message": f"Method not found: {method}"})
     
-    def handle_request(self, request: dict) -> dict:
+    def handle_request(self, request: dict) -> dict | None:
         """Handle an MCP request (for programmatic use)."""
         return self._handle_request(request)
 
