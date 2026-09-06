@@ -137,16 +137,18 @@
 
 ---
 
-## Phase 8: Ecosystem
+## Phase 8: Ecosystem ✅
 
 **Goal:** The stack is extensible by the community.
 
 **Deliverables:**
-- [ ] Plugin system for custom layer implementations
-- [ ] Community layer registry (share implementations)
-- [ ] ARGO skill pack for SAS integration
-- [ ] Homebrew/apt/chocolatey packages
-- [ ] Release v1.0.0
+- [x] Plugin system for custom layer implementations
+- [x] Community layer registry (publish, search, list by layer)
+- [x] ARGO skill pack for SAS integration
+- [x] Homebrew/apt/chocolatey packages
+- [x] Release v1.0.0
+
+**Exit criteria:** A user can `pip install sovereign-agent-stack`, configure `sas.yaml`, and run a sovereign agent with all 8 layers operational.
 
 ---
 

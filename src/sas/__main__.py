@@ -490,6 +490,116 @@ def _cmd_auth(args: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_registry(args: argparse.Namespace) -> int:
+    """Handle registry subcommands."""
+    from sas.registry import CommunityRegistry, RegistryEntry
+
+    sub = args.registry_command or "help"
+    reg = CommunityRegistry()
+
+    if sub == "publish":
+        entry = RegistryEntry(
+            name=args.name,
+            layer_id=args.layer_id,
+            version=args.version,
+            description=args.description or "",
+            author=args.author or "",
+            url=args.url or "",
+        )
+        reg.publish(entry)
+        print(f"Published: {entry.name} v{entry.version}")
+        return 0
+
+    elif sub == "unpublish":
+        if reg.unpublish(args.name):
+            print(f"Unpublished: {args.name}")
+            return 0
+        else:
+            print(f"Not found: {args.name}")
+            return 1
+
+    elif sub == "search":
+        results = reg.search(args.query)
+        if not results:
+            print("No plugins found.")
+            return 0
+        print(f"Plugins ({len(results)}):")
+        for r in results:
+            print(f"  - {r.name} v{r.version} ({r.layer_id})")
+            if r.description:
+                print(f"    {r.description}")
+        return 0
+
+    elif sub == "list":
+        plugins = reg.list_all()
+        if not plugins:
+            print("No plugins registered.")
+            return 0
+        print(f"Registered plugins ({len(plugins)}):")
+        for p in plugins:
+            print(f"  - {p.name} v{p.version} ({p.layer_id})")
+        return 0
+
+    elif sub == "get":
+        entry = reg.get(args.name)
+        if entry is None:
+            print(f"Not found: {args.name}")
+            return 1
+        print(f"Plugin: {entry.name}")
+        print(f"Version: {entry.version}")
+        print(f"Layer: {entry.layer_id}")
+        print(f"Description: {entry.description}")
+        print(f"Author: {entry.author}")
+        print(f"URL: {entry.url}")
+        print(f"Created: {entry.created_at}")
+        return 0
+
+    elif sub == "by-layer":
+        results = reg.list_by_layer(args.layer_id)
+        if not results:
+            print(f"No plugins for {args.layer_id}")
+            return 0
+        print(f"Plugins for {args.layer_id} ({len(results)}):")
+        for r in results:
+            print(f"  - {r.name} v{r.version}")
+        return 0
+
+    else:
+        print("Unknown registry subcommand")
+        return 1
+
+
+def _cmd_argo(args: argparse.Namespace) -> int:
+    """Handle ARGO skill pack subcommands."""
+    from sas.argopack import ARGO_SKILL_META, invoke
+    import json
+
+    sub = args.argo_command or "help"
+
+    if sub == "info":
+        print(json.dumps(ARGO_SKILL_META, indent=2))
+        return 0
+
+    elif sub == "invoke":
+        params_str = args.params or "{}"
+        try:
+            params = json.loads(params_str)
+        except json.JSONDecodeError as e:
+            print(f"Invalid JSON params: {e}")
+            return 1
+        result = invoke(params)
+        print(json.dumps(result, indent=2, default=str))
+        return 0 if result.get("ok") else 1
+
+    elif sub == "schema":
+        print(json.dumps(ARGO_SKILL_META.get("parameters", {}), indent=2))
+        return 0
+
+    else:
+        print("Unknown argo subcommand")
+        return 1
+
+
 def _cmd_payments(args: argparse.Namespace) -> int:
     """Handle payments subcommands."""
     from sas.layers.payments import MPPAdapter, PaymentRequirement, SpendingLimit, VirtualCardAdapter
@@ -713,6 +823,41 @@ def main(argv: list[str] | None = None) -> int:
     auth_audit_parser = auth_subparsers.add_parser("audit", help="View audit trail")
     auth_audit_parser.add_argument("--store", default="~/.sas/auth.db", help="Credential store path")
 
+    # Registry subcommands
+    registry_parser = subparsers.add_parser("registry", help="Community layer registry")
+    registry_subparsers = registry_parser.add_subparsers(dest="registry_command")
+
+    registry_publish_parser = registry_subparsers.add_parser("publish", help="Publish a plugin")
+    registry_publish_parser.add_argument("name", help="Plugin name")
+    registry_publish_parser.add_argument("layer_id", help="Layer ID (e.g., layer_8_payments)")
+    registry_publish_parser.add_argument("version", help="Plugin version")
+    registry_publish_parser.add_argument("--description", default="", help="Description")
+    registry_publish_parser.add_argument("--author", default="", help="Author")
+    registry_publish_parser.add_argument("--url", default="", help="URL")
+
+    registry_unpublish_parser = registry_subparsers.add_parser("unpublish", help="Unpublish a plugin")
+    registry_unpublish_parser.add_argument("name", help="Plugin name")
+
+    registry_search_parser = registry_subparsers.add_parser("search", help="Search plugins")
+    registry_search_parser.add_argument("query", help="Search query")
+
+    registry_list_parser = registry_subparsers.add_parser("list", help="List all plugins")
+
+    registry_get_parser = registry_subparsers.add_parser("get", help="Get plugin details")
+    registry_get_parser.add_argument("name", help="Plugin name")
+
+    registry_by_layer_parser = registry_subparsers.add_parser("by-layer", help="List plugins by layer")
+    registry_by_layer_parser.add_argument("layer_id", help="Layer ID")
+
+    # ARGO skill pack subcommands
+    argo_parser = subparsers.add_parser("argo", help="ARGO skill pack")
+    argo_subparsers = argo_parser.add_subparsers(dest="argo_command")
+
+    argo_info_parser = argo_subparsers.add_parser("info", help="Show skill metadata")
+    argo_invoke_parser = argo_subparsers.add_parser("invoke", help="Invoke skill")
+    argo_invoke_parser.add_argument("--params", default="{}", help="JSON params string")
+    argo_schema_parser = argo_subparsers.add_parser("schema", help="Show parameter schema")
+
     # Payments subcommands
     payments_parser = subparsers.add_parser("payments", help="Payments abstraction")
     payments_subparsers = payments_parser.add_subparsers(dest="payments_command")
@@ -797,6 +942,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_substrate(args)
     elif args.command == "identity":
         return _cmd_identity(args)
+    elif args.command == "registry":
+        return _cmd_registry(args)
+    elif args.command == "argo":
+        return _cmd_argo(args)
     else:
         parser.print_help()
         return 1
