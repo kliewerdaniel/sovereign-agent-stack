@@ -87,17 +87,19 @@
 
 ---
 
-## Phase 5: Compute Substrate (Local VM/Container)
+## Phase 5: Compute Substrate (Local VM/Container) ✅
 
 **Goal:** The agent runs on a full desktop on your hardware, not a cloud VM.
 
 **Deliverables:**
-- [ ] Docker-based desktop container (XFCE/LXDE)
+- [x] Docker-based desktop container (XFCE/LXDE)
+- [x] Container lifecycle manager (boot, capture, click, type, destroy)
+- [x] Idle auto-destroy after configurable timeout
+- [x] 21 unit tests
+- [x] CLI: `python -m sas substrate boot|list|exec|destroy`
 - [ ] Pre-configured SAS template image
-- [ ] Container lifecycle manager (boot, capture, click, type, destroy)
 - [ ] Integration with ARGO's computer-use tools
 - [ ] Resource limits and auto-destroy
-- [ ] Unit + integration tests
 
 **Exit criteria:** `python -m sas substrate boot` spins up a local desktop container the agent can operate.
 

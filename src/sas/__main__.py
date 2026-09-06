@@ -67,6 +67,98 @@ def _cmd_substrate(args: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_identity(args: argparse.Namespace) -> int:
+    """Handle identity subcommands."""
+    from sas.layers.identity import (
+        AgentMailAdapter,
+        AgentPhoneAdapter,
+        Email,
+        MockEmailAdapter,
+        MockPhoneAdapter,
+    )
+
+    sub = args.identity_command or "help"
+
+    if sub == "provision-email":
+        if args.mock:
+            adapter = MockEmailAdapter()
+        else:
+            adapter = AgentMailAdapter(api_key="stub-key")
+        inbox = adapter.provision(args.username, args.domain)
+        print(f"Inbox provisioned: {inbox.id}")
+        print(f"Address: {inbox.username}@{inbox.domain}")
+        return 0
+
+    elif sub == "send-email":
+        if args.mock:
+            adapter = MockEmailAdapter()
+        else:
+            adapter = AgentMailAdapter(api_key="stub-key")
+        # For mock, look up inbox from stored inboxes
+        inbox = None
+        if isinstance(adapter, MockEmailAdapter) and args.inbox_id in adapter._inboxes:
+            inbox = adapter._inboxes[args.inbox_id]
+        if inbox is None:
+            from sas.layers.identity import Inbox
+            inbox = Inbox(id=args.inbox_id, username="agent", domain="agentmail.to", created_at="2024-01-01T00:00:00Z")
+        email = Email(
+            from_=f"{inbox.username}@{inbox.domain}",
+            to=args.to,
+            subject=args.subject,
+            body=args.body,
+        )
+        adapter.send(inbox, email)
+        print(f"Email sent to {args.to}")
+        return 0
+
+    elif sub == "provision-phone":
+        if args.mock:
+            adapter = MockPhoneAdapter()
+        else:
+            adapter = AgentPhoneAdapter(api_key="stub-key")
+        phone = adapter.provision(args.region)
+        print(f"Phone provisioned: {phone.id}")
+        print(f"Number: {phone.number}")
+        print(f"Region: {phone.region}")
+        return 0
+
+    elif sub == "call":
+        if args.mock:
+            adapter = MockPhoneAdapter()
+        else:
+            adapter = AgentPhoneAdapter(api_key="stub-key")
+        number = None
+        if isinstance(adapter, MockPhoneAdapter) and args.number_id in adapter._numbers:
+            number = adapter._numbers[args.number_id]
+        if number is None:
+            from sas.layers.identity import PhoneNumber
+            number = PhoneNumber(id=args.number_id, number="+15550000000", region="US", capabilities=["voice", "sms"])
+        call = adapter.call(number, args.to)
+        print(f"Call placed: {call.id}")
+        print(f"To: {call.to_number}")
+        print(f"Status: {call.status}")
+        return 0
+
+    elif sub == "sms":
+        if args.mock:
+            adapter = MockPhoneAdapter()
+        else:
+            adapter = AgentPhoneAdapter(api_key="stub-key")
+        number = None
+        if isinstance(adapter, MockPhoneAdapter) and args.number_id in adapter._numbers:
+            number = adapter._numbers[args.number_id]
+        if number is None:
+            from sas.layers.identity import PhoneNumber
+            number = PhoneNumber(id=args.number_id, number="+15550000000", region="US", capabilities=["voice", "sms"])
+        adapter.sms(number, args.message)
+        print(f"SMS sent from {number.number}")
+        return 0
+
+    else:
+        print("Unknown identity subcommand")
+        return 1
+
+
 def _cmd_dashboard(args: argparse.Namespace) -> int:
     """Run the sovereignty dashboard."""
     config_path = Path(args.config).resolve()
@@ -655,6 +747,36 @@ def main(argv: list[str] | None = None) -> int:
     substrate_destroy_parser = substrate_subparsers.add_parser("destroy", help="Destroy a machine")
     substrate_destroy_parser.add_argument("machine_id", help="Machine ID")
 
+    # Identity subcommands
+    identity_parser = subparsers.add_parser("identity", help="Identity adapters")
+    identity_subparsers = identity_parser.add_subparsers(dest="identity_command")
+
+    identity_email_provision_parser = identity_subparsers.add_parser("provision-email", help="Provision email inbox")
+    identity_email_provision_parser.add_argument("username", help="Email username")
+    identity_email_provision_parser.add_argument("--domain", default="agentmail.to", help="Email domain")
+    identity_email_provision_parser.add_argument("--mock", action="store_true", help="Use mock adapter")
+
+    identity_email_send_parser = identity_subparsers.add_parser("send-email", help="Send email")
+    identity_email_send_parser.add_argument("inbox_id", help="Inbox ID")
+    identity_email_send_parser.add_argument("--to", required=True, help="Recipient")
+    identity_email_send_parser.add_argument("--subject", required=True, help="Subject")
+    identity_email_send_parser.add_argument("--body", required=True, help="Body")
+    identity_email_send_parser.add_argument("--mock", action="store_true", help="Use mock adapter")
+
+    identity_phone_provision_parser = identity_subparsers.add_parser("provision-phone", help="Provision phone number")
+    identity_phone_provision_parser.add_argument("--region", default="US", help="Phone region")
+    identity_phone_provision_parser.add_argument("--mock", action="store_true", help="Use mock adapter")
+
+    identity_phone_call_parser = identity_subparsers.add_parser("call", help="Make a call")
+    identity_phone_call_parser.add_argument("number_id", help="Phone number ID")
+    identity_phone_call_parser.add_argument("--to", required=True, help="Target number")
+    identity_phone_call_parser.add_argument("--mock", action="store_true", help="Use mock adapter")
+
+    identity_phone_sms_parser = identity_subparsers.add_parser("sms", help="Send SMS")
+    identity_phone_sms_parser.add_argument("number_id", help="Phone number ID")
+    identity_phone_sms_parser.add_argument("--message", required=True, help="Message")
+    identity_phone_sms_parser.add_argument("--mock", action="store_true", help="Use mock adapter")
+
     args = parser.parse_args(argv)
 
     if args.command == "dashboard":
@@ -673,6 +795,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_payments(args)
     elif args.command == "substrate":
         return _cmd_substrate(args)
+    elif args.command == "identity":
+        return _cmd_identity(args)
     else:
         parser.print_help()
         return 1
