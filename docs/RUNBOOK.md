@@ -1,185 +1,116 @@
 # Operations Runbook
 
-Daily, weekly, and monthly operations for a Sovereign Agent Stack deployment.
+## Sovereign Agent Stack v0.1.0
 
----
+### Daily Operations
 
-## Daily Operations
-
-### Health Check
-
+#### Check Sovereignty Drift
 ```bash
-# Quick sovereignty score check
-python -m sas dashboard --config sas.yaml --cache ~/.sas
+python -m sas dashboard --config sas.yaml --cache ~/.sas --verbose
+```
+- Score should be stable. A drop indicates a layer changed ownership (e.g., model switched from local to API).
+- Drift detection compares against the last cached score at `~/.sas/sovereignty_score.json`.
 
-# Expected output: score >= 0.625 (Sovereign target)
-# If drift detected, investigate layer changes
+#### Compile Knowledge Graph
+```bash
+python -m sas knowledge compile ~/vault --store ~/.sas/knowledge.db
+```
+- Run on a cron schedule (every 6 hours recommended).
+- Verify with: `python -m sas knowledge audit --store ~/.sas/knowledge.db`
+
+#### Rotate Credentials
+```bash
+python -m sas auth list
+python -m sas auth get github
+python -m sas auth register github --token $NEW_TOKEN  # Overwrites
 ```
 
-### Vault Audit
+### Weekly Operations
 
+#### Audit Trail Review
 ```bash
-# Check credential expiration
-# (The auth broker logs audit entries to ~/.sas/vault.db)
+python -m sas auth audit
+```
+- Review all credential-bearing requests.
+- Look for unexpected tools or paths.
+
+#### Substrate Cleanup
+```bash
+python -m sas substrate list
+python -m sas substrate destroy <machine_id>
+```
+- Idle machines auto-destroy after 300s (configurable).
+- Manually destroy long-running machines to free resources.
+
+#### Payment Reconciliation
+```bash
+python -m sas payments limit --daily 500 --per-transaction 100
+```
+- Adjust spending limits based on usage.
+- Virtual card: daily limit resets every 24h.
+
+### Monthly Operations
+
+#### Full Stack Integration Test
+```bash
+python -m pytest tests/integration/test_full_stack.py -v
+```
+- Verifies all 8 layers work together.
+- Run before and after config changes.
+
+#### Security Audit
+```bash
+# Check credential encryption
+python -c "from sas.layers.auth import LocalAuthBroker; b = LocalAuthBroker(); print('Vault OK')"
+
+# Check knowledge graph integrity
+python -m sas knowledge audit --store ~/.sas/knowledge.db
+
+# Check sovereignty score
+python -m sas dashboard --config sas.yaml --cache ~/.sas --json
 ```
 
-### Knowledge Graph Freshness
+### Incident Response
+
+| Symptom | Action |
+|---|---|
+| Score drops to 0/6 | Check `sas.yaml` — model/compute may have switched to API |
+| Auth 401 errors | Re-register: `python -m sas auth register <tool> --token $TOKEN` |
+| Payment declined | Check limits: `python -m sas payments limit --daily X --per-transaction Y` |
+| Knowledge graph empty | Re-compile: `python -m sas knowledge compile <source> --store ~/.sas/knowledge.db` |
+| Machine stuck | `python -m sas substrate destroy <id>` |
+| High drift | `python -m sas dashboard --verbose` to see which layer changed |
+
+### Backup
 
 ```bash
-# Verify recent compilation
-ls -la ~/sas-knowledge/
+# Credentials
+cp ~/.sas/vault.db ~/.sas/backup/vault-$(date +%Y%m%d).db
 
-# If files were modified but graph wasn't recompiled,
-# the cron schedule in sas.yaml may need adjustment
+# Knowledge graph
+cp ~/.sas/knowledge.db ~/.sas/backup/knowledge-$(date +%Y%m%d).db
+
+# Config
+cp sas.yaml ~/.sas/backup/sas-$(date +%Y%m%d).yaml
+
+# Sovereignty cache
+cp ~/.sas/sovereignty_score.json ~/.sas/backup/
 ```
 
----
-
-## Weekly Operations
-
-### 1. Full Sovereignty Report
+### Monitoring
 
 ```bash
-python -m sas dashboard --config sas.yaml --verbose
-```
+# JSON output for monitoring systems
+python -m sas dashboard --config sas.yaml --cache ~/.sas --json | jq '.score'
 
-Review each layer for unexpected changes. Common drift causes:
-- New API key added to Composio instead of local vault
-- Switched from local model to cloud-only model
-- Compute substrate moved to cloud VM
-
-### 2. Backup Verification
-
-```bash
-# Verify backups exist
-ls -la ~/.sas/backups/
-
-# Test restore from backup (weekly)
-cp ~/.sas/vault.db ~/.sas/backups/vault-$(date +%Y%m%d).db
-```
-
-### 3. Knowledge Graph Audit
-
-```bash
-# Run audit via Python
+# Check specific layer
 python -c "
-from sas.layers.knowledge import CompileTimeKnowledge
+from sas.core.config import parse_sas_yaml
+from sas.layers import LayerRegistry
 from pathlib import Path
-k = CompileTimeKnowledge()
-graph = k.compile(Path.home() / 'sas-knowledge')
-audit = k.audit(graph)
-print(f'Nodes: {audit.total_nodes}, Edges: {audit.total_edges}')
-print(f'Orphaned: {len(audit.orphaned_nodes)}, Stale: {len(audit.stale_nodes)}')
+r = LayerRegistry(parse_sas_yaml(Path('sas.yaml')))
+print('Model owned:', r.is_owned('layer_1'))
+print('Auth owned:', r.is_owned('layer_7'))
+print('Score:', r.sovereignty_score())
 "
 ```
-
-Review orphaned nodes — they may need links or removal.
-
-### 4. Payment Receipts Reconciliation
-
-```bash
-# Review spending against receipts
-# The VirtualCardAdapter and MPPAdapter track all receipts
-```
-
----
-
-## Monthly Operations
-
-### 1. Credential Rotation
-
-```bash
-# Rotate OAuth tokens via the refresh mechanism
-# Review audit trail for suspicious calls
-```
-
-### 2. Model Updates
-
-```bash
-# Update local model (if needed)
-docker exec ollama ollama pull llama3.1:8b
-```
-
-### 3. Docker Image Updates
-
-```bash
-# Rebuild desktop container image
-docker build -t sas-desktop:latest -f docker/Dockerfile .
-```
-
-### 4. Security Review
-
-```bash
-# Review auth broker audit trail
-# Check for unusual patterns in tool calls
-# Verify encryption keys are rotated
-```
-
----
-
-## Incident Response
-
-### Sovereignty Score Drop
-
-1. Run `python -m sas dashboard --verbose` to identify which layer changed
-2. Check `sas.yaml` for accidental modifications
-3. If drift is expected (intentional change), update baseline:
-   ```bash
-   rm ~/.sas/sovereignty_score.json
-   python -m sas dashboard --config sas.yaml  # establishes new baseline
-   ```
-
-### Vault Compromise
-
-1. **Immediately:** Unregister all tools
-   ```bash
-   # Via Python
-   from sas.layers.auth import LocalAuthBroker
-   broker = LocalAuthBroker(store_path="~/.sas/vault.db")
-   for tool in broker.list_tools():
-       broker.unregister_tool(tool)
-   ```
-2. Rotate all API keys and OAuth tokens
-3. Re-register tools with new credentials
-4. Investigate breach vector
-
-### Model Server Down
-
-1. Check Ollama: `docker ps | grep ollama`
-2. If Ollama is down, start it: `docker start ollama`
-3. If using API fallback, verify connectivity
-4. Check disk space: `df -h`
-
-### Knowledge Graph Corruption
-
-1. Stop the compile cron
-2. Backup current graph store
-3. Recompile from source:
-   ```bash
-   rm ~/.sas/knowledge_graph.db
-   python -c "from sas.layers.knowledge import CompileTimeKnowledge; CompileTimeKnowledge().compile(Path.home() / 'sas-knowledge')"
-   ```
-4. Resume compile cron
-
----
-
-## Monitoring Metrics
-
-Track these metrics over time:
-
-| Metric | Target | Warning |
-|--------|--------|---------|
-| Sovereignty score | >= 0.625 | < 0.375 |
-| Knowledge graph nodes | Growing | Stale (>30 days) |
-| Orphaned nodes | 0 | > 5 |
-| Credential refresh success | 100% | < 95% |
-| Daily spending | < limit | > 80% limit |
-| Vault audit entries | All expected | Unexpected calls |
-
----
-
-## Contact
-
-- **Security issues:** See SECURITY.md
-- **Bug reports:** https://github.com/kliewerdaniel/sovereign-agent-stack/issues
-- **Discussions:** https://github.com/kliewerdaniel/sovereign-agent-stack/discussions
