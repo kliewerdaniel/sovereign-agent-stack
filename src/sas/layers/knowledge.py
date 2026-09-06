@@ -388,7 +388,7 @@ class CompileTimeKnowledge:
         graph.source_path = str(source)
         return graph
 
-    def load(self, source: Path) -> KnowledgeGraph:
+    def load(self, source: Path | None = None) -> KnowledgeGraph:
         """Load a graph from the SQLite store, or compile from source if not found."""
         return self.materializer.load()
 

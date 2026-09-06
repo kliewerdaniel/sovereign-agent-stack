@@ -94,6 +94,18 @@ class TestResolveKnowledgeBackend:
             assert isinstance(adapter, CompileTimeKnowledge)
             assert kind == "builtin"
 
+    def test_builtin_load_no_args(self, tmp_path: Path) -> None:
+        """Built-in adapter.load() works with zero args (the regression case)."""
+        (tmp_path / "test.md").write_text("# Test\nContent.")
+        ctk = CompileTimeKnowledge(store_path=str(tmp_path / "test.db"))
+        ctk.compile(tmp_path)
+
+        with patch("sas.plugins.discover_plugins", return_value=[]):
+            adapter, kind = resolve_knowledge_backend(store_path=str(tmp_path / "test.db"))
+            assert kind == "builtin"
+            graph = adapter.load()  # This was the failing call
+            assert graph is not None
+
 
 # ── Test: compile_source error handling ──────────────────────────────────────
 
@@ -168,6 +180,23 @@ class TestQueryKnowledgeBackwardCompat:
             assert isinstance(results, list)
             assert len(results) >= 1
 
+    def test_no_plugin_with_store(self, tmp_path: Path) -> None:
+        """query_knowledge with store= and no plugin — regression test."""
+        from sas.mcp_server import query_knowledge
+        from sas.layers.knowledge import CompileTimeKnowledge
+
+        # Compile and persist first (using the adapter directly)
+        (tmp_path / "test.md").write_text("# Test\nContent about sovereign architecture.")
+        store_path = str(tmp_path / "test.db")
+        ctk = CompileTimeKnowledge(store_path=store_path)
+        ctk.compile(tmp_path)
+
+        # Now query from the store
+        with patch("sas.plugins.discover_plugins", return_value=[]):
+            results = query_knowledge("sovereign", source=str(tmp_path), store=store_path)
+            assert isinstance(results, list)
+            assert len(results) >= 1
+
 
 # ── Test: runtime/mcp_server._tool_query_knowledge is no longer a stub ───────
 
@@ -239,6 +268,31 @@ class TestToolQueryKnowledge:
         data = result.data
         assert data["count"] >= 1
         assert data["backend"] == "plugin"
+
+    def test_no_plugin_with_store(self, tmp_path: Path) -> None:
+        """_tool_query_knowledge with store= and no plugin — regression test."""
+        from sas.runtime.mcp_server import MCPServer
+        from sas.layers.knowledge import CompileTimeKnowledge
+
+        # Compile and persist first
+        (tmp_path / "test.md").write_text("# Test\nContent about sovereign.")
+        store_path = str(tmp_path / "test.db")
+        ctk = CompileTimeKnowledge(store_path=store_path)
+        ctk.compile(tmp_path)
+
+        # Now query from the store
+        server = MCPServer.from_defaults()
+        server.capability_registry.grant("read_knowledge")
+        with patch("sas.plugins.discover_plugins", return_value=[]):
+            result = server.call_tool("query_knowledge", {
+                "query": "sovereign",
+                "source": str(tmp_path),
+                "store": store_path,
+            })
+
+        assert result.success
+        data = result.data
+        assert data.get("count", 0) >= 1
 
 
 # ── Test: CLI source/plugin mismatch produces clear error ────────────────────
