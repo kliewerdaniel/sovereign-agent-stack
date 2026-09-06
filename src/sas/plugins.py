@@ -222,6 +222,8 @@ def _discover_local_plugins() -> list[LayerPlugin]:
                 # Look for plugin metadata
                 if hasattr(module, "SAS_PLUGIN"):
                     meta = module.SAS_PLUGIN
+                    # Capture factory function if present
+                    factory = getattr(module, "create_adapter", None)
                     plugin = LayerPlugin(
                         name=meta.get("name", plugin_file.stem),
                         layer_id=meta.get("layer_id", ""),
@@ -230,6 +232,7 @@ def _discover_local_plugins() -> list[LayerPlugin]:
                         source=PluginSource.LOCAL,
                         author=meta.get("author", ""),
                         url=meta.get("url", ""),
+                        factory=factory,
                     )
                     plugins.append(plugin)
         except Exception:

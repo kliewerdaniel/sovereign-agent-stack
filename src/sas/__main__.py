@@ -647,32 +647,10 @@ def _cmd_payments(args: argparse.Namespace) -> int:
         return 1
 
 
-def _is_tie_source(source: Path) -> bool:
-    """Detect if a source is a TIE graph export (JSON with nodes/edges)."""
-    import json
-    if source.is_file() and source.suffix == ".json":
-        try:
-            data = json.loads(source.read_text(encoding="utf-8"))
-            return isinstance(data, dict) and "nodes" in data and "edges" in data
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return False
-    if source.is_dir():
-        for jf in source.glob("*.json"):
-            try:
-                data = json.loads(jf.read_text(encoding="utf-8"))
-                if isinstance(data, dict) and "nodes" in data and "edges" in data:
-                    return True
-            except (json.JSONDecodeError, UnicodeDecodeError):
-                continue
-    return False
-
-
 def _cmd_knowledge(args: argparse.Namespace) -> int:
     """Handle knowledge subcommands."""
     from sas.layers.knowledge import CompileTimeKnowledge
     from pathlib import Path
-    import json
-    import sqlite3
 
     sub = args.knowledge_command or "help"
     store_path = Path(args.store).expanduser().resolve()
@@ -683,12 +661,16 @@ def _cmd_knowledge(args: argparse.Namespace) -> int:
             print(f"Source not found: {source}")
             return 1
 
-        # Detect TIE graph sources
-        if _is_tie_source(source):
-            from sas_tie_knowledge.adapter import TIEKnowledgeAdapter
-            adapter = TIEKnowledgeAdapter(store_path=str(store_path))
+        # Check if a plugin is registered for Layer 6
+        from sas.plugins import get_plugin, discover_plugins, register_plugin, auto_register_discovered
+        auto_register_discovered()
+        plugin = get_plugin("layer_6_long_term_knowledge")
+
+        if plugin is not None and plugin.name == "tie-knowledge":
+            # Use the TIE plugin factory
+            adapter = plugin.factory(store_path=str(store_path))
             graph = adapter.compile(source)
-            print(f"Compiled (TIE adapter): {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+            print(f"Compiled (TIE plugin): {len(graph.nodes)} nodes, {len(graph.edges)} edges")
             print(f"Store: {store_path}")
             for node in graph.nodes[:20]:
                 print(f"  - {node.label}")
@@ -696,6 +678,7 @@ def _cmd_knowledge(args: argparse.Namespace) -> int:
                 print(f"  ... and {len(graph.nodes) - 20} more nodes")
             return 0
 
+        # Default: built-in CompileTimeKnowledge
         ctk = CompileTimeKnowledge(store_path=str(store_path))
         graph = ctk.compile(source)
         print(f"Compiled: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
@@ -710,24 +693,19 @@ def _cmd_knowledge(args: argparse.Namespace) -> int:
             print("Run 'python -m sas knowledge compile <source>' first.")
             return 1
 
-        # Check if this is a TIE store (has tie_group in properties)
-        conn = sqlite3.connect(str(store_path))
-        try:
-            rows = conn.execute("SELECT properties FROM nodes LIMIT 1").fetchall()
-            is_tie = rows and "tie_group" in json.loads(rows[0][0]) if rows[0][0] else False
-        except:
-            is_tie = False
-        conn.close()
+        # Check if a plugin is registered for Layer 6
+        from sas.plugins import get_plugin, auto_register_discovered
+        auto_register_discovered()
+        plugin = get_plugin("layer_6_long_term_knowledge")
 
-        if is_tie:
-            from sas_tie_knowledge.adapter import TIEKnowledgeAdapter
-            adapter = TIEKnowledgeAdapter(store_path=str(store_path))
+        if plugin is not None and plugin.name == "tie-knowledge":
+            adapter = plugin.factory(store_path=str(store_path))
             graph = adapter.load()
             if not graph.nodes:
                 print("Graph is empty. Compile first.")
                 return 1
             results = adapter.query(graph, args.query)
-            print(f"Query (TIE adapter): {args.query}")
+            print(f"Query (TIE plugin): {args.query}")
             print(f"Results: {len(results)}")
             for r in results[:20]:
                 print(f"  - {r.label}")
@@ -752,24 +730,19 @@ def _cmd_knowledge(args: argparse.Namespace) -> int:
             print(f"Graph store not found: {store_path}")
             return 1
 
-        # Check if this is a TIE store
-        conn = sqlite3.connect(str(store_path))
-        try:
-            rows = conn.execute("SELECT properties FROM nodes LIMIT 1").fetchall()
-            is_tie = rows and "tie_group" in json.loads(rows[0][0]) if rows[0][0] else False
-        except:
-            is_tie = False
-        conn.close()
+        # Check if a plugin is registered for Layer 6
+        from sas.plugins import get_plugin, auto_register_discovered
+        auto_register_discovered()
+        plugin = get_plugin("layer_6_long_term_knowledge")
 
-        if is_tie:
-            from sas_tie_knowledge.adapter import TIEKnowledgeAdapter
-            adapter = TIEKnowledgeAdapter(store_path=str(store_path))
+        if plugin is not None and plugin.name == "tie-knowledge":
+            adapter = plugin.factory(store_path=str(store_path))
             graph = adapter.load()
             if not graph.nodes:
                 print("Graph is empty. Compile first.")
                 return 1
             report = adapter.audit(graph)
-            print(f"Audit (TIE adapter): {report.total_nodes} nodes, {report.total_edges} edges")
+            print(f"Audit (TIE plugin): {report.total_nodes} nodes, {report.total_edges} edges")
             print(f"Orphaned: {len(report.orphaned_nodes)}")
             print(f"Stale: {len(report.stale_nodes)} (not applicable — TIE has no timestamps)")
             return 0

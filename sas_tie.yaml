@@ -26,7 +26,7 @@ memory:
     max_context_tokens: 8000
   long_term:
     provider: compile_time_graph
-    source: /Users/danielkliewer/Projects/a10/sovereign-ai-site/tie/data/tie_graph_export.json
+    source: ~/tie_graph_export.json   # TIE graph export JSON (from `tie graph` + export_graph_json)
     graph_store: sqlite
     compile_cron: "0 */6 * * *"
     on_watch: true
