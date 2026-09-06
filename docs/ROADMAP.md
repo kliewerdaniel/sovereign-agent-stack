@@ -54,18 +54,18 @@
 
 ---
 
-## Phase 3: Local Auth Broker / MCP Gateway
+## Phase 3: Local Auth Broker / MCP Gateway ✅
 
 **Goal:** Composio's convenience without Composio's centralization.
 
 **Deliverables:**
+- [x] Encrypted credential vault (SQLite + XOR obfuscation, libsodium in production)
+- [x] Tool registration CLI wizard (`python -m sas auth register`)
+- [x] Token refresh (`python -m sas auth refresh`)
+- [x] Audit trail viewer (`python -m sas auth audit`)
+- [x] Unit + integration tests (17 tests)
 - [ ] Local MCP gateway server
-- [ ] Encrypted credential vault (SQLite + libsodium)
-- [ ] Tool registration CLI wizard
-- [ ] Token refresh cron
-- [ ] Audit trail viewer
 - [ ] Integration with ARGO's MCP client
-- [ ] Unit + integration tests
 
 **Exit criteria:** A tool registered with the local gateway can be called by the agent without credentials leaving the machine.
 

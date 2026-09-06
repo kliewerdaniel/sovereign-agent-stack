@@ -1,57 +1,24 @@
-"""Tests for the payments abstraction layer."""
+# — Unit tests for the Payments Abstraction (Phase 4) —
 
 import pytest
-
+import time
 from sas.layers.payments import (
+    MPPAdapter,
+    PaymentAdapter,
     PaymentRequirement,
     Receipt,
     SpendingLimit,
-    PaymentAdapter,
     VirtualCardAdapter,
-    MPPAdapter,
 )
 
 
-class TestPaymentRequirement:
-    """Tests for payment requirement."""
-
-    def test_create_one_shot_requirement(self) -> None:
-        """One-shot payment requirement."""
-        req = PaymentRequirement(
-            resource="api.openai.com/v1/chat",
-            price=0.002,
-            currency="USD",
-            methods=["card", "stablecoin"],
-            cadence="one_shot",
-            metadata={"model": "gpt-4o"},
-        )
-        assert req.price == 0.002
-        assert req.cadence == "one_shot"
-
-    def test_create_streaming_requirement(self) -> None:
-        """Streaming payment requirement."""
-        req = PaymentRequirement(
-            resource="api.anthropic.com/v1/messages",
-            price=0.001,
-            currency="USD",
-            methods=["stablecoin"],
-            cadence="streaming",
-            metadata={"model": "claude-sonnet"},
-        )
-        assert req.cadence == "streaming"
-
+# ── VirtualCardAdapter ─────────────────────────────────────────────────────────
 
 class TestVirtualCardAdapter:
-    """Tests for the virtual card payment adapter."""
-
-    def test_pay_within_limit(self) -> None:
-        """Payment within spending limit succeeds."""
-        adapter = VirtualCardAdapter(
-            provider="ramp",
-            limit=SpendingLimit(daily=100.0, per_transaction=50.0, currency="USD"),
-        )
+    def test_pay_success(self):
+        adapter = VirtualCardAdapter()
         req = PaymentRequirement(
-            resource="api.example.com/data",
+            resource="openai-api",
             price=10.0,
             currency="USD",
             methods=["card"],
@@ -61,244 +28,175 @@ class TestVirtualCardAdapter:
         receipt = adapter.pay(req)
         assert receipt.status == "completed"
         assert receipt.amount == 10.0
+        assert receipt.method == "card"
+        assert receipt.resource == "openai-api"
 
-    def test_pay_exceeds_daily_limit(self) -> None:
-        """Payment exceeding daily limit is rejected."""
-        adapter = VirtualCardAdapter(
-            provider="ramp",
-            limit=SpendingLimit(daily=5.0, per_transaction=50.0, currency="USD"),
-        )
+    def test_pay_unsupported_method_raises(self):
+        adapter = VirtualCardAdapter()
         req = PaymentRequirement(
-            resource="api.example.com/data",
+            resource="test",
             price=10.0,
             currency="USD",
-            methods=["card"],
-            cadence="one_shot",
-            metadata={},
-        )
-        with pytest.raises(ValueError, match="Daily limit"):
-            adapter.pay(req)
-
-    def test_pay_exceeds_transaction_limit(self) -> None:
-        """Payment exceeding per-transaction limit is rejected."""
-        adapter = VirtualCardAdapter(
-            provider="ramp",
-            limit=SpendingLimit(daily=1000.0, per_transaction=10.0, currency="USD"),
-        )
-        req = PaymentRequirement(
-            resource="api.example.com/data",
-            price=50.0,
-            currency="USD",
-            methods=["card"],
-            cadence="one_shot",
-            metadata={},
-        )
-        with pytest.raises(ValueError, match="transaction limit"):
-            adapter.pay(req)
-
-    def test_pay_unsupported_method(self) -> None:
-        """Payment with unsupported method is rejected."""
-        adapter = VirtualCardAdapter(
-            provider="ramp",
-            limit=SpendingLimit(daily=100.0, per_transaction=50.0, currency="USD"),
-        )
-        req = PaymentRequirement(
-            resource="api.example.com/data",
-            price=10.0,
-            currency="USD",
-            methods=["stablecoin"],  # Virtual card only supports card
+            methods=["stablecoin"],
             cadence="one_shot",
             metadata={},
         )
         with pytest.raises(ValueError, match="Unsupported payment method"):
             adapter.pay(req)
 
-    def test_receipt_retrieval(self) -> None:
-        """Can retrieve receipt by payment ID."""
-        adapter = VirtualCardAdapter(
-            provider="ramp",
-            limit=SpendingLimit(daily=100.0, per_transaction=50.0, currency="USD"),
-        )
+    def test_pay_exceeds_per_transaction_limit(self):
+        adapter = VirtualCardAdapter()
         req = PaymentRequirement(
-            resource="api.example.com/data",
-            price=10.0,
+            resource="test",
+            price=100.0,
             currency="USD",
             methods=["card"],
             cadence="one_shot",
             metadata={},
         )
+        with pytest.raises(ValueError, match="exceeds per-transaction limit"):
+            adapter.pay(req)
+
+    def test_pay_exceeds_daily_limit(self):
+        adapter = VirtualCardAdapter(limit=SpendingLimit(daily=50.0, per_transaction=50.0, currency="USD"))
+        req1 = PaymentRequirement("r1", 30.0, "USD", ["card"], "one_shot", {})
+        req2 = PaymentRequirement("r2", 30.0, "USD", ["card"], "one_shot", {})
+        adapter.pay(req1)
+        with pytest.raises(ValueError, match="Daily limit exceeded"):
+            adapter.pay(req2)
+
+    def test_authorize_updates_limit(self):
+        adapter = VirtualCardAdapter()
+        new_limit = SpendingLimit(daily=500.0, per_transaction=200.0, currency="USD")
+        adapter.authorize(new_limit)
+        req = PaymentRequirement("test", 150.0, "USD", ["card"], "one_shot", {})
+        receipt = adapter.pay(req)
+        assert receipt.amount == 150.0
+
+    def test_receipt_retrieval(self):
+        adapter = VirtualCardAdapter()
+        req = PaymentRequirement("test", 5.0, "USD", ["card"], "one_shot", {})
         receipt = adapter.pay(req)
         retrieved = adapter.receipt(receipt.payment_id)
         assert retrieved is not None
         assert retrieved.payment_id == receipt.payment_id
 
-    def test_track_spending(self) -> None:
-        """Adapter tracks cumulative daily spending."""
-        adapter = VirtualCardAdapter(
-            provider="ramp",
-            limit=SpendingLimit(daily=100.0, per_transaction=50.0, currency="USD"),
-        )
-        req = PaymentRequirement(
-            resource="api.example.com/data",
-            price=10.0,
-            currency="USD",
-            methods=["card"],
-            cadence="one_shot",
-            metadata={},
-        )
-        adapter.pay(req)
-        adapter.pay(req)
-        assert adapter.daily_spending == 20.0
+    def test_receipt_unknown_returns_none(self):
+        adapter = VirtualCardAdapter()
+        assert adapter.receipt("nonexistent") is None
 
-    def test_remaining_daily(self) -> None:
-        """Can check remaining daily budget."""
-        adapter = VirtualCardAdapter(
-            provider="ramp",
-            limit=SpendingLimit(daily=100.0, per_transaction=50.0, currency="USD"),
-        )
-        req = PaymentRequirement(
-            resource="api.example.com/data",
-            price=30.0,
-            currency="USD",
-            methods=["card"],
-            cadence="one_shot",
-            metadata={},
-        )
-        adapter.pay(req)
+    def test_daily_spending_tracks(self):
+        adapter = VirtualCardAdapter()
+        assert adapter.daily_spending == 0.0
+        adapter.pay(PaymentRequirement("r", 10.0, "USD", ["card"], "one_shot", {}))
+        assert adapter.daily_spending == 10.0
+        adapter.pay(PaymentRequirement("r", 5.0, "USD", ["card"], "one_shot", {}))
+        assert adapter.daily_spending == 15.0
+
+    def test_remaining_daily(self):
+        adapter = VirtualCardAdapter()
+        assert adapter.remaining_daily == 100.0
+        adapter.pay(PaymentRequirement("r", 30.0, "USD", ["card"], "one_shot", {}))
         assert adapter.remaining_daily == 70.0
 
 
+# ── MPPAdapter ─────────────────────────────────────────────────────────────────
+
 class TestMPPAdapter:
-    """Tests for the Machine Payments Protocol adapter."""
-
-    def test_pay_with_stablecoin(self) -> None:
-        """Pay with stablecoin via MPP."""
-        adapter = MPPAdapter(
-            settlement="stablecoin",
-            limit=SpendingLimit(daily=1000.0, per_transaction=100.0, currency="USD"),
-        )
+    def test_pay_stablecoin(self):
+        adapter = MPPAdapter(settlement="stablecoin")
         req = PaymentRequirement(
-            resource="api.example.com/data",
-            price=0.5,
+            resource="api-call",
+            price=0.50,
             currency="USD",
-            methods=["stablecoin"],
-            cadence="streaming",
-            metadata={},
-        )
-        receipt = adapter.pay(req)
-        assert receipt.status == "completed"
-        assert receipt.method == "stablecoin"
-
-    def test_pay_with_card(self) -> None:
-        """Pay with card via Shared Payment Token."""
-        adapter = MPPAdapter(
-            settlement="card",
-            limit=SpendingLimit(daily=1000.0, per_transaction=100.0, currency="USD"),
-        )
-        req = PaymentRequirement(
-            resource="api.example.com/data",
-            price=0.5,
-            currency="USD",
-            methods=["card"],
+            methods=["stablecoin", "card"],
             cadence="one_shot",
             metadata={},
         )
         receipt = adapter.pay(req)
-        assert receipt.status == "completed"
+        assert receipt.method == "stablecoin"
+        assert receipt.amount == 0.50
+
+    def test_pay_card(self):
+        adapter = MPPAdapter(settlement="card")
+        req = PaymentRequirement("test", 25.0, "USD", ["card"], "one_shot", {})
+        receipt = adapter.pay(req)
         assert receipt.method == "card"
 
-    def test_pay_exceeds_limit(self) -> None:
-        """Payment exceeding limit is rejected."""
-        adapter = MPPAdapter(
-            settlement="stablecoin",
-            limit=SpendingLimit(daily=1.0, per_transaction=0.1, currency="USD"),
-        )
+    def test_pay_bnpl(self):
+        adapter = MPPAdapter(settlement="bnpl")
+        req = PaymentRequirement("test", 75.0, "USD", ["bnpl"], "one_shot", {})
+        receipt = adapter.pay(req)
+        assert receipt.method == "bnpl"
+
+    def test_pay_unsupported_settlement_raises(self):
+        adapter = MPPAdapter(settlement="card")
+        req = PaymentRequirement("test", 10.0, "USD", ["stablecoin"], "one_shot", {})
+        with pytest.raises(ValueError, match="Unsupported payment method"):
+            adapter.pay(req)
+
+    def test_pay_exceeds_limit(self):
+        adapter = MPPAdapter(settlement="stablecoin")
+        req = PaymentRequirement("test", 500.0, "USD", ["stablecoin"], "one_shot", {})
+        with pytest.raises(ValueError, match="exceeds per-transaction limit"):
+            adapter.pay(req)
+
+    def test_pay_exceeds_daily(self):
+        adapter = MPPAdapter(settlement="stablecoin", limit=SpendingLimit(daily=50.0, per_transaction=50.0, currency="USD"))
+        adapter.pay(PaymentRequirement("r1", 30.0, "USD", ["stablecoin"], "one_shot", {}))
+        with pytest.raises(ValueError, match="Daily limit exceeded"):
+            adapter.pay(PaymentRequirement("r2", 30.0, "USD", ["stablecoin"], "one_shot", {}))
+
+    def test_authorize(self):
+        adapter = MPPAdapter(settlement="stablecoin")
+        adapter.authorize(SpendingLimit(daily=500.0, per_transaction=200.0, currency="USD"))
+        receipt = adapter.pay(PaymentRequirement("test", 150.0, "USD", ["stablecoin"], "one_shot", {}))
+        assert receipt.amount == 150.0
+
+    def test_receipt(self):
+        adapter = MPPAdapter(settlement="stablecoin")
+        receipt = adapter.pay(PaymentRequirement("test", 1.0, "USD", ["stablecoin"], "one_shot", {}))
+        assert adapter.receipt(receipt.payment_id) is not None
+
+    def test_daily_spending(self):
+        adapter = MPPAdapter(settlement="stablecoin")
+        assert adapter.daily_spending == 0.0
+        adapter.pay(PaymentRequirement("r", 5.0, "USD", ["stablecoin"], "one_shot", {}))
+        assert adapter.daily_spending == 5.0
+
+
+# ── Cross-adapter behavior ─────────────────────────────────────────────────────
+
+class TestCrossAdapter:
+    def test_both_adapters_same_interface(self):
+        """Both adapters expose pay/authorize/receipt/daily_spending/remaining_daily."""
+        for adapter_cls in [VirtualCardAdapter, MPPAdapter]:
+            adapter = adapter_cls()
+            assert hasattr(adapter, "pay")
+            assert hasattr(adapter, "authorize")
+            assert hasattr(adapter, "receipt")
+            assert hasattr(adapter, "daily_spending")
+            assert hasattr(adapter, "remaining_daily")
+
+    def test_payment_requirement_dataclass(self):
         req = PaymentRequirement(
-            resource="api.example.com/data",
+            resource="test",
             price=10.0,
             currency="USD",
-            methods=["stablecoin"],
-            cadence="one_shot",
-            metadata={},
+            methods=["card"],
+            cadence="recurring",
+            metadata={"plan": "pro"},
         )
-        with pytest.raises(ValueError, match="limit"):
-            adapter.pay(req)
+        assert req.resource == "test"
+        assert req.cadence == "recurring"
+        assert req.metadata["plan"] == "pro"
 
-    def test_pay_unsupported_settlement(self) -> None:
-        """Payment with unsupported settlement method is rejected."""
-        adapter = MPPAdapter(
-            settlement="stablecoin",
-            limit=SpendingLimit(daily=1000.0, per_transaction=100.0, currency="USD"),
-        )
-        req = PaymentRequirement(
-            resource="api.example.com/data",
-            price=0.5,
-            currency="USD",
-            methods=["bnpl"],  # BNPL not supported by this adapter
-            cadence="one_shot",
-            metadata={},
-        )
-        with pytest.raises(ValueError, match="Unsupported"):
-            adapter.pay(req)
+    def test_spending_limit_dataclass(self):
+        limit = SpendingLimit(daily=100.0, per_transaction=50.0, currency="USD")
+        assert limit.daily == 100.0
+        assert limit.per_transaction == 50.0
 
-    def test_streaming_payment(self) -> None:
-        """Streaming payment cadence is tracked differently."""
-        adapter = MPPAdapter(
-            settlement="stablecoin",
-            limit=SpendingLimit(daily=1000.0, per_transaction=1.0, currency="USD"),
-        )
-        req = PaymentRequirement(
-            resource="api.example.com/stream",
-            price=0.001,
-            currency="USD",
-            methods=["stablecoin"],
-            cadence="streaming",
-            metadata={},
-        )
-        # Should succeed for small amounts
-        receipt = adapter.pay(req)
-        assert receipt.status == "completed"
-
-    def test_receipt_retrieval(self) -> None:
-        """Can retrieve MPP receipt by payment ID."""
-        adapter = MPPAdapter(
-            settlement="stablecoin",
-            limit=SpendingLimit(daily=1000.0, per_transaction=100.0, currency="USD"),
-        )
-        req = PaymentRequirement(
-            resource="api.example.com/data",
-            price=0.5,
-            currency="USD",
-            methods=["stablecoin"],
-            cadence="one_shot",
-            metadata={},
-        )
-        receipt = adapter.pay(req)
-        retrieved = adapter.receipt(receipt.payment_id)
-        assert retrieved is not None
-        assert retrieved.payment_id == receipt.payment_id
-        assert retrieved.amount == 0.5
-
-
-class TestPaymentAdapterProtocol:
-    """Tests for the PaymentAdapter protocol."""
-
-    def test_virtual_card_implements_protocol(self) -> None:
-        """VirtualCardAdapter implements PaymentAdapter protocol."""
-        adapter = VirtualCardAdapter(
-            provider="ramp",
-            limit=SpendingLimit(daily=100.0, per_transaction=50.0, currency="USD"),
-        )
-        assert hasattr(adapter, "pay")
-        assert hasattr(adapter, "authorize")
-        assert hasattr(adapter, "receipt")
-
-    def test_mpp_implements_protocol(self) -> None:
-        """MPPAdapter implements PaymentAdapter protocol."""
-        adapter = MPPAdapter(
-            settlement="stablecoin",
-            limit=SpendingLimit(daily=1000.0, per_transaction=100.0, currency="USD"),
-        )
-        assert hasattr(adapter, "pay")
-        assert hasattr(adapter, "authorize")
-        assert hasattr(adapter, "receipt")
+    def test_receipt_timestamp(self):
+        adapter = VirtualCardAdapter()
+        receipt = adapter.pay(PaymentRequirement("r", 1.0, "USD", ["card"], "one_shot", {}))
+        assert "T" in receipt.timestamp  # ISO 8601

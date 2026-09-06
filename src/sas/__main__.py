@@ -340,6 +340,53 @@ def _cmd_auth(args: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_payments(args: argparse.Namespace) -> int:
+    """Handle payments subcommands."""
+    from sas.layers.payments import MPPAdapter, PaymentRequirement, SpendingLimit, VirtualCardAdapter
+
+    sub = args.payments_command or "help"
+
+    if sub == "pay":
+        if args.adapter == "virtual_card":
+            adapter = VirtualCardAdapter()
+        else:
+            adapter = MPPAdapter(settlement="stablecoin")
+        methods = args.methods.split(",")
+        req = PaymentRequirement(
+            resource=args.resource,
+            price=args.price,
+            currency=args.currency,
+            methods=methods,
+            cadence=args.cadence,
+            metadata={},
+        )
+        try:
+            receipt = adapter.pay(req)
+        except ValueError as e:
+            print(f"Payment failed: {e}")
+            return 1
+        print(f"Payment: {receipt.resource}")
+        print(f"Amount: {receipt.amount} {receipt.currency}")
+        print(f"Method: {receipt.method}")
+        print(f"Status: {receipt.status}")
+        print(f"ID: {receipt.payment_id}")
+        return 0
+
+    elif sub == "limit":
+        if args.adapter == "virtual_card":
+            adapter = VirtualCardAdapter()
+        else:
+            adapter = MPPAdapter(settlement="stablecoin")
+        limit = SpendingLimit(daily=args.daily, per_transaction=args.per_transaction, currency=args.currency)
+        adapter.authorize(limit)
+        print(f"Limit set: {args.daily} {args.currency}/day, {args.per_transaction} {args.currency}/tx")
+        return 0
+
+    else:
+        print("Unknown payments subcommand")
+        return 1
+
+
 def _cmd_knowledge(args: argparse.Namespace) -> int:
     """Handle knowledge subcommands."""
     from sas.layers.knowledge import CompileTimeKnowledge
@@ -516,6 +563,24 @@ def main(argv: list[str] | None = None) -> int:
     auth_audit_parser = auth_subparsers.add_parser("audit", help="View audit trail")
     auth_audit_parser.add_argument("--store", default="~/.sas/auth.db", help="Credential store path")
 
+    # Payments subcommands
+    payments_parser = subparsers.add_parser("payments", help="Payments abstraction")
+    payments_subparsers = payments_parser.add_subparsers(dest="payments_command")
+
+    payments_pay_parser = payments_subparsers.add_parser("pay", help="Make a payment")
+    payments_pay_parser.add_argument("resource", help="Resource to pay for")
+    payments_pay_parser.add_argument("--price", type=float, required=True, help="Price")
+    payments_pay_parser.add_argument("--currency", default="USD", help="Currency")
+    payments_pay_parser.add_argument("--methods", default="card", help="Comma-separated payment methods")
+    payments_pay_parser.add_argument("--cadence", default="one_shot", help="Payment cadence")
+    payments_pay_parser.add_argument("--adapter", default="virtual_card", choices=["virtual_card", "mpp"], help="Payment adapter")
+
+    payments_limit_parser = payments_subparsers.add_parser("limit", help="Set spending limit")
+    payments_limit_parser.add_argument("--daily", type=float, required=True, help="Daily limit")
+    payments_limit_parser.add_argument("--per-transaction", type=float, required=True, help="Per-transaction limit")
+    payments_limit_parser.add_argument("--currency", default="USD", help="Currency")
+    payments_limit_parser.add_argument("--adapter", default="virtual_card", choices=["virtual_card", "mpp"], help="Payment adapter")
+
     args = parser.parse_args(argv)
 
     if args.command == "dashboard":
@@ -530,6 +595,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_knowledge(args)
     elif args.command == "auth":
         return _cmd_auth(args)
+    elif args.command == "payments":
+        return _cmd_payments(args)
     else:
         parser.print_help()
         return 1
