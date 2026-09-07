@@ -735,7 +735,7 @@ def main(argv: list[str] | None = None) -> int:
         prog="sas",
         description="Sovereign Agent Stack — local-first, compile-time AI agent framework",
     )
-    parser.add_argument("--version", action="version", version="%(prog)s 1.0.2")
+    parser.add_argument("--version", action="version", version="%(prog)s 1.0.3")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
