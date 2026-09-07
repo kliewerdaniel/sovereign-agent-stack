@@ -14,6 +14,18 @@ from sas.quant.worlds.adversarial import (
     STRATEGY_RISK_WORLD,
     REPLAYED_TRADE_WORLD,
 )
+from sas.quant.worlds.risk_parity import (
+    RISK_PARITY_WORLD,
+    RISK_PARITY_TASK,
+    RISK_PARITY_RUBRIC,
+    RISK_PARITY_GOLD,
+)
+from sas.quant.worlds.momentum import (
+    MOMENTUM_WORLD,
+    MOMENTUM_TASK,
+    MOMENTUM_RUBRIC,
+    MOMENTUM_GOLD,
+)
 
 __all__ = [
     "PORTFOLIO_INTELLIGENCE_WORLD",
@@ -28,4 +40,12 @@ __all__ = [
     "PROVENANCE_ATTACK_WORLD",
     "STRATEGY_RISK_WORLD",
     "REPLAYED_TRADE_WORLD",
+    "RISK_PARITY_WORLD",
+    "RISK_PARITY_TASK",
+    "RISK_PARITY_RUBRIC",
+    "RISK_PARITY_GOLD",
+    "MOMENTUM_WORLD",
+    "MOMENTUM_TASK",
+    "MOMENTUM_RUBRIC",
+    "MOMENTUM_GOLD",
 ]

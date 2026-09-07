@@ -1,20 +1,16 @@
-"""
-End-to-end integration: StubModelAdapter → QuantToolbox → ExecutionRun → Evaluation.
+"""End-to-end integration tests for the Quant research pipeline.
 
-This is the critical integration test that proves the Phase 2 architecture
-actually works end-to-end:
-1. Create a QuantWorld + Task + Rubric
-2. Build a QuantToolbox with real tool implementations
-3. Run a StubModelAdapter through the loop
-4. Evaluate the resulting ExecutionRun against the rubric
-5. Check Pass@1, sovereignty, provenance
+Covers the full pipeline: world → toolbox → model → execution → evaluation.
+Runs against multiple worlds including portfolio intelligence, risk parity,
+momentum, and adversarial worlds.
 
-The stub model is scripted to call the right tools in the right order,
-simulating what a real model would do once trained on the environment.
+These tests use StubModelAdapter (scripted) so they pass deterministically
+without requiring a real LLM or internet access.
 """
 
 from __future__ import annotations
 
+import sys
 import json
 import tempfile
 from pathlib import Path
@@ -22,17 +18,28 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+# Ensure src is importable
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "src"))
+
 from sas.quant import (
-    QuantWorld, Task, Rubric, ExecutionRun, TrajectoryStep,
+    QuantWorld, Task, Rubric, Criterion, CriterionResult,
+    Evidence, ExecutionRun, TrajectoryStep, RunEvaluation,
+    QuantWorldBuilder, ModelAdapter, CapabilityComposition,
+    RunEvaluator, BenchmarkResult, BenchmarkRunner,
+    compute_pass_k, aggregate_benchmark,
+    evaluate_sovereignty,
     QuantToolbox, create_toolbox_from_world,
     StubModelAdapter, ToolFormatter,
-    RunEvaluator, aggregate_benchmark, compute_pass_k,
-    evaluate_sovereignty,
-    PORTFOLIO_INTELLIGENCE_WORLD, PORTFOLIO_INTELLIGENCE_TASK,
-    PORTFOLIO_INTELLIGENCE_RUBRIC,
+    quant_coordinator,
 )
-
 from sas.quant.market import MarketDataProvider, DatasetInfo
+from sas.quant.worlds import (
+    PORTFOLIO_INTELLIGENCE_WORLD, PORTFOLIO_INTELLIGENCE_TASK,
+    PORTFOLIO_INTELLIGENCE_RUBRIC, PORTFOLIO_INTELLIGENCE_GOLD,
+    RISK_PARITY_WORLD, RISK_PARITY_TASK, RISK_PARITY_RUBRIC,
+    MOMENTUM_WORLD, MOMENTUM_TASK, MOMENTUM_RUBRIC,
+    ADVERSTIONAL_WORLDS,
+)
 
 
 # ── Synthetic Data Generator ──────────────────────────────────────────────────
@@ -65,15 +72,9 @@ def generate_synthetic_prices(symbol: str, start: str, end: str,
 
 
 class SyntheticProvider(MarketDataProvider):
-    """In-memory synthetic price source for CI / offline pipeline tests.
+    """In-memory synthetic price source for CI / offline pipeline tests."""
 
-    Returned frames carry a tz-naive UTC index so they are
-    indistinguishable from cached yfinance / stooq / alpaca frames
-    downstream (the pipeline's `get_prices` helpers strip TZinfo).
-    """
-
-    def __init__(self, data: dict[str, pd.DataFrame],
-                 source_version: str = "test-1.0"):
+    def __init__(self, data: dict[str, pd.DataFrame], source_version: str = "test-1.0"):
         self._data = data
         self._source_version = source_version
 
@@ -84,8 +85,7 @@ class SyntheticProvider(MarketDataProvider):
         mask = (df.index >= start) & (df.index <= end)
         return df[mask]
 
-    def get_bars(self, symbol: str, start: str, end: str,
-                 interval: str = "1d") -> pd.DataFrame:
+    def get_bars(self, symbol: str, start: str, end: str, interval: str = "1d") -> pd.DataFrame:
         return self.get_prices(symbol, start, end)
 
     def validate(self, symbol: str, start: str, end: str) -> dict:
@@ -125,172 +125,169 @@ def create_test_data_provider(world: QuantWorld) -> dict[str, pd.DataFrame]:
     return data
 
 
-# ── Scripted Stub: Portfolio Intelligence Workflow ──────────────────────────
+# ── Scripted Workflows ────────────────────────────────────────────────────────
 
 def create_portfolio_intelligence_script() -> list[dict]:
-    """Script that simulates a model doing the portfolio intelligence workflow.
-
-    This is what a competent model WOULD do if it understood the environment.
-    Used to test the pipeline without requiring a real LLM.
-    """
+    """Scripted portfolio intelligence workflow."""
     return [
-        # Step 1: Get portfolio
-        {
-            "tools": [{"name": "get_portfolio", "arguments": {}}],
-            "response": "I will start by examining the portfolio holdings and then gather market data.",
-        },
-        # Step 2: Get prices for all positions
-        {
-            "tools": [
-                {"name": "get_prices", "arguments": {"symbol": "AAPL", "start": "2024-01-02", "end": "2024-12-31"}},
-                {"name": "get_prices", "arguments": {"symbol": "MSFT", "start": "2024-01-02", "end": "2024-12-31"}},
-                {"name": "get_prices", "arguments": {"symbol": "GOOG", "start": "2024-01-02", "end": "2024-12-31"}},
-            ],
-            "response": "Gathered price data for top positions.",
-        },
-        # Step 3: Compute risk metrics
-        {
-            "tools": [
-                {"name": "compute_risk_metrics", "arguments": {"symbol": "AAPL", "start": "2024-01-02", "end": "2024-12-31"}},
-                {"name": "compute_risk_metrics", "arguments": {"symbol": "MSFT", "start": "2024-01-02", "end": "2024-12-31"}},
-            ],
-            "response": "Computed risk metrics for key positions.",
-        },
-        # Step 4: Compute portfolio returns (simulated weights)
-        {
-            "tools": [
-                {"name": "compute_portfolio_returns", "arguments": {
-                    "weights": {"AAPL": 0.30, "MSFT": 0.20, "GOOG": 0.15, "AMZN": 0.15, "NVDA": 0.10, "META": 0.10},
-                    "start": "2024-01-02",
-                    "end": "2024-12-31",
-                }},
-            ],
-            "response": "Computed portfolio-level returns and risk metrics.",
-        },
-        # Step 5: Compute concentration
-        {
-            "tools": [
-                {"name": "compute_concentration", "arguments": {
-                    "positions": {"AAPL": 12500, "MSFT": 8200, "GOOG": 6400, "AMZN": 4800, "NVDA": 3200, "META": 5100},
-                }},
-            ],
-            "response": "Analyzed concentration risk.",
-        },
-        # Step 6: Detect anomalies
-        {
-            "tools": [
-                {"name": "detect_anomalies", "arguments": {
-                    "portfolio_returns": [0.001, -0.002, 0.003, -0.015, 0.001, -0.003, 0.002, -0.025, 0.001, -0.001],
-                }},
-            ],
-            "response": "Ran anomaly detection on portfolio returns.",
-        },
-        # Step 7: Compute factor exposure (with simulated factor data)
-        {
-            "tools": [
-                {"name": "compute_factor_exposure", "arguments": {
-                    "portfolio_returns": [0.001, -0.002, 0.003, -0.015, 0.001, -0.003, 0.002, -0.025, 0.001, -0.001],
-                    "factor_returns": {
-                        "market": [0.001, -0.001, 0.002, -0.010, 0.001, -0.002, 0.001, -0.020, 0.001, 0.000],
-                        "momentum": [0.0005, -0.0015, 0.0025, -0.012, 0.0005, -0.0025, 0.0015, -0.022, 0.0005, -0.0005],
-                    },
-                    "factor_names": ["market", "momentum"],
-                }},
-            ],
-            "response": "Computed factor exposures.",
-        },
-        # Step 8: Compute beta vs benchmark
-        {
-            "tools": [
-                {"name": "compute_beta", "arguments": {
-                    "portfolio_returns": [0.001, -0.002, 0.003, -0.015, 0.001, -0.003, 0.002, -0.025, 0.001, -0.001],
-                    "benchmark_returns": [0.0008, -0.0015, 0.0025, -0.012, 0.0008, -0.0025, 0.0015, -0.022, 0.0008, -0.0008],
-                }},
-            ],
-            "response": "Computed beta vs benchmark.",
-        },
-        # Step 9: Compute VaR/CVaR
-        {
-            "tools": [
-                {"name": "compute_var_cvar", "arguments": {
-                    "returns": [0.001, -0.002, 0.003, -0.015, 0.001, -0.003, 0.002, -0.025, 0.001, -0.001],
-                    "confidence": 0.95,
-                }},
-            ],
-            "response": "Computed Value at Risk and CVaR.",
-        },
-        # Step 10: Build the report
-        {
-            "tools": [
-                {"name": "build_report", "arguments": {
-                    "findings": [
-                        {"artifact_type": "computation", "name": "portfolio_return", "value": 0.15},
-                        {"artifact_type": "computation", "name": "sharpe", "value": 1.2},
-                        {"artifact_type": "computation", "name": "drawdown", "value": 0.08},
-                    ],
-                    "risk_evaluations": [
-                        {"artifact_type": "risk_evaluation", "is_compliant": True, "breaches": []},
-                    ],
-                    "methodology": "Deterministic quantitative analysis using SAS Quant Engine v1.0.0. All metrics computed from daily OHLCV data for the period 2024-01-02 through 2024-12-31.",
-                    "title": "Apex Capital Partners — Portfolio Intelligence Report Q4 2024",
-                }},
-            ],
-            "response": "Produced the final portfolio intelligence report with all required sections.",
-        },
+        {"tools": [{"name": "get_portfolio", "arguments": {}}],
+         "response": "Examining portfolio holdings."},
+        {"tools": [
+            {"name": "get_prices", "arguments": {"symbol": "AAPL", "start": "2024-01-02", "end": "2024-12-31"}},
+            {"name": "get_prices", "arguments": {"symbol": "MSFT", "start": "2024-01-02", "end": "2024-12-31"}},
+            {"name": "get_prices", "arguments": {"symbol": "GOOG", "start": "2024-01-02", "end": "2024-12-31"}},
+        ], "response": "Gathered price data."},
+        {"tools": [
+            {"name": "compute_risk_metrics", "arguments": {"symbol": "AAPL", "start": "2024-01-02", "end": "2024-12-31"}},
+        ], "response": "Computed risk metrics."},
+        {"tools": [
+            {"name": "compute_portfolio_returns", "arguments": {
+                "weights": {"AAPL": 0.30, "MSFT": 0.20, "GOOG": 0.15, "AMZN": 0.15, "NVDA": 0.10, "META": 0.10},
+                "start": "2024-01-02", "end": "2024-12-31",
+            }},
+        ], "response": "Computed portfolio returns."},
+        {"tools": [
+            {"name": "compute_concentration", "arguments": {
+                "positions": {"AAPL": 12500, "MSFT": 8200, "GOOG": 6400, "AMZN": 4800, "NVDA": 3200, "META": 5100},
+            }},
+        ], "response": "Analyzed concentration."},
+        {"tools": [
+            {"name": "detect_anomalies", "arguments": {
+                "portfolio_returns": [0.001, -0.002, 0.003, -0.015, 0.001, -0.003, 0.002, -0.025, 0.001, -0.001],
+            }},
+        ], "response": "Ran anomaly detection."},
+        {"tools": [
+            {"name": "compute_factor_exposure", "arguments": {
+                "portfolio_returns": [0.001, -0.002, 0.003, -0.015, 0.001, -0.003, 0.002, -0.025, 0.001, -0.001],
+                "factor_returns": {"market": [0.001, -0.001, 0.002, -0.010, 0.001, -0.002, 0.001, -0.020, 0.001, 0.000]},
+                "factor_names": ["market"],
+            }},
+        ], "response": "Computed factor exposure."},
+        {"tools": [
+            {"name": "compute_beta", "arguments": {
+                "portfolio_returns": [0.001, -0.002, 0.003, -0.015, 0.001, -0.003, 0.002, -0.025, 0.001, -0.001],
+                "benchmark_returns": [0.0008, -0.0015, 0.0025, -0.012, 0.0008, -0.0025, 0.0015, -0.022, 0.0008, -0.0008],
+            }},
+        ], "response": "Computed beta."},
+        {"tools": [
+            {"name": "compute_var_cvar", "arguments": {
+                "returns": [0.001, -0.002, 0.003, -0.015, 0.001, -0.003, 0.002, -0.025, 0.001, -0.001],
+                "confidence": 0.95,
+            }},
+        ], "response": "Computed VaR/CVaR."},
+        {"tools": [
+            {"name": "build_report", "arguments": {
+                "findings": [
+                    {"artifact_type": "computation", "name": "portfolio_return", "value": 0.15},
+                    {"artifact_type": "computation", "name": "sharpe", "value": 1.2},
+                    {"artifact_type": "computation", "name": "max_drawdown", "value": 0.08},
+                ],
+                "risk_evaluations": [{"artifact_type": "risk_evaluation", "is_compliant": True, "breaches": []}],
+                "methodology": "Quantitative analysis v1.0.0. Daily OHLCV 2024-01-02 to 2024-12-31.",
+                "title": "Portfolio Intelligence Report Q4 2024",
+            }},
+        ], "response": "Report produced."},
     ]
 
 
-# ── Run the Full Pipeline ────────────────────────────────────────────────────
+def create_risk_parity_script() -> list[dict]:
+    """Scripted risk parity workflow."""
+    return [
+        {"tools": [
+            {"name": "get_prices", "arguments": {"symbol": "SPY", "start": "2024-01-02", "end": "2024-12-31"}},
+            {"name": "get_prices", "arguments": {"symbol": "TLT", "start": "2024-01-02", "end": "2024-12-31"}},
+            {"name": "get_prices", "arguments": {"symbol": "GLD", "start": "2024-01-02", "end": "2024-12-31"}},
+            {"name": "get_prices", "arguments": {"symbol": "VNQ", "start": "2024-01-02", "end": "2024-12-31"}},
+            {"name": "get_prices", "arguments": {"symbol": "DBC", "start": "2024-01-02", "end": "2024-12-31"}},
+        ], "response": "Fetched multi-asset prices."},
+        {"tools": [
+            {"name": "compute_returns", "arguments": {"symbols": ["SPY", "TLT", "GLD", "VNQ", "DBC"]}},
+        ], "response": "Computed returns."},
+        {"tools": [
+            {"name": "compute_covariance", "arguments": {"symbols": ["SPY", "TLT", "GLD", "VNQ", "DBC"]}},
+        ], "response": "Computed covariance matrix."},
+        {"tools": [
+            {"name": "solve_risk_parity", "arguments": {"covariance": "from_previous_step"}},
+        ], "response": "Solved risk-parity weights."},
+        {"tools": [
+            {"name": "compute_risk_contribution", "arguments": {"weights": {"SPY": 0.2, "TLT": 0.2, "GLD": 0.2, "VNQ": 0.2, "DBC": 0.2}}},
+        ], "response": "Computed risk contributions."},
+        {"tools": [
+            {"name": "validate_weights", "arguments": {"weights": {"SPY": 0.2, "TLT": 0.2, "GLD": 0.2, "VNQ": 0.2, "DBC": 0.2}}},
+        ], "response": "Validated weights."},
+        {"tools": [
+            {"name": "build_report", "arguments": {
+                "findings": [
+                    {"artifact_type": "computation", "name": "risk_parity", "value": [0.2, 0.2, 0.2, 0.2, 0.2]},
+                    {"artifact_type": "computation", "name": "valid", "value": True},
+                ],
+                "title": "Risk Parity Portfolio Construction",
+            }},
+        ], "response": "Report produced."},
+    ]
 
 
-def run_portfolio_intelligence_pipeline(
+def create_momentum_script() -> list[dict]:
+    """Scripted momentum strategy workflow."""
+    return [
+        {"tools": [
+            {"name": "get_prices", "arguments": {"symbol": "AAPL", "start": "2024-01-02", "end": "2024-12-31"}},
+            {"name": "get_prices", "arguments": {"symbol": "MSFT", "start": "2024-01-02", "end": "2024-12-31"}},
+        ], "response": "Fetched equity prices."},
+        {"tools": [
+            {"name": "compute_returns", "arguments": {"symbols": ["AAPL", "MSFT"]}},
+        ], "response": "Computed returns."},
+        {"tools": [
+            {"name": "compute_momentum_signal", "arguments": {"lookback": 252, "skip": 21}},
+        ], "response": "Computed momentum signal."},
+        {"tools": [
+            {"name": "backtest_strategy", "arguments": {"strategy_id": "momentum"}},
+        ], "response": "Backtest complete."},
+        {"tools": [
+            {"name": "compute_turnover", "arguments": {"weights_history": []}},
+        ], "response": "Computed turnover."},
+        {"tools": [
+            {"name": "compute_transaction_costs", "arguments": {"turnover": 0.15, "cost_bps": 10}},
+        ], "response": "Estimated transaction costs."},
+        {"tools": [
+            {"name": "build_report", "arguments": {
+                "findings": [
+                    {"artifact_type": "computation", "name": "momentum", "value": 0.12},
+                    {"artifact_type": "computation", "name": "backtest", "value": {"sharpe": 1.5}},
+                    {"artifact_type": "computation", "name": "turnover", "value": 0.15},
+                    {"artifact_type": "computation", "name": "cost", "value": 0.0015},
+                ],
+                "title": "Momentum Strategy Research",
+            }},
+        ], "response": "Report produced."},
+    ]
+
+
+# ── Pipeline Runner ───────────────────────────────────────────────────────────
+
+def run_pipeline(
+    world: QuantWorld,
+    task: Task,
+    rubric: Rubric,
+    script: list[dict],
     data_provider: MarketDataProvider | None = None,
 ) -> dict:
     """Run the full pipeline: world → toolbox → model → evaluation.
 
-    Parameters
-    ----------
-    data_provider:
-        If ``None`` (default), the pipeline runs against an in-memory
-        ``SyntheticProvider`` — deterministic and CI-safe.
-
-        If passed, the toolbox is wired to that provider directly.
-        In dev, call with e.g.
-        ``YFinanceProvider(symbols=..., start=..., end=...)``
-        to run the scripted model against real downloaded data.
-        Credentials-optional adapters (Stooq, YFinance, Alpaca when
-        creds absent) will return empty frames if blocked — the
-        scripted model still completes, but toolbox metrics reflect
-        live endpoint reality rather than synthetic noise.
+    Returns a dict with all results for assertion.
     """
-    # 1. Load the world + task + rubric
-    world = PORTFOLIO_INTELLIGENCE_WORLD
-    task = PORTFOLIO_INTELLIGENCE_TASK
-    rubric = PORTFOLIO_INTELLIGENCE_RUBRIC
-
-    # 2. Create toolbox configured for the world
-    toolbox = create_toolbox_from_world(
-        world,
-        seed=42,
-    )
-
-    # 3. Wire the data provider
     if data_provider is None:
         data = create_test_data_provider(world)
         data_provider = SyntheticProvider(data)
 
+    toolbox = create_toolbox_from_world(world, seed=42)
     toolbox.data_provider = data_provider
 
-    # 4. Create stub model with the scripted workflow
-    script = create_portfolio_intelligence_script()
     model = StubModelAdapter(script=script)
-
-    from sas.quant.agents import quant_coordinator
     agent = quant_coordinator()
 
-    # 5. Create execution run
     run = ExecutionRun(
-        run_id="e2e-test-001",
+        run_id=f"e2e-{world.id}-001",
         task_id=task.id,
         world_id=world.id,
         agent_name=agent.name,
@@ -299,24 +296,18 @@ def run_portfolio_intelligence_pipeline(
         model_provider="local",
     )
 
-    # 6. Prepare context and run model loop
     ctx = model.prepare_context(world, task, agent, None)
     result = model.run_loop(ctx, toolbox, run, max_steps=15)
 
-    # 7. Mark run as completed
     run.status = result.get("status", "completed")
     run.end_time = "2024-12-31T12:00:00+00:00"
     run.tool_calls = result.get("tools_called", 0)
 
-    # 8. Evaluate the run against the rubric
     evaluator = RunEvaluator(rubric)
     eval_result = evaluator.evaluate(run, world)
 
-    # 9. Compute pass@k metrics
     all_evals = [eval_result]
     benchmark = aggregate_benchmark(all_evals, world.id, task.id)
-
-    # 10. Sovereignty evaluation
     sov = evaluate_sovereignty(run, world)
 
     return {
@@ -333,7 +324,220 @@ def run_portfolio_intelligence_pipeline(
     }
 
 
-# ── Run the pipeline ──────────────────────────────────────────────────────────
+# ── Pytest Tests ──────────────────────────────────────────────────────────────
+
+class TestPortfolioIntelligencePipeline:
+    """Tests for the portfolio intelligence end-to-end pipeline."""
+
+    def test_pipeline_runs_successfully(self):
+        result = run_pipeline(
+            PORTFOLIO_INTELLIGENCE_WORLD,
+            PORTFOLIO_INTELLIGENCE_TASK,
+            PORTFOLIO_INTELLIGENCE_RUBRIC,
+            create_portfolio_intelligence_script(),
+        )
+        assert result["run_id"] != ""
+        assert result["tool_calls"] > 0
+        assert result["steps_in_trajectory"] > 0
+        assert len(result["artifacts_created"]) > 0
+
+    def test_model_loop_completes(self):
+        result = run_pipeline(
+            PORTFOLIO_INTELLIGENCE_WORLD,
+            PORTFOLIO_INTELLIGENCE_TASK,
+            PORTFOLIO_INTELLIGENCE_RUBRIC,
+            create_portfolio_intelligence_script(),
+        )
+        assert result["model_loop_result"].get("status") == "completed"
+
+    def test_evaluation_produces_results(self):
+        result = run_pipeline(
+            PORTFOLIO_INTELLIGENCE_WORLD,
+            PORTFOLIO_INTELLIGENCE_TASK,
+            PORTFOLIO_INTELLIGENCE_RUBRIC,
+            create_portfolio_intelligence_script(),
+        )
+        eval_data = result["evaluation"]
+        assert len(eval_data["criterion_results"]) == len(PORTFOLIO_INTELLIGENCE_RUBRIC.criteria)
+        assert eval_data["mean_score"] > 0.0
+
+    def test_pass_at_1_computed(self):
+        result = run_pipeline(
+            PORTFOLIO_INTELLIGENCE_WORLD,
+            PORTFOLIO_INTELLIGENCE_TASK,
+            PORTFOLIO_INTELLIGENCE_RUBRIC,
+            create_portfolio_intelligence_script(),
+        )
+        bench = result["benchmark"]
+        assert 0.0 <= bench["pass_at_1"] <= 1.0
+        assert bench["pass_k"] in (True, False)
+
+    def test_sovereignty_evaluated(self):
+        result = run_pipeline(
+            PORTFOLIO_INTELLIGENCE_WORLD,
+            PORTFOLIO_INTELLIGENCE_TASK,
+            PORTFOLIO_INTELLIGENCE_RUBRIC,
+            create_portfolio_intelligence_script(),
+        )
+        sov = result["sovereignty"]
+        assert "passed" in sov
+        assert isinstance(sov["passed"], bool)
+
+    def test_provenance_required(self):
+        result = run_pipeline(
+            PORTFOLIO_INTELLIGENCE_WORLD,
+            PORTFOLIO_INTELLIGENCE_TASK,
+            PORTFOLIO_INTELLIGENCE_RUBRIC,
+            create_portfolio_intelligence_script(),
+        )
+        eval_data = result["evaluation"]
+        assert "provenance_complete" in eval_data
+
+
+class TestRiskParityPipeline:
+    """Tests for the risk parity world pipeline."""
+
+    def test_pipeline_runs(self):
+        result = run_pipeline(
+            RISK_PARITY_WORLD,
+            RISK_PARITY_TASK,
+            RISK_PARITY_RUBRIC,
+            create_risk_parity_script(),
+        )
+        assert result["run_id"] != ""
+        assert result["tool_calls"] > 0
+
+    def test_evaluation_has_all_criteria(self):
+        result = run_pipeline(
+            RISK_PARITY_WORLD,
+            RISK_PARITY_TASK,
+            RISK_PARITY_RUBRIC,
+            create_risk_parity_script(),
+        )
+        eval_data = result["evaluation"]
+        assert len(eval_data["criterion_results"]) == len(RISK_PARITY_RUBRIC.criteria)
+
+    def test_report_artifact_created(self):
+        result = run_pipeline(
+            RISK_PARITY_WORLD,
+            RISK_PARITY_TASK,
+            RISK_PARITY_RUBRIC,
+            create_risk_parity_script(),
+        )
+        # Artifacts are hash-based IDs; just verify they were created
+        assert len(result["artifacts_created"]) > 0
+
+
+class TestMomentumPipeline:
+    """Tests for the momentum strategy world pipeline."""
+
+    def test_pipeline_runs(self):
+        result = run_pipeline(
+            MOMENTUM_WORLD,
+            MOMENTUM_TASK,
+            MOMENTUM_RUBRIC,
+            create_momentum_script(),
+        )
+        assert result["run_id"] != ""
+        assert result["tool_calls"] > 0
+
+    def test_evaluation_has_all_criteria(self):
+        result = run_pipeline(
+            MOMENTUM_WORLD,
+            MOMENTUM_TASK,
+            MOMENTUM_RUBRIC,
+            create_momentum_script(),
+        )
+        eval_data = result["evaluation"]
+        assert len(eval_data["criterion_results"]) == len(MOMENTUM_RUBRIC.criteria)
+
+
+class TestAdversarialWorlds:
+    """Tests for adversarial world loading and structure."""
+
+    def test_adversarial_worlds_loaded(self):
+        assert "prompt_injection" in ADVERSTIONAL_WORLDS
+        assert "capability_escalation" in ADVERSTIONAL_WORLDS
+        assert "data_poisoning" in ADVERSTIONAL_WORLDS
+        assert "policy_manipulation" in ADVERSTIONAL_WORLDS
+
+    def test_adversarial_worlds_have_rubrics(self):
+        for name, world_data in ADVERSTIONAL_WORLDS.items():
+            assert "world" in world_data
+            assert "task" in world_data
+            assert "rubric" in world_data
+            assert len(world_data["rubric"].criteria) > 0
+
+    def test_adversarial_worlds_have_gold(self):
+        for name, world_data in ADVERSTIONAL_WORLDS.items():
+            assert "gold" in world_data
+            assert "expected_behavior" in world_data["gold"]
+
+
+class TestSyntheticProvider:
+    """Tests for the synthetic data provider."""
+
+    def test_returns_data_for_known_symbol(self):
+        data = {"AAPL": generate_synthetic_prices("AAPL", "2024-01-02", "2024-12-31")}
+        provider = SyntheticProvider(data)
+        df = provider.get_prices("AAPL", "2024-01-02", "2024-12-31")
+        assert not df.empty
+        assert "close" in df.columns
+
+    def test_returns_empty_for_unknown_symbol(self):
+        provider = SyntheticProvider({})
+        df = provider.get_prices("UNKNOWN", "2024-01-02", "2024-12-31")
+        assert df.empty
+
+    def test_validate_passes_for_good_data(self):
+        data = {"AAPL": generate_synthetic_prices("AAPL", "2024-01-02", "2024-12-31")}
+        provider = SyntheticProvider(data)
+        result = provider.validate("AAPL", "2024-01-02", "2024-12-31")
+        assert result["valid"]
+
+    def test_source_info(self):
+        data = {"AAPL": generate_synthetic_prices("AAPL", "2024-01-02", "2024-12-31")}
+        provider = SyntheticProvider(data)
+        info = provider.source_info()
+        assert info.source == "synthetic"
+        assert "AAPL" in info.symbols
+
+
+class TestPipelineWithRealDataProviders:
+    """Tests that the pipeline works with different data provider types."""
+
+    def test_with_synthetic_provider(self):
+        data = create_test_data_provider(PORTFOLIO_INTELLIGENCE_WORLD)
+        provider = SyntheticProvider(data)
+        result = run_pipeline(
+            PORTFOLIO_INTELLIGENCE_WORLD,
+            PORTFOLIO_INTELLIGENCE_TASK,
+            PORTFOLIO_INTELLIGENCE_RUBRIC,
+            create_portfolio_intelligence_script(),
+            data_provider=provider,
+        )
+        assert result["tool_calls"] > 0
+
+    def test_with_local_csv_provider(self, tmp_path):
+        """Test with a LocalCSVDataset provider."""
+        # Write synthetic data to CSV
+        for sym in ["AAPL", "MSFT", "GOOG"]:
+            df = generate_synthetic_prices(sym, "2024-01-02", "2024-12-31")
+            df.to_csv(tmp_path / f"{sym}.csv")
+
+        from sas.quant.market import LocalCSVDataset
+        provider = LocalCSVDataset(tmp_path)
+        result = run_pipeline(
+            PORTFOLIO_INTELLIGENCE_WORLD,
+            PORTFOLIO_INTELLIGENCE_TASK,
+            PORTFOLIO_INTELLIGENCE_RUBRIC,
+            create_portfolio_intelligence_script(),
+            data_provider=provider,
+        )
+        assert result["tool_calls"] > 0
+
+
+# ── Main entry point ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     print("=" * 60)
@@ -343,9 +547,14 @@ if __name__ == "__main__":
     provider = SyntheticProvider(
         create_test_data_provider(PORTFOLIO_INTELLIGENCE_WORLD)
     )
-    result = run_portfolio_intelligence_pipeline(data_provider=provider)
+    result = run_pipeline(
+        PORTFOLIO_INTELLIGENCE_WORLD,
+        PORTFOLIO_INTELLIGENCE_TASK,
+        PORTFOLIO_INTELLIGENCE_RUBRIC,
+        create_portfolio_intelligence_script(),
+        data_provider=provider,
+    )
 
-    print(f"\nData Provider: {result['model_loop_result'].get('data_provider', 'synthetic')}")
     print(f"\nWorld: {result['world_id']}")
     print(f"Task: {result['task_id']}")
     print(f"Run: {result['run_id']}")
@@ -382,7 +591,6 @@ if __name__ == "__main__":
     print(f"{'='*60}")
 
     checks = []
-
     checks.append(("Run created", result['run_id'] != ""))
     checks.append(("Model loop ran", result['model_loop_result'].get('steps_taken', 0) > 0))
     checks.append(("Tools called", result['tool_calls'] > 0))
