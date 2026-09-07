@@ -5,7 +5,9 @@ WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY src/ ./src/
 
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir ".[dashboard]"
 
-ENTRYPOINT ["python", "-m", "sas"]
-CMD ["--help"]
+EXPOSE 8080
+
+ENTRYPOINT ["python", "-m", "sas.dashboard.server"]
+CMD ["--host", "0.0.0.0", "--port", "8080"]

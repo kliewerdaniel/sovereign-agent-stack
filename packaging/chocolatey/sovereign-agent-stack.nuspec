@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>sovereign-agent-stack</id>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
     <title>Sovereign Agent Stack</title>
     <authors>Daniel Kliewer</authors>
     <owners>Daniel Kliewer</owners>

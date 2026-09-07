@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  sas:
+    build:
+      context: ..
+      dockerfile: packaging/docker/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - sas-data:/root/.sas
+    environment:
+      - SAS_CACHE_DIR=/root/.sas
+    restart: unless-stopped
+
+  sas-init:
+    build:
+      context: ..
+      dockerfile: packaging/docker/Dockerfile
+    volumes:
+      - sas-data:/root/.sas
+    command: ["init", "--output", "/root/.sas/sas.yaml"]
+    profiles:
+      - init
+
+volumes:
+  sas-data:

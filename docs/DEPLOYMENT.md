@@ -1,18 +1,18 @@
 # Deployment Guide
 
-## Sovereign Agent Stack v0.1.0
+## Sovereign Agent Stack v1.0.0
 
 ### Quick Start
 
 ```bash
-# Install
+# Install core
 pip install sovereign-agent-stack
+
+# Install with dashboard
+pip install "sovereign-agent-stack[dashboard]"
 
 # Initialize config
 python -m sas init --output sas.yaml
-
-# Edit sas.yaml to match your deployment
-# See examples/ for reference configs
 
 # Run dashboard
 python -m sas dashboard --config sas.yaml --cache ~/.sas
@@ -73,6 +73,32 @@ identity:
     region: US
 ```
 
+### Docker
+
+```bash
+# Build and run
+docker-compose -f packaging/docker/docker-compose.yml up -d
+
+# Initialize config
+docker-compose -f packaging/docker/docker-compose.yml --profile init run sas-init
+
+# View logs
+docker-compose -f packaging/docker/docker-compose.yml logs -f sas
+```
+
+### Homebrew (macOS)
+
+```bash
+brew tap kliewerdaniel/sas
+brew install sovereign-agent-stack
+```
+
+### Chocolatey (Windows)
+
+```powershell
+choco install sovereign-agent-stack
+```
+
 ### Production Deployment
 
 1. **Knowledge Layer** — Compile your markdown vault into the graph:
@@ -122,3 +148,4 @@ identity:
 | Auth failures | `python -m sas auth list` |
 | Payment declined | Check `payments.pay` error message |
 | Machine unresponsive | `python -m sas substrate list` then `destroy` |
+| Dashboard won't start | `pip install "sovereign-agent-stack[dashboard]"` |
