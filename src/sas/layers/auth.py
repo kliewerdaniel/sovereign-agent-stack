@@ -1,19 +1,20 @@
 """Local auth broker — the MCP gateway nobody wants to build themselves.
 
-Composio's convenience without Composio's centralization.
+Composio's convenience without Comosio's centralization.
 Credentials never leave your infrastructure.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import sqlite3
 import time
-import uuid
-from dataclasses import dataclass, field
-from typing import AsyncIterator, Protocol
+from dataclasses import dataclass
+from typing import Protocol
+
+from nacl.secret import SecretBox
+from nacl.utils import random as nacl_random
 
 
 @dataclass
@@ -73,43 +74,81 @@ class AuthBroker(Protocol):
 
 
 class _Encryptor:
-    """Simple symmetric encryption using libsodium-style approach.
-    
-    In production, use a real crypto library. This is a placeholder
-    that demonstrates the encrypt-at-rest architecture.
+    """Real libsodium secret-key encryption via PyNaCl.
+
+    Uses ``nacl.secret.SecretBox`` (XSalsa20-Poly1305) for
+    authenticated encryption. Each ciphertext is prefixed with a
+    24-byte nonce.
     """
 
-    def __init__(self, key: str) -> None:
-        self._key = key.encode()
+    KEY_LEN = 32  # SecretBox.KEY_SIZE
+
+    def __init__(self, key: bytes | str) -> None:
+        if isinstance(key, str):
+            key = key.encode("utf-8")
+        if len(key) == self.KEY_LEN:
+            self._box = SecretBox(key)
+        else:
+            # Derive a 32-byte key from arbitrary-length input
+            import hashlib
+            derived = hashlib.sha256(key).digest()
+            self._box = SecretBox(derived)
+
+    @classmethod
+    def generate_key(cls) -> bytes:
+        """Generate a random 32-byte key."""
+        return nacl_random(cls.KEY_LEN)
+
+    @classmethod
+    def from_hex(cls, hex_key: str) -> "_Encryptor":
+        """Create from a hex-encoded key string."""
+        return cls(bytes.fromhex(hex_key))
 
     def encrypt(self, plaintext: str) -> bytes:
-        """Encrypt plaintext. Returns bytes."""
-        # XOR-based obfuscation (NOT secure — use libsodium in production)
-        data = plaintext.encode()
-        key = self._key
-        encrypted = bytes(b ^ key[i % len(key)] for i, b in enumerate(data))
-        return encrypted
+        """Encrypt plaintext. Returns nonce + ciphertext bytes."""
+        return self._box.encrypt(plaintext.encode("utf-8"))
 
     def decrypt(self, ciphertext: bytes) -> str:
-        """Decrypt ciphertext. Returns plaintext."""
-        key = self._key
-        decrypted = bytes(b ^ key[i % len(key)] for i, b in enumerate(ciphertext))
-        return decrypted.decode()
+        """Decrypt ciphertext. Returns plaintext string."""
+        return self._box.decrypt(ciphertext).decode("utf-8")
 
 
 class LocalAuthBroker:
-    """Local auth broker with encrypted credential storage."""
+    """Local auth broker with encrypted credential storage.
 
-    def __init__(self, store_path: str = ":memory:", encryption_key: str | None = None) -> None:
+    Uses libsodium (via PyNaCl) for authenticated encryption of
+    tokens at rest. Credentials are stored in SQLite; tokens are
+    encrypted before write and decrypted after read.
+    """
+
+    def __init__(
+        self,
+        store_path: str = ":memory:",
+        encryption_key: str | bytes | None = None,
+    ) -> None:
         self.store_path = store_path
         self._conn: sqlite3.Connection | None = None
-        self._encryptor = _Encryptor(encryption_key or self._generate_key())
         self._audit: list[AuditEntry] = []
 
+        if encryption_key is None:
+            key_bytes = _Encryptor.generate_key()
+        elif isinstance(encryption_key, bytes):
+            key_bytes = encryption_key
+        elif isinstance(encryption_key, str):
+            # Accept either hex-encoded or arbitrary string
+            try:
+                key_bytes = bytes.fromhex(encryption_key)
+            except ValueError:
+                key_bytes = encryption_key.encode("utf-8")
+        else:
+            raise TypeError("encryption_key must be str (hex) or bytes")
+
+        self._encryptor = _Encryptor(key_bytes)
+
     @staticmethod
-    def _generate_key() -> str:
-        """Generate a random encryption key."""
-        return hashlib.sha256(os.urandom(32)).hexdigest()
+    def generate_key() -> str:
+        """Generate a random 32-byte key, returned as hex."""
+        return _Encryptor.generate_key().hex()
 
     def _get_conn(self) -> sqlite3.Connection:
         if self._conn is None:
@@ -141,8 +180,11 @@ class LocalAuthBroker:
         scopes_json = json.dumps(credentials.scopes) if credentials.scopes else None
 
         conn.execute(
-            "INSERT OR REPLACE INTO credentials (tool_name, auth_type, token_encrypted, refresh_token_encrypted, expires_at, scopes) VALUES (?, ?, ?, ?, ?, ?)",
-            (tool_name, credentials.auth_type, token_enc, refresh_enc, credentials.expires_at, scopes_json),
+            "INSERT OR REPLACE INTO credentials "
+            "(tool_name, auth_type, token_encrypted, refresh_token_encrypted, expires_at, scopes) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (tool_name, credentials.auth_type, token_enc, refresh_enc,
+             credentials.expires_at, scopes_json),
         )
         conn.commit()
 
@@ -150,7 +192,8 @@ class LocalAuthBroker:
         """Get decrypted credentials for a tool."""
         conn = self._get_conn()
         row = conn.execute(
-            "SELECT auth_type, token_encrypted, refresh_token_encrypted, expires_at, scopes FROM credentials WHERE tool_name = ?",
+            "SELECT auth_type, token_encrypted, refresh_token_encrypted, expires_at, scopes "
+            "FROM credentials WHERE tool_name = ?",
             (tool_name,),
         ).fetchone()
 

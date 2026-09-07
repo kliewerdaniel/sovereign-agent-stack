@@ -21,6 +21,7 @@ class Observation:
     content: str
     session_id: str
     timestamp: str
+    source: str = "user"
 
 
 @dataclass
