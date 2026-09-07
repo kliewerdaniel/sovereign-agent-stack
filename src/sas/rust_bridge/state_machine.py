@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, List
 
 logger = logging.getLogger(__name__)
 
@@ -15,14 +14,14 @@ except ImportError:
 class StateTransition:
     """A recorded state transition."""
     
-    def __init__(self, from_state: str, to_state: str, timestamp: str, reason: Optional[str]):
+    def __init__(self, from_state: str, to_state: str, timestamp: str, reason: str | None):
         self.from_state = from_state
         self.to_state = to_state
         self.timestamp = timestamp
         self.reason = reason
     
     @classmethod
-    def from_string(cls, s: str) -> "StateTransition":
+    def from_string(cls, s: str) -> StateTransition:
         # Parse "Idle -> Executing (2024-01-01T00:00:00Z)"
         parts = s.split(" -> ")
         from_state = parts[0]
@@ -73,12 +72,12 @@ class AgentStateMachine:
     def current(self) -> str:
         return self._inner.current
     
-    def transition(self, to: str, reason: Optional[str] = None) -> None:
+    def transition(self, to: str, reason: str | None = None) -> None:
         """Attempt a state transition."""
         self._inner.transition(to, reason)
     
     @property
-    def history(self) -> List[StateTransition]:
+    def history(self) -> list[StateTransition]:
         return [StateTransition.from_string(h) for h in self._inner.history]
     
     def can_transition_to(self, state: str) -> bool:

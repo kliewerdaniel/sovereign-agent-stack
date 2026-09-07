@@ -11,12 +11,10 @@ The model NEVER sees policy, authority, or provenance internals.
 
 from __future__ import annotations
 
-import base64
 import json
 import os
-import time
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator, Optional
+from typing import Any
 
 # Try to import ollama; it's optional
 try:
@@ -31,13 +29,9 @@ try:
 except ImportError:
     OPENAI_AVAILABLE = False
 
-from sas.quant.world import ModelAdapter, QuantWorld, Task, QuantAgent
+from sas.quant.provenance import ProvenanceGraph
 from sas.quant.toolbox import QuantToolbox
-from sas.quant.evaluation import (
-    has_artifact_type, report_contains_findings, computation_has_hash,
-)
-from sas.quant.provenance import ProvenanceNode, ProvenanceGraph, now_iso, content_hash
-
+from sas.quant.world import ModelAdapter, QuantAgent, QuantWorld, Task
 
 # ── ToolCall / ToolResult (model-visible) ──────────────────────────────────
 
@@ -636,7 +630,7 @@ class OpenAIModelAdapter(ModelAdapter):
                     "tool_call_id": tc.id,
                 })
 
-            messages.append({"role": "assistant", "content": content, "role": "assistant"})
+            messages.append({"role": "assistant", "content": content})
 
         return {
             "final_response": final_response,
@@ -755,8 +749,13 @@ def create_model_adapter(config: dict) -> ModelAdapter:
 # ── Export ───────────────────────────────────────────────────────────────────
 
 __all__ = [
-    "ModelAdapter", "ToolFormatter", "ToolCallRequest", "ToolCallResult",
+    "ModelAdapter",
     "ModelResponse",
-    "OllamaModelAdapter", "OpenAIModelAdapter", "StubModelAdapter",
+    "OllamaModelAdapter",
+    "OpenAIModelAdapter",
+    "StubModelAdapter",
+    "ToolCallRequest",
+    "ToolCallResult",
+    "ToolFormatter",
     "create_model_adapter",
 ]

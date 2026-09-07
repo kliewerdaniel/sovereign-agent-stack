@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Set
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +40,6 @@ class CapabilityRegistry:
     def revoke(self, capability: str) -> None:
         """Revoke a capability (not yet supported in Rust)."""
         # TODO: Add revoke to Rust
-        pass
     
     def is_granted(self, capability: str) -> bool:
         """Check if a capability is granted."""
@@ -51,7 +49,7 @@ class CapabilityRegistry:
         """Require a capability, raising PermissionError if not granted."""
         self._inner.require(capability)
     
-    def granted_capabilities(self) -> Set[str]:
+    def granted_capabilities(self) -> set[str]:
         """Get all granted capabilities."""
         return {cap for cap in self.CAPABILITIES if self.is_granted(cap)}
     

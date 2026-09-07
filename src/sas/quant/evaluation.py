@@ -12,17 +12,23 @@ Implements:
 from __future__ import annotations
 
 import json
-import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from sas.quant.world import (
-    QuantWorld, Task, Rubric, Criterion, CriterionResult,
-    ExecutionRun, RunEvaluation, TrajectoryStep, ModelAdapter,
-    CapabilityComposition, QuantWorldBuilder,
+    CapabilityComposition,
+    Criterion,
+    CriterionResult,
+    ExecutionRun,
+    ModelAdapter,
+    QuantWorld,
+    QuantWorldBuilder,
+    Rubric,
+    RunEvaluation,
+    Task,
+    TrajectoryStep,
 )
-
 
 # ── Criterion Evaluators ────────────────────────────────────────────────────
 
@@ -326,7 +332,7 @@ class BenchmarkResult:
     mean_compute_cost_usd: float = 0.0
     total_policy_violations: int = 0
     total_authority_violations: int = 0
-    evaluated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    evaluated_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     @property
     def run_count(self) -> int:
@@ -382,7 +388,7 @@ def aggregate_benchmark(run_evals: list[RunEvaluation],
                         world_id: str, task_id: str) -> BenchmarkResult:
     """Aggregate multiple run evaluations into benchmark metrics."""
     n = len(run_evals)
-    passes = [r for r in run_evals if r.passed]
+    [r for r in run_evals if r.passed]
 
     # Count violations across all runs
     policy_violations = sum(r.sovereignty_violations for r in run_evals)
@@ -454,7 +460,7 @@ class BenchmarkRunner:
             model_provider="local",
         )
         run.status = "completed"
-        run.end_time = datetime.now(timezone.utc).isoformat()
+        run.end_time = datetime.now(UTC).isoformat()
         # NOTE: Real implementation wires ModelAdapter.run_loop here.
         # This stub returns an empty run for structural testing.
         return run
@@ -463,12 +469,28 @@ class BenchmarkRunner:
 # ── Export ──────────────────────────────────────────────────────────────────
 
 __all__ = [
-    "QuantWorld", "Task", "Rubric", "Criterion", "CriterionResult",
-    "Evidence", "ExecutionRun", "TrajectoryStep", "RunEvaluation",
-    "QuantWorldBuilder", "ModelAdapter", "CapabilityComposition",
-    "RunEvaluator", "BenchmarkResult", "BenchmarkRunner",
-    "compute_pass_k", "aggregate_benchmark",
-    "has_artifact_type", "artifact_has_field", "report_contains_findings",
-    "report_has_provenance", "computation_has_hash", "result_in_range",
+    "BenchmarkResult",
+    "BenchmarkRunner",
+    "CapabilityComposition",
+    "Criterion",
+    "CriterionResult",
+    "Evidence",
+    "ExecutionRun",
+    "ModelAdapter",
+    "QuantWorld",
+    "QuantWorldBuilder",
+    "Rubric",
+    "RunEvaluation",
+    "RunEvaluator",
+    "Task",
+    "TrajectoryStep",
+    "aggregate_benchmark",
+    "artifact_has_field",
+    "computation_has_hash",
+    "compute_pass_k",
     "evaluate_sovereignty",
+    "has_artifact_type",
+    "report_contains_findings",
+    "report_has_provenance",
+    "result_in_range",
 ]

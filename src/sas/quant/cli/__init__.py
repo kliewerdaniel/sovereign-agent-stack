@@ -28,7 +28,6 @@ import yaml
 @click.group(name="quant")
 def quant_cli():
     """Sovereign Quant — quantitative intelligence system."""
-    pass
 
 
 @quant_cli.command()
@@ -63,7 +62,7 @@ def research(universe: tuple, horizon: str, config: str | None):
             "BACKTEST": ResearchStage.EVALUATION,
             "EVALUATION": ResearchStage.RISK_REVIEW,
         }
-        for from_name, to_stage in stage_map.items():
+        for to_stage in stage_map.values():
             lifecycle.transition_to(to_stage, actor="cli")
         stages = [t.to_stage if isinstance(t.to_stage, str) else t.to_stage.value for t in lifecycle.transitions]
         click.echo(f"Research stages: {' → '.join(stages)}")

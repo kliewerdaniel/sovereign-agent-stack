@@ -1,12 +1,9 @@
 """Quant knowledge compiler — fixes for type issues."""
 from __future__ import annotations
 
-import os
 from pathlib import Path
-import json as _json
 
-from sas.layers.knowledge import CompileTimeKnowledge, Node
-
+from sas.layers.knowledge import CompileTimeKnowledge
 
 POLICY_TEMPLATES = {
     "investment-policy.md": """---

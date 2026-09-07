@@ -5,22 +5,20 @@ policy enforcement, and sovereignty verification.
 """
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from sas.core.config import SASConfig, parse_sas_yaml
-from sas.core.scoring import generate_report, SovereigntyReport
+from sas.core.scoring import SovereigntyReport, generate_report
 from sas.rust_bridge import (
-    ExecutionContext,
     AgentStateMachine,
     CapabilityRegistry,
+    ExecutionContext,
     PolicyEnforcer,
     SovereigntyAsserter,
 )
@@ -71,7 +69,7 @@ class AgentRuntime:
         self._middleware: list[Any] = []
     
     @classmethod
-    def from_config(cls, config_path: str | Path) -> "AgentRuntime":
+    def from_config(cls, config_path: str | Path) -> AgentRuntime:
         """Create a runtime from a sas.yaml configuration file."""
         config = parse_sas_yaml(Path(config_path))
         context = AgentContext(config=config)
@@ -86,7 +84,7 @@ class AgentRuntime:
         return cls(context)
     
     @classmethod
-    def from_defaults(cls) -> "AgentRuntime":
+    def from_defaults(cls) -> AgentRuntime:
         """Create a runtime with default configuration."""
         context = AgentContext()
         # Grant basic capabilities
@@ -191,7 +189,7 @@ class AgentRuntime:
             self.context.state_machine.transition("Verifying")
             self.context.state_machine.transition("Completed")
             return result
-        except Exception as e:
+        except Exception:
             self.context.state_machine.transition("Failed")
             raise
     
@@ -227,7 +225,7 @@ class FleetCoordinator:
         self._agents: dict[str, AgentRuntime] = {}
         self._fleet_state_machine = AgentStateMachine()
     
-    def spawn_agent(self, config_path: Optional[str] = None) -> str:
+    def spawn_agent(self, config_path: str | None = None) -> str:
         """Spawn a new agent in the fleet."""
         if config_path:
             runtime = AgentRuntime.from_config(config_path)

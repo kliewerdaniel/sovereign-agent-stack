@@ -11,7 +11,7 @@ import hashlib
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -47,7 +47,7 @@ class Order:
     fees: float = 0.0
     slippage: float = 0.0
     rejection_reason: str = ""
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     filled_at: str | None = None
     parent_trade_id: str = ""
     content_hash: str = ""
@@ -72,7 +72,7 @@ class Fill:
     price: float
     fees: float
     slippage_bps: float
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 @dataclass

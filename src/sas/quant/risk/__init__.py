@@ -144,7 +144,7 @@ class RiskEngine:
     def evaluate(self, weights: dict[str, float],
                  positions: dict[str, float],
                  prices: dict[str, float],
-                 returns: Optional[np.ndarray] = None
+                 returns: np.ndarray | None = None
                  ) -> RiskEvaluation:
         """Evaluate portfolio against risk policy.
 
@@ -264,6 +264,4 @@ class RiskEngine:
         """Check if trade requires human approval."""
         if trade.status == "rejected":
             return True
-        if trade.authorization == "unauthorized":
-            return True
-        return False
+        return trade.authorization == "unauthorized"

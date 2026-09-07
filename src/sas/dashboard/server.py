@@ -8,12 +8,10 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 import sys
 import time
 import uuid
 from pathlib import Path
-from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
@@ -46,7 +44,7 @@ def _notify_sse(data: dict) -> None:
     global _sse_loop
     if _sse_loop is None:
         return
-    for q in list(_sse_subscribers):
+    for q in _sse_subscribers:
         try:
             _sse_loop.call_soon_threadsafe(q.put_nowait, data)
         except Exception:
@@ -99,10 +97,10 @@ async def worlds() -> dict:
     """List available quant worlds."""
     try:
         from sas.quant.worlds import (
+            ADVERSTIONAL_WORLDS,
+            MOMENTUM_WORLD,
             PORTFOLIO_INTELLIGENCE_WORLD,
             RISK_PARITY_WORLD,
-            MOMENTUM_WORLD,
-            ADVERSTIONAL_WORLDS,
         )
 
         world_list = [
@@ -193,7 +191,7 @@ async def _run_pipeline(run_id: str, world_id: str) -> None:
         _emit("complete", "Pipeline run complete", {"status": "completed"})
 
     except Exception as e:
-        _emit("error", f"Pipeline failed: {str(e)}", {"error": str(e)})
+        _emit("error", f"Pipeline failed: {e!s}", {"error": str(e)})
     finally:
         _run_active = False
 
@@ -201,15 +199,21 @@ async def _run_pipeline(run_id: str, world_id: str) -> None:
 def _sync_pipeline_run(run_id: str, world_id: str, emit) -> None:
     """Synchronous pipeline run (runs in a thread)."""
     from sas.quant.worlds import (
-        PORTFOLIO_INTELLIGENCE_WORLD, PORTFOLIO_INTELLIGENCE_TASK, PORTFOLIO_INTELLIGENCE_RUBRIC,
-        RISK_PARITY_WORLD, RISK_PARITY_TASK, RISK_PARITY_RUBRIC,
-        MOMENTUM_WORLD, MOMENTUM_TASK, MOMENTUM_RUBRIC,
+        MOMENTUM_RUBRIC,
+        MOMENTUM_TASK,
+        MOMENTUM_WORLD,
+        PORTFOLIO_INTELLIGENCE_RUBRIC,
+        PORTFOLIO_INTELLIGENCE_TASK,
+        PORTFOLIO_INTELLIGENCE_WORLD,
+        RISK_PARITY_RUBRIC,
+        RISK_PARITY_TASK,
+        RISK_PARITY_WORLD,
     )
     from tests.integration.test_quant_pipeline import (
-        run_pipeline,
+        create_momentum_script,
         create_portfolio_intelligence_script,
         create_risk_parity_script,
-        create_momentum_script,
+        run_pipeline,
     )
 
     # Select world
@@ -260,7 +264,7 @@ async def pipeline_stream(request: Request) -> EventSourceResponse:
                 try:
                     data = await asyncio.wait_for(queue.get(), timeout=30)
                     yield {"event": "message", "data": json.dumps(data)}
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # Send keepalive
                     yield {"event": "keepalive", "data": "{}"}
         finally:
@@ -274,8 +278,9 @@ async def pipeline_stream(request: Request) -> EventSourceResponse:
 async def knowledge(query: str = "", limit: int = 10) -> dict:
     """Query the knowledge graph."""
     try:
-        from sas.layers.knowledge_resolver import resolve_knowledge_backend, compile_source
         from pathlib import Path
+
+        from sas.layers.knowledge_resolver import compile_source, resolve_knowledge_backend
 
         store_path = ":memory:"
         adapter, kind = resolve_knowledge_backend(store_path=store_path)
@@ -313,8 +318,8 @@ async def agent_chat(request: Request) -> JSONResponse:
         message = body.get("message", "")
         session_id = body.get("session_id", None)
 
-        from sas.layers.model_providers import StubModelProvider
         from sas.layers.memory_providers import InMemoryMemory
+        from sas.layers.model_providers import StubModelProvider
         from sas.runtime.agent_runtime import AgentRuntime
 
         model = StubModelProvider(response="I am a sovereign AI assistant. How can I help you?")

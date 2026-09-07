@@ -21,10 +21,12 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from sas.quant.engine import QuantEngine, EngineConfig
+from sas.quant.engine import EngineConfig, QuantEngine
 from sas.quant.strategy import (
-    StrategyArtifact, SignalDefinition,
-    TransactionCosts, RiskConstraints,
+    RiskConstraints,
+    SignalDefinition,
+    StrategyArtifact,
+    TransactionCosts,
 )
 
 
@@ -226,9 +228,8 @@ class BacktestEngine:
                             config: BacktestConfig) -> str | None:
         """Check for data leakage indicators."""
         # Check if test data starts before train ends
-        if config.train_end and config.test_start:
-            if config.test_start < config.train_end:
-                return f"Test start ({config.test_start}) < train end ({config.train_end})"
+        if config.train_end and config.test_start and config.test_start < config.train_end:
+            return f"Test start ({config.test_start}) < train end ({config.train_end})"
         return None
 
     def _check_contamination(self, train: pd.DataFrame,
@@ -295,8 +296,7 @@ class BacktestEngine:
         peak = equity[0]
         dd_series = []
         for v in equity:
-            if v > peak:
-                peak = v
+            peak = max(peak, v)
             dd_series.append((v - peak) / peak)
         return dd_series
 

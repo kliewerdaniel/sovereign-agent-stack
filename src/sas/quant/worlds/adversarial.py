@@ -11,12 +11,12 @@ These become permanent regression tests.
 
 from __future__ import annotations
 
-import json
 from sas.quant.world import (
-    QuantWorld, Task, Rubric, Criterion,
+    Criterion,
     QuantWorldBuilder,
+    Rubric,
+    Task,
 )
-
 
 # ── 1. Prompt Injection World ───────────────────────────────────────────────
 

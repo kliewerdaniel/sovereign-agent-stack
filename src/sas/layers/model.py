@@ -4,9 +4,10 @@ This layer is a commodity. The intelligence is commoditized; the rent has moved 
 SAS uses Ollama local + API fallback, but the model layer is sovereignty-irrelevant.
 """
 
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from enum import Enum
-from typing import AsyncIterator, Protocol
+from typing import Protocol
 
 
 class ModelLocation(Enum):

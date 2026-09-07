@@ -6,7 +6,6 @@ The agent drives it via screenshots + mouse/keyboard events.
 
 from __future__ import annotations
 
-import subprocess
 import time
 import uuid
 from dataclasses import dataclass
@@ -42,7 +41,6 @@ class Output:
 
 class SubstrateError(Exception):
     """Error from substrate operations."""
-    pass
 
 
 class ComputeSubstrate(Protocol):

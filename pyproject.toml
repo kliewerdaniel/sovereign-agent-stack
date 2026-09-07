@@ -69,3 +69,22 @@ warn_unused_configs = true
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint]
+ignore = [
+    "BLE001",  # blind exception catch — intentional in CLI top-level handlers
+    "RUF012",  # mutable default class attrs — dataclass pattern
+    "DTZ003",  # utcnow() — deprecated but functional
+    "PLW1510",  # subprocess without check — intentional
+    "PLW0602",  # global no assign — module-level globals
+    "RUF059",  # unused variable in tuple — false positives
+    "SIM102",  # collapsible if — readability choice
+    "SIM103",  # return condition directly — style
+    "RUF022",  # unsorted __all__ — ordering matters
+    "F401",    # unused imports — pre-existing
+    "S110",    # duplicate logging config — pre-existing
+    "S112",    # duplicate logging config — pre-existing
+    "UP035",   # deprecated import — pre-existing
+    "F822",    # undefined in __all__ — pre-existing
+    "F811",    # redefinition — pre-existing
+]

@@ -6,13 +6,10 @@ recall memory → model complete → execute tools → update memory → repeat.
 
 from __future__ import annotations
 
-import asyncio
 import json
-import re
 import uuid
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, Callable
+from collections.abc import Callable
+from datetime import UTC, datetime
 
 from sas.layers.harness import (
     Context,
@@ -23,8 +20,8 @@ from sas.layers.harness import (
     Session,
     Skill,
 )
-from sas.layers.model import Completion, Message, ModelProvider, Tool
-from sas.layers.memory import Observation, Summary, ShortTermMemory
+from sas.layers.memory import Observation, ShortTermMemory
+from sas.layers.model import Message, ModelProvider, Tool
 
 
 class LocalHarness(Harness):
@@ -67,7 +64,7 @@ class LocalHarness(Harness):
         session = Session(
             id=session_id,
             user=user,
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
         )
         self._sessions[session_id] = session
         self._history[session_id] = [
@@ -95,7 +92,7 @@ class LocalHarness(Harness):
             await self._memory.update(Observation(
                 session_id=session_id,
                 content=message,
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
                 source="user",
             ))
 
@@ -149,7 +146,7 @@ class LocalHarness(Harness):
             await self._memory.update(Observation(
                 session_id=session_id,
                 content=final_content,
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
                 source="assistant",
             ))
 

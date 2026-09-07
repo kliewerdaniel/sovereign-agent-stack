@@ -31,11 +31,11 @@ from sas.layers.knowledge import (
     AuditReport,
     CompileTimeKnowledge,
     Diff,
+    Edge,
+    GraphMaterializer,
     KnowledgeGraph,
     MarkdownParser,
-    GraphMaterializer,
     Node,
-    Edge,
     ParsedResult,
 )
 from sas.layers.memory import (
@@ -59,6 +59,7 @@ from sas.layers.payments import (
     Receipt,
     SpendingLimit,
 )
+from sas.layers.registry import LayerRegistry
 from sas.layers.substrate import (
     ComputeSubstrate,
     LocalDockerSubstrate,
@@ -68,64 +69,62 @@ from sas.layers.substrate import (
     SubstrateError,
 )
 
-from sas.layers.registry import LayerRegistry
-
 __all__ = [
-    # Layer 1: Model
-    "ModelProvider",
-    "ModelIdentity",
-    "ModelLocation",
-    "Message",
-    "Tool",
-    "Completion",
-    "Token",
-    # Layer 2: Harness
-    "Harness",
-    "Session",
-    "Skill",
-    "Experience",
-    "Context",
-    "Result",
-    # Layer 3: Compute Substrate
-    "ComputeSubstrate",
-    "LocalDockerSubstrate",
-    "Machine",
-    "Screenshot",
-    "Output",
-    "SubstrateError",
-    # Layer 4: Identity
-    "EmailIdentity",
-    "PhoneIdentity",
-    "Inbox",
-    "PhoneNumber",
-    # Layer 5: Short-Term Memory
-    "ShortTermMemory",
-    "Fact",
-    "Observation",
-    "Summary",
-    # Layer 6: Long-Term Knowledge
-    "CompileTimeKnowledge",
-    "KnowledgeGraph",
-    "Node",
-    "Edge",
-    "ParsedResult",
-    "MarkdownParser",
-    "GraphMaterializer",
-    "Diff",
+    "AuditEntry",
     "AuditReport",
+    "AuditTrail",
     # Layer 7: Auth
     "AuthBroker",
+    # Layer 6: Long-Term Knowledge
+    "CompileTimeKnowledge",
+    "Completion",
+    # Layer 3: Compute Substrate
+    "ComputeSubstrate",
+    "Context",
     "Credentials",
-    "Request",
-    "Response",
-    "AuditEntry",
-    "AuditTrail",
+    "Diff",
+    "Edge",
+    # Layer 4: Identity
+    "EmailIdentity",
+    "Experience",
+    "Fact",
+    "GraphMaterializer",
+    # Layer 2: Harness
+    "Harness",
+    "Inbox",
+    "KnowledgeGraph",
+    # Registry
+    "LayerRegistry",
     "LocalAuthBroker",
+    "LocalDockerSubstrate",
+    "Machine",
+    "MarkdownParser",
+    "Message",
+    "ModelIdentity",
+    "ModelLocation",
+    # Layer 1: Model
+    "ModelProvider",
+    "Node",
+    "Observation",
+    "Output",
+    "ParsedResult",
     # Layer 8: Payments
     "PaymentAdapter",
     "PaymentRequirement",
+    "PhoneIdentity",
+    "PhoneNumber",
     "Receipt",
+    "Request",
+    "Response",
+    "Result",
+    "Screenshot",
+    "Session",
+    # Layer 5: Short-Term Memory
+    "ShortTermMemory",
+    "Skill",
     "SpendingLimit",
-    # Registry
-    "LayerRegistry",
+    "SubstrateError",
+    "Summary",
+    "Token",
+    "Tool",
 ]

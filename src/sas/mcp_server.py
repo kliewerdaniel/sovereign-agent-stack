@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 
 def check_sovereignty(config_path: str = "sas.yaml") -> dict:
@@ -42,10 +41,11 @@ def query_knowledge(query: str, source: str = "~/sas-knowledge", store: str | No
     instead of recompiling on every call.
     """
     from pathlib import Path
-    from sas.layers.knowledge_resolver import resolve_knowledge_backend, compile_source
+
+    from sas.layers.knowledge_resolver import compile_source, resolve_knowledge_backend
 
     store_path = store if store else ":memory:"
-    adapter, kind = resolve_knowledge_backend(store_path=store_path)
+    adapter, _kind = resolve_knowledge_backend(store_path=store_path)
 
     if store:
         graph = adapter.load()

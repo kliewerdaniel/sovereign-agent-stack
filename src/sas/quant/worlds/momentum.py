@@ -12,9 +12,11 @@ The agent must research and validate a cross-sectional momentum strategy:
 from __future__ import annotations
 
 from sas.quant.world import (
-    QuantWorld, Task, Rubric, Criterion, QuantWorldBuilder,
+    Criterion,
+    QuantWorldBuilder,
+    Rubric,
+    Task,
 )
-from sas.quant.agents import quant_coordinator
 
 MOMENTUM_WORLD = QuantWorldBuilder(
     world_id="qw-momentum-001",

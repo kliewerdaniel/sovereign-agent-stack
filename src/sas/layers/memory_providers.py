@@ -7,13 +7,10 @@ model is available.
 
 from __future__ import annotations
 
-import json
 import re
 import sqlite3
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 from sas.layers.memory import (
     Fact,
@@ -59,7 +56,7 @@ class LocalMemory(ShortTermMemory):
 
     async def update(self, observation: Observation) -> None:
         """Store an observation."""
-        ts = observation.timestamp or datetime.now(timezone.utc).isoformat()
+        ts = observation.timestamp or datetime.now(UTC).isoformat()
         self._conn.execute(
             "INSERT INTO observations (session_id, content, timestamp, source) VALUES (?, ?, ?, ?)",
             (observation.session_id, observation.content, ts, observation.source),
@@ -112,7 +109,7 @@ class LocalMemory(ShortTermMemory):
             return Summary(
                 session_id=session_id,
                 content="",
-                updated_at=datetime.now(timezone.utc).isoformat(),
+                updated_at=datetime.now(UTC).isoformat(),
             )
 
         # Simple extractive summary: first + last + most recent
@@ -126,7 +123,7 @@ class LocalMemory(ShortTermMemory):
                 f"Most recent: {contents[-1]}"
             )
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self._conn.execute(
             "INSERT OR REPLACE INTO summaries (session_id, content, updated_at) VALUES (?, ?, ?)",
             (session_id, summary_text, now),
@@ -183,7 +180,7 @@ class InMemoryMemory(ShortTermMemory):
             return Summary(session_id=session_id, content="", updated_at="")
         contents = [o.content for o in session_obs]
         summary_text = "\n".join(contents)
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         summary = Summary(session_id=session_id, content=summary_text, updated_at=now)
         self.summaries[session_id] = summary
         return summary

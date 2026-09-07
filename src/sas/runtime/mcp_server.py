@@ -5,28 +5,23 @@ capability checking, and state machine tracking.
 """
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
-from sas.core.config import parse_sas_yaml, SASConfig
-from sas.quant import (
-    QuantEngine, EngineConfig,
-    ResearchLifecycle, ResearchStage,
-    RiskEngine, RiskPolicy, RiskEvaluation,
-    SimulatedBroker, BrokerConfig,
-    ProvenanceNode, ProvenanceGraph,
-    ReportGenerator,
-)
+from sas.core.config import SASConfig, parse_sas_yaml
 from sas.core.scoring import generate_report
+from sas.quant import (
+    RiskEngine,
+    RiskPolicy,
+)
 from sas.rust_bridge import (
-    ExecutionContext,
     AgentStateMachine,
     CapabilityRegistry,
+    ExecutionContext,
     PolicyEnforcer,
     SovereigntyAsserter,
 )
@@ -39,7 +34,7 @@ class MCPToolResult:
     """Result of an MCP tool execution."""
     success: bool
     data: Any = None
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class MCPServer:
@@ -75,7 +70,7 @@ class MCPServer:
         self._register_default_tools()
     
     @classmethod
-    def from_config(cls, config_path: str | Path) -> "MCPServer":
+    def from_config(cls, config_path: str | Path) -> MCPServer:
         """Create MCP server from config."""
         config = parse_sas_yaml(Path(config_path))
         execution_context = ExecutionContext()
@@ -94,7 +89,7 @@ class MCPServer:
         )
     
     @classmethod
-    def from_defaults(cls) -> "MCPServer":
+    def from_defaults(cls) -> MCPServer:
         """Create MCP server with defaults."""
         from sas.core.config import SASConfig
         config = SASConfig()
@@ -362,7 +357,8 @@ class MCPServer:
         store = arguments.get("store", None)
 
         from pathlib import Path
-        from sas.layers.knowledge_resolver import resolve_knowledge_backend, compile_source
+
+        from sas.layers.knowledge_resolver import compile_source, resolve_knowledge_backend
 
         store_path = store if store else ":memory:"
         adapter, kind = resolve_knowledge_backend(store_path=store_path)
@@ -440,7 +436,7 @@ class MCPServer:
                 "EVALUATION": ResearchStage.RISK_REVIEW,
                 "RISK_REVIEW": ResearchStage.APPROVAL,
             }
-            for from_name, to_stage in stage_map.items():
+            for to_stage in stage_map.values():
                 lifecycle.transition_to(to_stage, actor="mcp_server")
             return {
                 "status": "complete",
@@ -453,8 +449,8 @@ class MCPServer:
 
     def _tool_quant_backtest(self, arguments: dict) -> dict:
         """Run a deterministic backtest."""
-        from sas.quant.strategy import StrategyArtifact, SignalDefinition
-        from sas.quant.backtest import BacktestEngine, BacktestConfig
+        from sas.quant.backtest import BacktestConfig, BacktestEngine
+        from sas.quant.strategy import SignalDefinition, StrategyArtifact
         strategy_id = arguments.get("strategy_id", "default")
         seed = arguments.get("seed", 42)
         try:
@@ -502,7 +498,7 @@ class MCPServer:
 
     def _tool_quant_provenance(self, arguments: dict) -> dict:
         """Inspect provenance lineage for an artifact."""
-        from sas.quant.provenance import ProvenanceGraph, ProvenanceNode
+        from sas.quant.provenance import ProvenanceGraph
         node_id = arguments.get("node_id", "")
         graph = ProvenanceGraph()
         node = graph.get(node_id)

@@ -12,7 +12,7 @@ import hashlib
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Optional
 
 
@@ -90,9 +90,9 @@ class StrategyArtifact:
     engine_version: str = "1.0.0"
     dataset_version: str = ""
     created_by: str = "unknown"
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     assumptions: dict = field(default_factory=dict)
-    parent_strategy_id: Optional[str] = None
+    parent_strategy_id: str | None = None
 
     def __post_init__(self):
         # Compute content hash for reproducibility verification

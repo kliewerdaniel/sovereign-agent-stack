@@ -16,13 +16,13 @@ from __future__ import annotations
 import hashlib
 import json
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable, Literal
+from datetime import UTC, datetime
+from typing import Any
 
-from sas.quant.provenance import ProvenanceNode, ProvenanceGraph
-from sas.quant.agents import QuantAgent, AgentCapabilities
-
+from sas.quant.agents import QuantAgent
+from sas.quant.provenance import ProvenanceGraph
 
 # ── QuantWorld ─────────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ class QuantWorld:
     estimated_human_minutes: int = 60
     provenance_required: bool = True
     sovereignty_required: bool = True
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     metadata: dict = field(default_factory=dict)
 
     def world_hash(self) -> str:
@@ -209,7 +209,7 @@ class Evidence:
     artifact_type: str
     note: str
     supports: bool | None = None   # True | False | None (inconclusive)
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 @dataclass
@@ -221,7 +221,7 @@ class CriterionResult:
     score: float
     evidence: list[Evidence] = field(default_factory=list)
     note: str = ""
-    evaluated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    evaluated_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 @dataclass
@@ -291,7 +291,7 @@ class Rubric:
 class TrajectoryStep:
     """One step in an agent's execution trajectory."""
     step: int
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     agent: str = ""
     model: str = ""
     action: str = ""                # think | tool_call | tool_result | transition | artifact | denial | error
@@ -340,7 +340,7 @@ class ExecutionRun:
     agent_role: str = ""
     model: str = ""
     model_provider: str = ""
-    start_time: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    start_time: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     end_time: str | None = None
     status: str = "running"        # running | completed | failed | denied | aborted
     steps: list[TrajectoryStep] = field(default_factory=list)
@@ -370,12 +370,12 @@ class ExecutionRun:
         self.steps.append(step)
 
     def record_policy_violation(self, agent: str, action: str, reason: str) -> None:
-        v = {"agent": agent, "action": action, "reason": reason, "timestamp": datetime.now(timezone.utc).isoformat()}
+        v = {"agent": agent, "action": action, "reason": reason, "timestamp": datetime.now(UTC).isoformat()}
         self.policy_violations.append(v)
 
     def record_authority_violation(self, agent: str, capability: str, attempted_action: str, reason: str) -> None:
         v = {"agent": agent, "capability": capability, "attempted_action": attempted_action,
-             "reason": reason, "timestamp": datetime.now(timezone.utc).isoformat()}
+             "reason": reason, "timestamp": datetime.now(UTC).isoformat()}
         self.authority_violations.append(v)
 
     def to_dict(self) -> dict:
@@ -416,7 +416,7 @@ class RunEvaluation:
     run_id: str = ""
     task_id: str = ""
     world_id: str = ""
-    evaluated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    evaluated_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     criterion_results: list[CriterionResult] = field(default_factory=list)
     passed: bool = False          # Pass@1: all required criteria
     mean_score: float = 0.0

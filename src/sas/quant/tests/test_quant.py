@@ -3,31 +3,31 @@
 Tests the full vertical slice:
 DATA → RESEARCH → STRATEGY → BACKTEST → RISK → REPORT
 """
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
-from sas.quant.engine import QuantEngine, EngineConfig
-from sas.quant.strategy import (
-    StrategyArtifact, SignalDefinition, PositionSizing,
-    TransactionCosts, RiskConstraints,
+from sas.quant.agents import (
+    execution_agent,
+    quant_coordinator,
+    signal_researcher,
 )
-from sas.quant.backtest import BacktestEngine, BacktestConfig
-from sas.quant.risk import RiskEngine, RiskPolicy, TradeIntent
-from sas.quant.broker import SimulatedBroker, BrokerConfig, OrderType
+from sas.quant.backtest import BacktestConfig, BacktestEngine
+from sas.quant.broker import SimulatedBroker
+from sas.quant.engine import EngineConfig, QuantEngine
+from sas.quant.knowledge.compiler import QuantKnowledgeCompiler
+from sas.quant.lifecycle import (
+    TRANSITIONS,
+    ResearchLifecycle,
+    ResearchStage,
+)
 from sas.quant.market import SyntheticDataProvider
 from sas.quant.provenance import ProvenanceGraph, ProvenanceNode
-from sas.quant.reports import ReportGenerator, QuantReport
-from sas.quant.lifecycle import (
-    ResearchLifecycle, ResearchStage,
-    TRANSITIONS,
+from sas.quant.reports import QuantReport, ReportGenerator
+from sas.quant.risk import RiskEngine, RiskPolicy, TradeIntent
+from sas.quant.strategy import (
+    StrategyArtifact,
 )
-from sas.quant.agents import (
-    quant_coordinator, data_researcher, signal_researcher,
-    backtest_agent, risk_agent, portfolio_agent, execution_agent,
-)
-from sas.quant.knowledge.compiler import QuantKnowledgeCompiler
-
 
 # ── Engine Tests ──────────────────────────────────────────
 

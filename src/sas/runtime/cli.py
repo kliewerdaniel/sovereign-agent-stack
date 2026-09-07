@@ -10,18 +10,17 @@ from pathlib import Path
 
 import click
 
-from sas.core.config import parse_sas_yaml, generate_template
+from sas.core.config import generate_template, parse_sas_yaml
 from sas.core.scoring import generate_report
-from sas.runtime.orchestrator import AgentRuntime, FleetCoordinator
-from sas.runtime.mcp_server import MCPServer
 from sas.quant.cli import register as register_quant
+from sas.runtime.mcp_server import MCPServer
+from sas.runtime.orchestrator import AgentRuntime, FleetCoordinator
 
 
 @click.group()
 @click.version_option(version="0.3.0", prog_name="sas")
 def cli():
     """Sovereign Agent Stack CLI."""
-    pass
 
 
 @cli.command("init")

@@ -5,7 +5,7 @@ SAS extends it with the compile-time knowledge graph, local auth broker, and pay
 """
 
 from dataclasses import dataclass
-from typing import AsyncIterator, Protocol
+from typing import Protocol
 
 
 @dataclass

@@ -58,31 +58,31 @@ class _PyExecutionContext:
     def can_process_payments(self) -> bool:
         return self._capabilities["process_payments"]
     
-    def with_read_filesystem(self) -> "_PyExecutionContext":
+    def with_read_filesystem(self) -> _PyExecutionContext:
         new = _PyExecutionContext()
         new._capabilities = dict(self._capabilities)
         new._capabilities["read_filesystem"] = True
         return new
     
-    def with_write_filesystem(self) -> "_PyExecutionContext":
+    def with_write_filesystem(self) -> _PyExecutionContext:
         new = _PyExecutionContext()
         new._capabilities = dict(self._capabilities)
         new._capabilities["write_filesystem"] = True
         return new
     
-    def with_dispatch_network(self) -> "_PyExecutionContext":
+    def with_dispatch_network(self) -> _PyExecutionContext:
         new = _PyExecutionContext()
         new._capabilities = dict(self._capabilities)
         new._capabilities["dispatch_network"] = True
         return new
     
-    def with_execute_commands(self) -> "_PyExecutionContext":
+    def with_execute_commands(self) -> _PyExecutionContext:
         new = _PyExecutionContext()
         new._capabilities = dict(self._capabilities)
         new._capabilities["execute_commands"] = True
         return new
     
-    def with_process_payments(self) -> "_PyExecutionContext":
+    def with_process_payments(self) -> _PyExecutionContext:
         new = _PyExecutionContext()
         new._capabilities = dict(self._capabilities)
         new._capabilities["process_payments"] = True
@@ -108,7 +108,7 @@ class _PyCapabilityRegistry:
     ]
     
     def __init__(self):
-        self._granted: Set[str] = set()
+        self._granted: set[str] = set()
     
     def grant(self, capability: str) -> None:
         self._granted.add(capability)
@@ -123,7 +123,7 @@ class _PyCapabilityRegistry:
         if not self.is_granted(capability):
             raise PermissionError(f"Required capability not granted: {capability}")
     
-    def granted_capabilities(self) -> Set[str]:
+    def granted_capabilities(self) -> set[str]:
         return set(self._granted)
     
     def __repr__(self) -> str:
@@ -177,7 +177,7 @@ class _PySovereigntyAsserter:
     def __init__(self):
         self._layers: dict[str, str] = {}
     
-    def with_layer(self, layer: str, ownership: str) -> "_PySovereigntyAsserter":
+    def with_layer(self, layer: str, ownership: str) -> _PySovereigntyAsserter:
         self._layers[layer] = ownership
         return self
     
@@ -293,7 +293,7 @@ class _PyStateTransition:
         self.reason = reason
     
     @classmethod
-    def from_string(cls, s: str) -> "_PyStateTransition":
+    def from_string(cls, s: str) -> _PyStateTransition:
         # Format: "Idle -> Executing (2024-01-01T00:00:00Z)"
         import re
         m = re.match(r"(\w+) -> (\w+)(?:\s+\(([^)]+)\))?", s)
@@ -330,10 +330,10 @@ else:
 
 
 __all__ = [
-    "ExecutionContext",
+    "AgentStateMachine",
     "CapabilityRegistry",
+    "ExecutionContext",
     "PolicyEnforcer",
     "SovereigntyAsserter",
-    "AgentStateMachine",
     "is_available",
 ]

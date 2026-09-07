@@ -17,11 +17,12 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+
 __all__ = [
-    "MarketDataPoint",
     "DatasetInfo",
-    "MarketDataProvider",
     "LocalCSVDataset",
+    "MarketDataPoint",
+    "MarketDataProvider",
     "SyntheticDataProvider",
 ]
 

@@ -5,7 +5,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from sas.core.config import generate_template, parse_sas_yaml
+from sas.core.config import generate_template
 from sas.dashboard.report import run_dashboard, run_dashboard_json
 
 
@@ -198,18 +198,22 @@ def _cmd_research(args: argparse.Namespace) -> int:
     """Run the quant research pipeline."""
     import numpy as np
     import pandas as pd
-    from sas.quant.engine import QuantEngine, EngineConfig
-    from sas.quant.strategy import (
-        StrategyArtifact, SignalDefinition, PositionSizing,
-        TransactionCosts, RiskConstraints,
-    )
-    from sas.quant.backtest import BacktestEngine, BacktestConfig
-    from sas.quant.risk import RiskEngine, RiskPolicy
-    from sas.quant.broker import SimulatedBroker, BrokerConfig
+
+    from sas.quant.backtest import BacktestConfig, BacktestEngine
+    from sas.quant.broker import BrokerConfig, SimulatedBroker
+    from sas.quant.engine import EngineConfig, QuantEngine
     from sas.quant.provenance import ProvenanceGraph, ProvenanceNode
+    from sas.quant.risk import RiskEngine, RiskPolicy
+    from sas.quant.strategy import (
+        PositionSizing,
+        RiskConstraints,
+        SignalDefinition,
+        StrategyArtifact,
+        TransactionCosts,
+    )
 
     engine = QuantEngine(EngineConfig(seed=42))
-    broker = SimulatedBroker(BrokerConfig())
+    SimulatedBroker(BrokerConfig())
 
     print("═══ Sovereign Quant Research ═══")
     print(f"Universe: {', '.join(args.universe) or 'default'}")
@@ -286,18 +290,18 @@ def _cmd_research(args: argparse.Namespace) -> int:
     # Stage 7: Report
     print("\n── REPORT ──")
     print("  Research report generated.")
-    print(f"  Sovereignty: N/A (quant engine)")
+    print("  Sovereignty: N/A (quant engine)")
     print("\n═══ Pipeline complete ═══")
     return 0
 
 
 def _cmd_quant(args: argparse.Namespace) -> int:
     """Handle quant subcommands."""
+    from sas.quant.backtest import BacktestConfig, BacktestEngine
     from sas.quant.lifecycle import ResearchLifecycle, ResearchStage
-    from sas.quant.strategy import StrategyArtifact, SignalDefinition
-    from sas.quant.backtest import BacktestEngine, BacktestConfig
-    from sas.quant.risk import RiskEngine, RiskPolicy
     from sas.quant.provenance import ProvenanceGraph, ProvenanceNode
+    from sas.quant.risk import RiskEngine, RiskPolicy
+    from sas.quant.strategy import SignalDefinition, StrategyArtifact
 
     sub = args.quant_command or "status"
 
@@ -315,7 +319,7 @@ def _cmd_quant(args: argparse.Namespace) -> int:
                 "BACKTEST": ResearchStage.EVALUATION,
                 "EVALUATION": ResearchStage.RISK_REVIEW,
             }
-            for from_name, to_stage in stage_map.items():
+            for to_stage in stage_map.values():
                 lifecycle.transition_to(to_stage, actor="cli")
             stages = [t.to_stage for t in lifecycle.transitions]
             print(f"Research stages: {' → '.join(stages)}")
@@ -421,8 +425,9 @@ def _cmd_quant(args: argparse.Namespace) -> int:
 
 def _cmd_auth(args: argparse.Namespace) -> int:
     """Handle auth subcommands."""
-    from sas.layers.auth import Credentials, LocalAuthBroker
     from pathlib import Path
+
+    from sas.layers.auth import Credentials, LocalAuthBroker
 
     sub = args.auth_command or "help"
     store_path = Path(args.store).expanduser().resolve()
@@ -571,8 +576,9 @@ def _cmd_registry(args: argparse.Namespace) -> int:
 
 def _cmd_argo(args: argparse.Namespace) -> int:
     """Handle ARGO skill pack subcommands."""
-    from sas.argopack import ARGO_SKILL_META, invoke
     import json
+
+    from sas.argopack import ARGO_SKILL_META, invoke
 
     sub = args.argo_command or "help"
 
@@ -602,7 +608,12 @@ def _cmd_argo(args: argparse.Namespace) -> int:
 
 def _cmd_payments(args: argparse.Namespace) -> int:
     """Handle payments subcommands."""
-    from sas.layers.payments import MPPAdapter, PaymentRequirement, SpendingLimit, VirtualCardAdapter
+    from sas.layers.payments import (
+        MPPAdapter,
+        PaymentRequirement,
+        SpendingLimit,
+        VirtualCardAdapter,
+    )
 
     sub = args.payments_command or "help"
 
@@ -660,7 +671,7 @@ def _cmd_knowledge(args: argparse.Namespace) -> int:
             print(f"Source not found: {source}")
             return 1
 
-        from sas.layers.knowledge_resolver import resolve_knowledge_backend, compile_source
+        from sas.layers.knowledge_resolver import compile_source, resolve_knowledge_backend
         adapter, kind = resolve_knowledge_backend(store_path=str(store_path))
         try:
             graph = compile_source(adapter, source)
@@ -786,7 +797,7 @@ def main(argv: list[str] | None = None) -> int:
     quant_backtest_parser.add_argument("--strategy-id", "-s", default="default")
     quant_backtest_parser.add_argument("--seed", default=42, type=int)
 
-    quant_status_parser = quant_subparsers.add_parser("status", help="System status")
+    quant_subparsers.add_parser("status", help="System status")
 
     quant_risk_parser = quant_subparsers.add_parser("risk", help="Evaluate risk")
     quant_risk_parser.add_argument("--weights", default="")
@@ -855,7 +866,7 @@ def main(argv: list[str] | None = None) -> int:
     registry_search_parser = registry_subparsers.add_parser("search", help="Search plugins")
     registry_search_parser.add_argument("query", help="Search query")
 
-    registry_list_parser = registry_subparsers.add_parser("list", help="List all plugins")
+    registry_subparsers.add_parser("list", help="List all plugins")
 
     registry_get_parser = registry_subparsers.add_parser("get", help="Get plugin details")
     registry_get_parser.add_argument("name", help="Plugin name")
@@ -867,10 +878,10 @@ def main(argv: list[str] | None = None) -> int:
     argo_parser = subparsers.add_parser("argo", help="ARGO skill pack")
     argo_subparsers = argo_parser.add_subparsers(dest="argo_command")
 
-    argo_info_parser = argo_subparsers.add_parser("info", help="Show skill metadata")
+    argo_subparsers.add_parser("info", help="Show skill metadata")
     argo_invoke_parser = argo_subparsers.add_parser("invoke", help="Invoke skill")
     argo_invoke_parser.add_argument("--params", default="{}", help="JSON params string")
-    argo_schema_parser = argo_subparsers.add_parser("schema", help="Show parameter schema")
+    argo_subparsers.add_parser("schema", help="Show parameter schema")
 
     # Payments subcommands
     payments_parser = subparsers.add_parser("payments", help="Payments abstraction")
@@ -897,7 +908,7 @@ def main(argv: list[str] | None = None) -> int:
     substrate_boot_parser = substrate_subparsers.add_parser("boot", help="Boot a machine")
     substrate_boot_parser.add_argument("--template", default="xfce", help="Desktop template (xfce, lxde)")
 
-    substrate_list_parser = substrate_subparsers.add_parser("list", help="List machines")
+    substrate_subparsers.add_parser("list", help="List machines")
 
     substrate_exec_parser = substrate_subparsers.add_parser("exec", help="Execute a command")
     substrate_exec_parser.add_argument("machine_id", help="Machine ID")

@@ -9,10 +9,11 @@ equally to total portfolio risk.
 from __future__ import annotations
 
 from sas.quant.world import (
-    QuantWorld, Task, Rubric, Criterion,
+    Criterion,
     QuantWorldBuilder,
+    Rubric,
+    Task,
 )
-from sas.quant.agents import quant_coordinator
 
 RISK_PARITY_WORLD = QuantWorldBuilder(
     world_id="qw-risk-parity-001",

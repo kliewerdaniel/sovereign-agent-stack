@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,7 @@ class SovereigntyAsserter:
             raise RuntimeError("Rust extension not available")
         self._inner = _rust.SovereigntyAsserter()
     
-    def with_layer(self, layer: str, ownership: str) -> "SovereigntyAsserter":
+    def with_layer(self, layer: str, ownership: str) -> SovereigntyAsserter:
         """Add a layer with its ownership status."""
         self._inner.with_layer(layer, ownership)
         return self

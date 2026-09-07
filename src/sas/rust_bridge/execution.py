@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -47,27 +46,27 @@ class ExecutionContext:
     def can_process_payments(self) -> bool:
         return self._inner.can_process_payments
     
-    def with_read_filesystem(self) -> "ExecutionContext":
+    def with_read_filesystem(self) -> ExecutionContext:
         new = ExecutionContext.__new__(ExecutionContext)
         new._inner = self._inner.with_read_filesystem()
         return new
     
-    def with_write_filesystem(self) -> "ExecutionContext":
+    def with_write_filesystem(self) -> ExecutionContext:
         new = ExecutionContext.__new__(ExecutionContext)
         new._inner = self._inner.with_write_filesystem()
         return new
     
-    def with_dispatch_network(self) -> "ExecutionContext":
+    def with_dispatch_network(self) -> ExecutionContext:
         new = ExecutionContext.__new__(ExecutionContext)
         new._inner = self._inner.with_dispatch_network()
         return new
     
-    def with_execute_commands(self) -> "ExecutionContext":
+    def with_execute_commands(self) -> ExecutionContext:
         new = ExecutionContext.__new__(ExecutionContext)
         new._inner = self._inner.with_execute_commands()
         return new
     
-    def with_process_payments(self) -> "ExecutionContext":
+    def with_process_payments(self) -> ExecutionContext:
         new = ExecutionContext.__new__(ExecutionContext)
         new._inner = self._inner.with_process_payments()
         return new

@@ -2,19 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from sas.core.config import SASConfig
 from sas.core.scoring import (
     LayerID,
-    LayerScore,
     Ownership,
     compute_score,
     score_config,
 )
-
-if TYPE_CHECKING:
-    pass
 
 
 class LayerRegistry:

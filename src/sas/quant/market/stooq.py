@@ -16,13 +16,12 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 
-from sas.quant.market import MarketDataProvider, MarketDataPoint, DatasetInfo
+from sas.quant.market import DatasetInfo, MarketDataProvider
 
 STOOQCACHE = Path.home() / ".sas" / "stooq_cache"
 STOOQCACHE.mkdir(parents=True, exist_ok=True)
@@ -64,7 +63,7 @@ class StooqResultInfo:
     source: str = "stooq"
     version: str = "1.0.0"
     downloaded_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
     content_hash: str = ""
 
@@ -113,18 +112,18 @@ class StooqProvider(MarketDataProvider):
         symbols: list[str],
         start: str = "2024-01-02",
         end: str = "2024-12-31",
-        cache_dir: Optional[Path] = None,
+        cache_dir: Path | None = None,
     ):
         self._symbols: list[str] = list(symbols)
         self._start: str = start
         self._end: str = end
         self._cache_dir: Path = cache_dir or STOOQCACHE
         self._cache_dir.mkdir(parents=True, exist_ok=True)
-        self._result_info: Optional[StooqResultInfo] = None
+        self._result_info: StooqResultInfo | None = None
 
     # ── MarketDataProvider interface ──────────────────────────────────────
 
-    def get_prices(self, symbol: str, start: str, end: str) -> "pd.DataFrame":
+    def get_prices(self, symbol: str, start: str, end: str) -> pd.DataFrame:
         """Return OHLCV DataFrame for *symbol* in [*start*, *end*]."""
         df = self._load_or_fetch(symbol)
         if df.empty:
@@ -135,7 +134,7 @@ class StooqProvider(MarketDataProvider):
 
     def get_bars(
         self, symbol: str, start: str, end: str, interval: str = "1d"
-    ) -> "pd.DataFrame":
+    ) -> pd.DataFrame:
         """Return bar data — only daily (``1d``) is supported."""
         if interval != "1d":
             return pd.DataFrame()
@@ -155,9 +154,8 @@ class StooqProvider(MarketDataProvider):
             }
         if df.isnull().any().any():
             issues.append("Contains null values")
-        if "high" in df.columns and "low" in df.columns:
-            if (df["high"] < df["low"]).any():
-                issues.append("High < Low violations")
+        if "high" in df.columns and "low" in df.columns and (df["high"] < df["low"]).any():
+            issues.append("High < Low violations")
         return {
             "symbol": symbol,
             "valid": len(issues) == 0,
@@ -193,7 +191,7 @@ class StooqProvider(MarketDataProvider):
     # ── Bulk helpers ──────────────────────────────────────────────────────
 
     def download_all(
-        self, symbols: Optional[list[str]] = None, start: str = "",
+        self, symbols: list[str] | None = None, start: str = "",
         end: str = "", _fetch_fresh: bool = False,
     ) -> StooqResultInfo:
         """Download (or reload from cache) OHLCV for *symbols*.
@@ -209,7 +207,7 @@ class StooqProvider(MarketDataProvider):
         e = end or self._end
 
         rows_per_symbol: dict[str, int] = {}
-        downloaded_at = datetime.now(timezone.utc).isoformat()
+        downloaded_at = datetime.now(UTC).isoformat()
 
         for sym in syms:
             path = self._cache_dir / f"{sym}.csv"
@@ -239,7 +237,7 @@ class StooqProvider(MarketDataProvider):
         self._result_info = res
         return res
 
-    def clear_cache(self, symbol: Optional[str] = None) -> None:
+    def clear_cache(self, symbol: str | None = None) -> None:
         """Remove cached CSV for *symbol* (or all symbols if None)."""
         if symbol:
             (self._cache_dir / f"{symbol}.csv").unlink(missing_ok=True)
@@ -251,7 +249,7 @@ class StooqProvider(MarketDataProvider):
 
     def _download_one(
         self, symbol: str, start: str, end: str, requests_mod
-    ) -> "pd.DataFrame":
+    ) -> pd.DataFrame:
         """One-symbol download, normalised to the standard OHLCV schema."""
         url = "https://stooq.com/q/d/l/"
         params = {
@@ -308,7 +306,7 @@ class StooqProvider(MarketDataProvider):
         out = out[out["close"].notna()]
         return out
 
-    def _load_or_fetch(self, symbol: str) -> "pd.DataFrame":
+    def _load_or_fetch(self, symbol: str) -> pd.DataFrame:
         """Load from cache or fetch fresh — caller already filtered by symbol."""
         path = self._cache_dir / f"{symbol}.csv"
         if path.exists():

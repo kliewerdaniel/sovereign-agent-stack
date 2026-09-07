@@ -17,12 +17,12 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Optional
 
 from sas.quant.backtest import BacktestResult
+from sas.quant.provenance import ProvenanceGraph, ProvenanceNode
 from sas.quant.risk import RiskEvaluation, TradeIntent
-from sas.quant.provenance import ProvenanceNode, ProvenanceGraph
 
 
 @dataclass
@@ -34,7 +34,7 @@ class QuantReport:
         ).hexdigest()[:16]))
     title: str = "Quantitative Research Report"
     generated_at: str = field(default_factory=lambda: datetime.now(
-        timezone.utc).isoformat())
+        UTC).isoformat())
     executive_summary: str = ""
     quantitative_findings: list[dict] = field(default_factory=list)
     factor_analysis: dict = field(default_factory=dict)
@@ -125,12 +125,12 @@ class ReportGenerator:
                  backtest_results: list[BacktestResult],
                  risk_evaluations: list[RiskEvaluation],
                  trade_intents: list[TradeIntent],
-                 provenance_graph: Optional[ProvenanceGraph] = None,
+                 provenance_graph: ProvenanceGraph | None = None,
                  methodology: str = "",
-                 data_sources: Optional[list[str]] = None,
-                 assumptions: Optional[dict] = None,
-                 anomalies: Optional[list[dict]] = None,
-                 findings: Optional[list[dict]] = None,
+                 data_sources: list[str] | None = None,
+                 assumptions: dict | None = None,
+                 anomalies: list[dict] | None = None,
+                 findings: list[dict] | None = None,
                  ) -> QuantReport:
         """Generate a quantitative research report."""
         # Executive summary
@@ -179,9 +179,9 @@ class ReportGenerator:
         if provenance_graph:
             provenance["graph_nodes"] = provenance_graph._nodes.__len__()
             provenance["graph_edges"] = len(provenance_graph._edges)
-            provenance["node_types"] = list(set(
+            provenance["node_types"] = list({
                 n.artifact_type for n in provenance_graph._nodes.values()
-            ))
+            })
             provenance["artifact_ids"] = list(provenance_graph._nodes.keys())
             provenance["content_hash"] = provenance_graph.content_hash()
         else:

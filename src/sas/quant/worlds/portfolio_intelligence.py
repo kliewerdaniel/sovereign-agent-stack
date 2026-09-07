@@ -12,15 +12,15 @@ same environment → same evaluation boundary.
 
 from __future__ import annotations
 
-import json
-from sas.quant.world import (
-    QuantWorld, Task, Rubric, Criterion,
-    QuantWorldBuilder, Evidence,
-)
 from sas.quant.agents import quant_coordinator
 from sas.quant.evaluation import (
-    computation_has_hash, report_contains_findings, report_has_provenance,
-    claims_are_groundable, artifact_has_field,
+    claims_are_groundable,
+)
+from sas.quant.world import (
+    Criterion,
+    QuantWorldBuilder,
+    Rubric,
+    Task,
 )
 
 # ── World: small hedge fund with a concentrated tech portfolio ──────────────

@@ -7,7 +7,6 @@ Credentials never leave your infrastructure.
 from __future__ import annotations
 
 import json
-import os
 import sqlite3
 import time
 from dataclasses import dataclass
@@ -100,7 +99,7 @@ class _Encryptor:
         return nacl_random(cls.KEY_LEN)
 
     @classmethod
-    def from_hex(cls, hex_key: str) -> "_Encryptor":
+    def from_hex(cls, hex_key: str) -> _Encryptor:
         """Create from a hex-encoded key string."""
         return cls(bytes.fromhex(hex_key))
 

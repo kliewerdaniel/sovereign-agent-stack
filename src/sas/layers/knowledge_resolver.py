@@ -18,7 +18,6 @@ Resolution order:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union
 
 from sas.layers.knowledge import CompileTimeKnowledge, KnowledgeGraph
 

@@ -12,24 +12,20 @@ rubrics) and the actual deterministic computation.
 
 from __future__ import annotations
 
-import hashlib
-import json
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from sas.quant.engine import QuantEngine, EngineConfig
-from sas.quant.market import MarketDataProvider, MarketDataPoint, DatasetInfo
-from sas.quant.backtest import BacktestEngine, BacktestConfig, BacktestResult
-from sas.quant.risk import RiskEngine, RiskPolicy, RiskEvaluation
-from sas.quant.provenance import ProvenanceNode, ProvenanceGraph, now_iso, content_hash
-from sas.quant.world import TrajectoryStep, ExecutionRun
-
+from sas.quant.backtest import BacktestConfig, BacktestEngine, BacktestResult
+from sas.quant.engine import EngineConfig, QuantEngine
+from sas.quant.market import MarketDataProvider
+from sas.quant.provenance import ProvenanceGraph, content_hash, now_iso
+from sas.quant.risk import RiskEngine, RiskEvaluation, RiskPolicy
+from sas.quant.world import ExecutionRun, TrajectoryStep
 
 # ── ToolDefinition ───────────────────────────────────────────────────────────
 
@@ -108,7 +104,7 @@ class ToolDefinition:
         # The run doesn't carry capabilities directly — they come from the world.
         # For now, check against the agent's known capabilities.
         # In production, the ModelAdapter would pass capabilities in context.
-        from sas.quant.agents import quant_coordinator, AgentCapabilities
+        from sas.quant.agents import quant_coordinator
         # Default to quant_coordinator capabilities for testing
         caps = quant_coordinator().capabilities.__dict__
         return {k: v for k, v in caps.items() if v}
@@ -797,7 +793,7 @@ class QuantToolbox:
                       methodology: str = "",
                       **kwargs) -> dict:
         """Build a research report from findings."""
-        from sas.quant.reports import ReportGenerator, QuantReport
+        from sas.quant.reports import ReportGenerator
 
         # Convert backtest result dicts to BacktestResult objects (simplified)
         backtest_results = []
@@ -896,12 +892,10 @@ class QuantToolbox:
 # Need to import sas.quant.strategy inside methods to avoid circular import
 import sas.quant.strategy
 
-
 # ── Toolbox Factory ──────────────────────────────────────────────────────────
 
 def create_toolbox_from_world(world, data_provider=None, **kwargs):
     """Create a QuantToolbox configured for a QuantWorld."""
-    from sas.quant.agents import quant_coordinator
 
     engine = QuantEngine(EngineConfig(
         risk_free_rate=0.02,

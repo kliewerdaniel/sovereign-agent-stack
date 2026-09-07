@@ -10,14 +10,12 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 
-from sas.quant.market import MarketDataProvider, MarketDataPoint, DatasetInfo
-
+from sas.quant.market import DatasetInfo, MarketDataProvider
 
 YFCACHE = Path.home() / ".sas" / "yf_cache"
 YFCACHE.mkdir(parents=True, exist_ok=True)
@@ -34,7 +32,7 @@ class YFResultInfo:
     source: str = "yfinance"
     version: str = "1.0.0"
     downloaded_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
     content_hash: str = ""
 
@@ -86,7 +84,7 @@ class YFinanceProvider(MarketDataProvider):
         start: str = "2024-01-02",
         end: str = "2024-12-31",
         auto_adjust: bool = True,
-        cache_dir: Optional[Path] = None,
+        cache_dir: Path | None = None,
     ):
         self._symbols: list[str] = list(symbols)
         self._start: str = start
@@ -94,11 +92,11 @@ class YFinanceProvider(MarketDataProvider):
         self._auto_adjust: bool = auto_adjust
         self._cache_dir: Path = cache_dir or YFCACHE
         self._cache_dir.mkdir(parents=True, exist_ok=True)
-        self._result_info: Optional[YFResultInfo] = None
+        self._result_info: YFResultInfo | None = None
 
     # ── MarketDataProvider interface ──────────────────────────────────────
 
-    def get_prices(self, symbol: str, start: str, end: str) -> "pd.DataFrame":
+    def get_prices(self, symbol: str, start: str, end: str) -> pd.DataFrame:
         """Return OHLCV DataFrame for *symbol* in [*start*, *end*]."""
         df = self._load_or_fetch(symbol)
         if df.empty:
@@ -109,7 +107,7 @@ class YFinanceProvider(MarketDataProvider):
 
     def get_bars(
         self, symbol: str, start: str, end: str, interval: str = "1d"
-    ) -> "pd.DataFrame":
+    ) -> pd.DataFrame:
         """Return bar data — only daily (``1d``) is supported."""
         if interval != "1d":
             return pd.DataFrame()
@@ -129,9 +127,8 @@ class YFinanceProvider(MarketDataProvider):
             }
         if df.isnull().any().any():
             issues.append("Contains null values")
-        if "high" in df.columns and "low" in df.columns:
-            if (df["high"] < df["low"]).any():
-                issues.append("High < Low violations")
+        if "high" in df.columns and "low" in df.columns and (df["high"] < df["low"]).any():
+            issues.append("High < Low violations")
         return {
             "symbol": symbol,
             "valid": len(issues) == 0,
@@ -167,7 +164,7 @@ class YFinanceProvider(MarketDataProvider):
     # ── Bulk helpers ──────────────────────────────────────────────────────
 
     def download_all(
-        self, symbols: Optional[list[str]] = None, start: str = "",
+        self, symbols: list[str] | None = None, start: str = "",
         end: str = "",
     ) -> YFResultInfo:
         """Download (or reload from cache) OHLCV for *symbols*.
@@ -179,7 +176,7 @@ class YFinanceProvider(MarketDataProvider):
         e = end or self._end
 
         rows_per_symbol: dict[str, int] = {}
-        downloaded_at = datetime.now(timezone.utc).isoformat()
+        downloaded_at = datetime.now(UTC).isoformat()
 
         for sym in syms:
             path = self._cache_dir / f"{sym}.csv"
@@ -208,7 +205,7 @@ class YFinanceProvider(MarketDataProvider):
         self._result_info = res
         return res
 
-    def clear_cache(self, symbol: Optional[str] = None) -> None:
+    def clear_cache(self, symbol: str | None = None) -> None:
         """Remove cached CSV for *symbol* (or all symbols if None)."""
         if symbol:
             (self._cache_dir / f"{symbol}.csv").unlink(missing_ok=True)
@@ -218,7 +215,7 @@ class YFinanceProvider(MarketDataProvider):
 
     # ── Internals ─────────────────────────────────────────────────────────
 
-    def _load_or_fetch(self, symbol: str) -> "pd.DataFrame":
+    def _load_or_fetch(self, symbol: str) -> pd.DataFrame:
         """Load from cache or fetch fresh — caller already filtered by symbol."""
         path = self._cache_dir / f"{symbol}.csv"
         if path.exists():
@@ -230,7 +227,7 @@ class YFinanceProvider(MarketDataProvider):
                 pass
         return self._download_one(symbol, self._start, self._end)
 
-    def _download_one(self, symbol: str, start: str, end: str) -> "pd.DataFrame":
+    def _download_one(self, symbol: str, start: str, end: str) -> pd.DataFrame:
         """One-symbol download, normalised to the standard OHLCV schema."""
         try:
             import yfinance as yf

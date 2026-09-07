@@ -25,7 +25,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 ARGO_SKILL_META = {
     "name": "sovereign-agent-stack",
     "version": "0.1.0",

@@ -6,11 +6,9 @@ support. Both implement the ``ModelProvider`` protocol defined in ``model.py``.
 
 from __future__ import annotations
 
-import os
 import json
-import asyncio
-from dataclasses import dataclass, field
-from typing import AsyncIterator, Any
+import os
+from collections.abc import AsyncIterator
 
 from sas.layers.model import (
     Completion,
@@ -65,36 +63,35 @@ class OllamaProvider(ModelProvider):
                 for t in tools
             ]
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{self._base_url}/api/chat", json=payload
-            ) as resp:
-                data = await resp.json()
-                msg = data.get("message", {})
-                content = msg.get("content", "")
-                tool_calls = None
-                raw_calls = msg.get("tool_calls", [])
-                if raw_calls:
-                    tool_calls = []
-                    for tc in raw_calls:
-                        func = tc.get("function", {})
-                        tool_calls.append({
-                            "id": f"call_{func.get('name', 'unknown')}",
-                            "type": "function",
-                            "function": {
-                                "name": func.get("name", ""),
-                                "arguments": json.dumps(func.get("arguments", {})),
-                            },
-                        })
-                usage = data.get("usage", None) or {
-                    "prompt_tokens": data.get("prompt_eval_count", 0),
-                    "completion_tokens": data.get("eval_count", 0),
-                }
-                return Completion(
-                    content=content,
-                    tool_calls=tool_calls,
-                    usage=usage,
-                )
+        async with aiohttp.ClientSession() as session, session.post(
+            f"{self._base_url}/api/chat", json=payload
+        ) as resp:
+            data = await resp.json()
+            msg = data.get("message", {})
+            content = msg.get("content", "")
+            tool_calls = None
+            raw_calls = msg.get("tool_calls", [])
+            if raw_calls:
+                tool_calls = []
+                for tc in raw_calls:
+                    func = tc.get("function", {})
+                    tool_calls.append({
+                        "id": f"call_{func.get('name', 'unknown')}",
+                        "type": "function",
+                        "function": {
+                            "name": func.get("name", ""),
+                            "arguments": json.dumps(func.get("arguments", {})),
+                        },
+                    })
+            usage = data.get("usage", None) or {
+                "prompt_tokens": data.get("prompt_eval_count", 0),
+                "completion_tokens": data.get("eval_count", 0),
+            }
+            return Completion(
+                content=content,
+                tool_calls=tool_calls,
+                usage=usage,
+            )
 
     async def stream(self, messages: list[Message], tools: list[Tool]) -> AsyncIterator[Token]:
         import aiohttp
@@ -117,27 +114,26 @@ class OllamaProvider(ModelProvider):
                 for t in tools
             ]
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{self._base_url}/api/chat", json=payload
-            ) as resp:
-                async for line in resp.content:
-                    line = line.decode("utf-8").strip()
-                    if not line:
-                        continue
-                    try:
-                        chunk = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    msg = chunk.get("message", {})
-                    piece = msg.get("content", "")
-                    if piece:
-                        yield Token(content=piece, finish_reason=None)
-                    if chunk.get("done"):
-                        yield Token(
-                            content="",
-                            finish_reason=chunk.get("done_reason", "stop"),
-                        )
+        async with aiohttp.ClientSession() as session, session.post(
+            f"{self._base_url}/api/chat", json=payload
+        ) as resp:
+            async for line in resp.content:
+                line = line.decode("utf-8").strip()
+                if not line:
+                    continue
+                try:
+                    chunk = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                msg = chunk.get("message", {})
+                piece = msg.get("content", "")
+                if piece:
+                    yield Token(content=piece, finish_reason=None)
+                if chunk.get("done"):
+                    yield Token(
+                        content="",
+                        finish_reason=chunk.get("done_reason", "stop"),
+                    )
 
 
 class OpenAIProvider(ModelProvider):
@@ -195,35 +191,34 @@ class OpenAIProvider(ModelProvider):
         }
 
         timeout = aiohttp.ClientTimeout(total=self._timeout)
-        async with aiohttp.ClientSession(timeout=timeout) as session:
-            async with session.post(
-                f"{self._base_url}/chat/completions",
-                json=payload,
-                headers=headers,
-            ) as resp:
-                data = await resp.json()
-                choice = data["choices"][0]["message"]
-                content = choice.get("content", "") or ""
-                tool_calls = None
-                raw_calls = choice.get("tool_calls", [])
-                if raw_calls:
-                    tool_calls = [
-                        {
-                            "id": tc["id"],
-                            "type": "function",
-                            "function": {
-                                "name": tc["function"]["name"],
-                                "arguments": tc["function"]["arguments"],
-                            },
-                        }
-                        for tc in raw_calls
-                    ]
-                usage = data.get("usage", None)
-                return Completion(
-                    content=content,
-                    tool_calls=tool_calls,
-                    usage=usage,
-                )
+        async with aiohttp.ClientSession(timeout=timeout) as session, session.post(
+            f"{self._base_url}/chat/completions",
+            json=payload,
+            headers=headers,
+        ) as resp:
+            data = await resp.json()
+            choice = data["choices"][0]["message"]
+            content = choice.get("content", "") or ""
+            tool_calls = None
+            raw_calls = choice.get("tool_calls", [])
+            if raw_calls:
+                tool_calls = [
+                    {
+                        "id": tc["id"],
+                        "type": "function",
+                        "function": {
+                            "name": tc["function"]["name"],
+                            "arguments": tc["function"]["arguments"],
+                        },
+                    }
+                    for tc in raw_calls
+                ]
+            usage = data.get("usage", None)
+            return Completion(
+                content=content,
+                tool_calls=tool_calls,
+                usage=usage,
+            )
 
     async def stream(self, messages: list[Message], tools: list[Tool]) -> AsyncIterator[Token]:
         import aiohttp
@@ -252,34 +247,33 @@ class OpenAIProvider(ModelProvider):
         }
 
         timeout = aiohttp.ClientTimeout(total=self._timeout)
-        async with aiohttp.ClientSession(timeout=timeout) as session:
-            async with session.post(
-                f"{self._base_url}/chat/completions",
-                json=payload,
-                headers=headers,
-            ) as resp:
-                async for line in resp.content:
-                    line = line.decode("utf-8").strip()
-                    if not line.startswith("data: "):
-                        continue
-                    data_str = line[6:]
-                    if data_str == "[DONE]":
-                        yield Token(content="", finish_reason="stop")
-                        return
-                    try:
-                        chunk = json.loads(data_str)
-                    except json.JSONDecodeError:
-                        continue
-                    choices = chunk.get("choices", [])
-                    if not choices:
-                        continue
-                    delta = choices[0].get("delta", {})
-                    piece = delta.get("content", "")
-                    if piece:
-                        yield Token(content=piece, finish_reason=None)
-                    finish = choices[0].get("finish_reason")
-                    if finish:
-                        yield Token(content="", finish_reason=finish)
+        async with aiohttp.ClientSession(timeout=timeout) as session, session.post(
+            f"{self._base_url}/chat/completions",
+            json=payload,
+            headers=headers,
+        ) as resp:
+            async for line in resp.content:
+                line = line.decode("utf-8").strip()
+                if not line.startswith("data: "):
+                    continue
+                data_str = line[6:]
+                if data_str == "[DONE]":
+                    yield Token(content="", finish_reason="stop")
+                    return
+                try:
+                    chunk = json.loads(data_str)
+                except json.JSONDecodeError:
+                    continue
+                choices = chunk.get("choices", [])
+                if not choices:
+                    continue
+                delta = choices[0].get("delta", {})
+                piece = delta.get("content", "")
+                if piece:
+                    yield Token(content=piece, finish_reason=None)
+                finish = choices[0].get("finish_reason")
+                if finish:
+                    yield Token(content="", finish_reason=finish)
 
 
 class StubModelProvider(ModelProvider):

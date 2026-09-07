@@ -76,7 +76,7 @@ class QuantEngine:
         dr = float(np.sqrt(np.mean((below - mar) ** 2)))
         return dr * np.sqrt(self.config.trading_days) if annualized else dr
 
-    def sharpe(self, returns: np.ndarray, rf: Optional[float] = None) -> float:
+    def sharpe(self, returns: np.ndarray, rf: float | None = None) -> float:
         """Sharpe ratio."""
         rf = rf or self.config.risk_free_rate
         vol = self.volatility(returns)
@@ -85,7 +85,7 @@ class QuantEngine:
         ret = self.annualized_return(returns)
         return (ret - rf) / vol
 
-    def sortino(self, returns: np.ndarray, rf: Optional[float] = None) -> float:
+    def sortino(self, returns: np.ndarray, rf: float | None = None) -> float:
         """Sortino ratio (downside risk instead of total vol)."""
         rf = rf or self.config.risk_free_rate
         dr = self.downside_risk(returns)

@@ -10,17 +10,15 @@ Binds the model, memory, and harness into a working agent that can:
 
 from __future__ import annotations
 
-import asyncio
 import json
-import re
 import uuid
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, Callable, Protocol
+from datetime import UTC, datetime
+from typing import Any
 
-from sas.layers.model import Message, ModelProvider, Tool, Completion
 from sas.layers.memory import Observation, ShortTermMemory
-from sas.layers.harness import Harness, Session, Response
+from sas.layers.model import Message, ModelProvider, Tool
 
 
 class AgentRuntime:
@@ -89,7 +87,7 @@ class AgentRuntime:
         await self._memory.update(Observation(
             session_id=session_id,
             content=message,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             source="user",
         ))
 
@@ -145,7 +143,7 @@ class AgentRuntime:
         await self._memory.update(Observation(
             session_id=session_id,
             content=final_text,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             source="assistant",
         ))
 
@@ -168,7 +166,7 @@ class AgentRuntime:
         await self._memory.update(Observation(
             session_id=session_id,
             content=message,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             source="user",
         ))
 
@@ -219,7 +217,7 @@ class AgentRuntime:
         await self._memory.update(Observation(
             session_id=session_id,
             content=final_text,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             source="assistant",
         ))
 

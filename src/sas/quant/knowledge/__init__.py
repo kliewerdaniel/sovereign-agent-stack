@@ -10,7 +10,6 @@ from pathlib import Path
 
 from sas.layers.knowledge import CompileTimeKnowledge, Node
 
-
 # Policy file templates
 POLICY_TEMPLATES = {
     "investment-policy.md": """---

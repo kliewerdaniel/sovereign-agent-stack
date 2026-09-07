@@ -6,14 +6,11 @@ A fact re-derived at query time from a context window is a liability.
 
 from __future__ import annotations
 
-import os
 import re
 import sqlite3
-import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Protocol
 
 
 @dataclass

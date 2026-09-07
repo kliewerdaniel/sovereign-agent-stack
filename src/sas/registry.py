@@ -24,11 +24,9 @@ Registry schema:
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
-
 
 REGISTRY_VERSION = 1
 DEFAULT_REGISTRY_PATH = Path.home() / ".sas" / "registry.json"
@@ -51,7 +49,7 @@ class RegistryEntry:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict) -> "RegistryEntry":
+    def from_dict(cls, data: dict) -> RegistryEntry:
         fields = {k: v for k, v in data.items() if k in cls.__dataclass_fields__}
         return cls(**fields)
 
@@ -66,7 +64,7 @@ class CommunityRegistry:
         plugins = reg.list_all()
     """
 
-    def __init__(self, registry_path: Optional[Path] = None):
+    def __init__(self, registry_path: Path | None = None):
         self.registry_path = registry_path or DEFAULT_REGISTRY_PATH
         self._data: dict = {"version": REGISTRY_VERSION, "plugins": []}
         self._load()
@@ -123,7 +121,7 @@ class CommunityRegistry:
             return True
         return False
 
-    def get(self, name: str) -> Optional[RegistryEntry]:
+    def get(self, name: str) -> RegistryEntry | None:
         """Get a plugin entry by name."""
         for p in self._data["plugins"]:
             if p["name"] == name:
@@ -164,16 +162,16 @@ class CommunityRegistry:
             return True  # If we can't parse, allow overwrite
 
 
-def publish_plugin(entry: RegistryEntry, registry_path: Optional[Path] = None) -> None:
+def publish_plugin(entry: RegistryEntry, registry_path: Path | None = None) -> None:
     """Convenience: publish to the default registry."""
     CommunityRegistry(registry_path).publish(entry)
 
 
-def search_plugins(query: str, registry_path: Optional[Path] = None) -> list[RegistryEntry]:
+def search_plugins(query: str, registry_path: Path | None = None) -> list[RegistryEntry]:
     """Convenience: search the default registry."""
     return CommunityRegistry(registry_path).search(query)
 
 
-def list_all_plugins(registry_path: Optional[Path] = None) -> list[RegistryEntry]:
+def list_all_plugins(registry_path: Path | None = None) -> list[RegistryEntry]:
     """Convenience: list all plugins in the default registry."""
     return CommunityRegistry(registry_path).list_all()

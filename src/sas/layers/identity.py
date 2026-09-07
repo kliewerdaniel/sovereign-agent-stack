@@ -85,7 +85,6 @@ class AgentMailAdapter:
     def send(self, inbox: Inbox, message: Email) -> None:
         """Send an email via AgentMail API."""
         # In production: POST https://api.agentmail.com/v1/inboxes/{inbox.id}/send
-        pass
 
     def watch(self, inbox: Inbox) -> list[Email]:
         """Watch for incoming emails via AgentMail webhooks."""
@@ -122,7 +121,6 @@ class AgentPhoneAdapter:
     def sms(self, number: PhoneNumber, message: str) -> None:
         """Send SMS via AgentPhone API."""
         # In production: POST https://api.agentphone.com/v1/sms
-        pass
 
 
 class MockEmailAdapter:
