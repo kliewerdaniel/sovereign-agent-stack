@@ -27,6 +27,7 @@ jobs:
         run: ruff check src/
 
       - name: Type check
+        if: matrix.python-version == '3.11'
         run: mypy src/sas/ --ignore-missing-imports
 
       - name: Test

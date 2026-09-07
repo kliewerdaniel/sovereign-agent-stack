@@ -65,7 +65,6 @@ asyncio_mode = "auto"
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
-disable-error-code = ["syntax"]
 
 [tool.ruff]
 line-length = 100
