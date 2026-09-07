@@ -470,6 +470,61 @@ def _cmd_quant(args: argparse.Namespace) -> int:
         if result.status == "failed":
             return 1
 
+    elif sub == "experiment":
+        from sas.quant.experiment import run_experimental_suite
+        from sas.quant.experiment.analysis import analyze_matrix, generate_report
+
+        # Build universes list
+        universes = []
+        if args.universe:
+            for u in args.universe:
+                universes.append([u])
+        else:
+            universes = [["AAPL", "MSFT"]]
+
+        # Build parameter lists
+        budgets = list(args.trial_budget) if args.trial_budget else [10]
+        reflections = list(args.reflection_rounds) if args.reflection_rounds else [1]
+        seeds = list(args.seed) if args.seed else [42]
+
+        print("═══ Sovereign Quant: Experimental Suite ═══")
+        print(f"Universes: {universes}")
+        print(f"Trial budgets: {budgets}")
+        print(f"Reflection rounds: {reflections}")
+        print(f"Seeds: {seeds}")
+        print(f"Output directory: {args.output_dir}")
+        print()
+
+        # Run the suite
+        matrix = run_experimental_suite(
+            output_dir=args.output_dir,
+            matrix_id=args.matrix_id,
+            universes=universes,
+            trial_budgets=budgets,
+            reflection_rounds=reflections,
+            seeds=seeds,
+        )
+
+        print(f"\nCompleted {len(matrix.results)} experiments")
+        print(f"Results saved to: {matrix.output_dir}")
+
+        # Run comparative analysis
+        if args.analyze:
+            print("\nRunning comparative analysis...")
+            import json
+            from pathlib import Path
+            summary_path = Path(matrix.output_dir) / "matrix_summary.json"
+            analysis = analyze_matrix(str(summary_path))
+
+            # Print report
+            report = generate_report(analysis)
+            print(report)
+
+            # Save report
+            report_path = Path(matrix.output_dir) / "comparative_report.md"
+            report_path.write_text(report)
+            print(f"\nReport saved to: {report_path}")
+
     else:
         print("Unknown quant subcommand:", sub)
         return 1
@@ -876,6 +931,18 @@ def main(argv: list[str] | None = None) -> int:
     quant_auto_research_parser.add_argument("--model-name", default="stub-model", help="Model name")
     quant_auto_research_parser.add_argument("--output", "-o", choices=["json", "markdown", "both"], default="both", help="Output format")
     quant_auto_research_parser.add_argument("--output-file", "-f", default=None, help="Write report to file")
+
+    quant_experiment_parser = quant_subparsers.add_parser(
+        "experiment", help="Run governed research experiments"
+    )
+    quant_experiment_parser.add_argument("--output-dir", "-d", default="./experiments", help="Output directory")
+    quant_experiment_parser.add_argument("--matrix-id", default=None, help="Matrix ID")
+    quant_experiment_parser.add_argument("--universe", "-u", action="append", default=[], help="Ticker universe")
+    quant_experiment_parser.add_argument("--trial-budget", "-b", action="append", type=int, default=[], help="Trial budget")
+    quant_experiment_parser.add_argument("--reflection-rounds", "-r", action="append", type=int, default=[], help="Reflection rounds")
+    quant_experiment_parser.add_argument("--seed", "-s", action="append", type=int, default=[], help="Random seed")
+    quant_experiment_parser.add_argument("--analyze", action="store_true", default=True, help="Run comparative analysis")
+    quant_experiment_parser.add_argument("--no-analyze", action="store_false", dest="analyze", help="Skip comparative analysis")
 
     # Knowledge subcommands
     knowledge_parser = subparsers.add_parser("knowledge", help="Compile-time knowledge graph")

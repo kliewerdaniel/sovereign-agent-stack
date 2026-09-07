@@ -1,0 +1,96 @@
+{
+  "matrix_id": "suite-859f56a6",
+  "total_experiments": 3,
+  "findings": [
+    {
+      "metric": "sharpe_gap",
+      "condition": "budget=10",
+      "value": 4.600757955566007,
+      "comparison": "budget=20",
+      "comparison_value": 3.4218958038748317,
+      "delta": 1.1788621516911757,
+      "interpretation": "Increasing trial budget from 10 to 20 decreased the average Sharpe gap by 1.1789"
+    },
+    {
+      "metric": "dsr",
+      "condition": "budget=10",
+      "value": 0.0,
+      "comparison": "budget=20",
+      "comparison_value": 0.0,
+      "delta": 0.0,
+      "interpretation": "Increasing trial budget from 10 to 20 decreased the average DSR by 0.0000"
+    },
+    {
+      "metric": "holdout_sharpe",
+      "condition": "budget=10",
+      "value": -1.3812708519869388,
+      "comparison": "budget=20",
+      "comparison_value": -0.03762313646893335,
+      "delta": -1.3436477155180053,
+      "interpretation": "Increasing trial budget from 10 to 20 increased the average holdout Sharpe by 1.3436"
+    },
+    {
+      "metric": "sharpe_gap",
+      "condition": "budget=10",
+      "value": 4.600757955566007,
+      "comparison": "budget=50",
+      "comparison_value": 3.9971340887115163,
+      "delta": 0.6036238668544911,
+      "interpretation": "Increasing trial budget from 10 to 50 decreased the average Sharpe gap by 0.6036"
+    },
+    {
+      "metric": "dsr",
+      "condition": "budget=10",
+      "value": 0.0,
+      "comparison": "budget=50",
+      "comparison_value": 0.0,
+      "delta": 0.0,
+      "interpretation": "Increasing trial budget from 10 to 50 decreased the average DSR by 0.0000"
+    },
+    {
+      "metric": "holdout_sharpe",
+      "condition": "budget=10",
+      "value": -1.3812708519869388,
+      "comparison": "budget=50",
+      "comparison_value": 0.3338635266923509,
+      "delta": -1.7151343786792896,
+      "interpretation": "Increasing trial budget from 10 to 50 increased the average holdout Sharpe by 1.7151"
+    },
+    {
+      "metric": "sharpe_gap",
+      "condition": "budget=20",
+      "value": 3.4218958038748317,
+      "comparison": "budget=50",
+      "comparison_value": 3.9971340887115163,
+      "delta": -0.5752382848366846,
+      "interpretation": "Increasing trial budget from 20 to 50 increased the average Sharpe gap by 0.5752"
+    },
+    {
+      "metric": "dsr",
+      "condition": "budget=20",
+      "value": 0.0,
+      "comparison": "budget=50",
+      "comparison_value": 0.0,
+      "delta": 0.0,
+      "interpretation": "Increasing trial budget from 20 to 50 decreased the average DSR by 0.0000"
+    },
+    {
+      "metric": "holdout_sharpe",
+      "condition": "budget=20",
+      "value": -0.03762313646893335,
+      "comparison": "budget=50",
+      "comparison_value": 0.3338635266923509,
+      "delta": -0.37148666316128426,
+      "interpretation": "Increasing trial budget from 20 to 50 increased the average holdout Sharpe by 0.3715"
+    }
+  ],
+  "summary": {
+    "total_experiments": 3,
+    "acceptance_rate": 0.3333333333333333,
+    "holdout_outperformance_rate": 0.6666666666666666,
+    "average_nominal_sharpe": 3.6449191287962783,
+    "average_holdout_sharpe": -0.36167682058784045,
+    "average_sharpe_gap": 4.006595949384118,
+    "average_dsr": 0.0
+  }
+}

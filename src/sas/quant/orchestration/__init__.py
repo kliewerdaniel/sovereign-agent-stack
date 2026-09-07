@@ -1,23 +1,27 @@
-"""Quant research orchestration.
+"""Quant research orchestration — thin adapter over Experiment + Researcher.
 
-Wires the full research loop:
-  strategy proposal (LLM) → backtest → risk evaluation → authorization gate → broker → provenance
+This module preserves the existing public API (OrchestratorConfig,
+OrchestratorResult, QuantResearchOrchestrator) while delegating all
+execution to the new governed research architecture.
 
-The orchestrator is the ONLY component that can submit trades to the broker.
-The LLM proposes strategies through the toolbox; the orchestrator validates,
-backtests, risk-checks, gates, and (on approval) executes them.
+The old orchestrator does NOT maintain a second implementation of the
+research lifecycle. It translates its inputs into an ExperimentConfig,
+invokes the Researcher, and translates the resulting experiment artifacts
+back into the legacy result shape.
 """
 
 from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from typing import Any, Optional
 
-from sas.quant.backtest import BacktestConfig, BacktestEngine, BacktestResult
+from sas.quant.backtest import BacktestResult
 from sas.quant.broker import Order, OrderStatus, SimulatedBroker
 from sas.quant.broker.adapter import BrokerAdapter
-from sas.quant.engine import QuantEngine
+from sas.quant.evaluation.baseline import BaselineConfig
+from sas.quant.evaluation.gates import ResearchGateConfig
 from sas.quant.market import MarketDataProvider, SyntheticDataProvider
 from sas.quant.orchestration.gate import (
     AuthorizationResult,
@@ -25,19 +29,10 @@ from sas.quant.orchestration.gate import (
     TradeAuthorization,
 )
 from sas.quant.provenance import ProvenanceGraph, ProvenanceNode
+from sas.quant.research.experiment import Experiment, ExperimentConfig
+from sas.quant.orchestration.researcher import Researcher, ResearchResult
 from sas.quant.risk import RiskEngine, TradeIntent
-from sas.quant.strategy import (
-    PositionSizing,
-    SignalDefinition,
-    StrategyArtifact,
-)
-from sas.quant.toolbox import create_toolbox_from_world
-from sas.quant.world import (
-    ExecutionRun,
-    QuantWorld,
-    QuantWorldBuilder,
-    Task,
-)
+from sas.quant.strategy import StrategyArtifact
 
 
 @dataclass
@@ -49,11 +44,11 @@ class OrchestratorConfig:
     end_date: str = "2024-12-31"
     initial_capital: float = 100_000.0
     seed: int = 42
-    mode: str = "backtest-only"  # "backtest-only" or "live-paper"
+    mode: str = "backtest-only"
     auto_approve: bool = False
     max_trades_per_session: int = 10
     max_order_value_usd: float = 10_000.0
-    model_provider: str = "stub"  # "stub", "ollama", "openai"
+    model_provider: str = "stub"
     model_name: str = "stub-model"
 
 
@@ -62,7 +57,7 @@ class OrchestratorResult:
     """Result of a full orchestration run."""
     run_id: str = ""
     status: str = "pending"
-    world: Optional[QuantWorld] = None
+    world: Any = None
     strategy: Optional[StrategyArtifact] = None
     backtest_result: Optional[BacktestResult] = None
     trade_intents: list[TradeIntent] = field(default_factory=list)
@@ -72,6 +67,7 @@ class OrchestratorResult:
     artifacts: dict = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    experiment: Experiment | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -110,21 +106,30 @@ class OrchestratorResult:
         }
 
 
-class QuantResearchOrchestrator:
-    """Orchestrates the full quant research loop.
+def _compute_research_holdout_split(start_date: str, end_date: str) -> tuple[tuple[str, str], tuple[str, str]]:
+    """Split the full date range into research (80%) and holdout (20%) windows."""
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+    total_days = (end - start).days
+    research_days = int(total_days * 0.8)
+    research_end = start + timedelta(days=research_days)
+    holdout_start = research_end + timedelta(days=1)
+    return (
+        (start_date, research_end.strftime("%Y-%m-%d")),
+        (holdout_start.strftime("%Y-%m-%d"), end_date),
+    )
 
-    1. Assemble QuantWorld from config
-    2. Run LLM research loop (proposes strategy)
-    3. Backtest proposed strategy
-    4. Risk evaluation
-    5. Authorization gate (human-in-the-loop)
-    6. Broker submission (if approved)
-    7. Provenance capture
+
+class QuantResearchOrchestrator:
+    """Thin adapter over Experiment + Researcher.
+
+    Preserves the existing public API while delegating all execution
+    to the governed research architecture.
     """
 
     def __init__(self, config: OrchestratorConfig):
         self.config = config
-        self._engine = QuantEngine()
+        self._engine = None
         self._risk_engine = RiskEngine()
         self._provenance = ProvenanceGraph()
         self._data_provider: Optional[MarketDataProvider] = None
@@ -132,54 +137,147 @@ class QuantResearchOrchestrator:
         self._gate: Optional[TradeAuthorization] = None
 
     def run(self) -> OrchestratorResult:
-        """Execute the full research loop.
-
-        Returns:
-            ``OrchestratorResult`` with all artifacts and provenance.
-        """
+        """Execute the full research loop via the governed architecture."""
         result = OrchestratorResult(
             run_id=str(uuid.uuid4())[:12],
             status="running",
         )
 
         try:
-            # Step 1: Assemble world
-            world, task = self._build_world()
-            result.world = world
+            # Split date range into research and holdout windows
+            research_window, holdout_window = _compute_research_holdout_split(
+                self.config.start_date, self.config.end_date
+            )
 
-            # Step 2: Set up data provider
-            data_provider = self._build_data_provider(world)
+            # Build experiment config from orchestrator config
+            experiment_config = ExperimentConfig(
+                experiment_id=result.run_id,
+                world_id=f"qw-orch-{str(uuid.uuid4())[:8]}",
+                trial_budget=10,
+                research_window=research_window,
+                holdout_window=holdout_window,
+                model_id=self.config.model_name,
+                task_id="auto-research-task",
+                random_seed=self.config.seed,
+                initial_capital=self.config.initial_capital,
+                baseline_config=BaselineConfig(
+                    baseline_type="buy_and_hold",
+                    universe=self.config.universe,
+                    data_window=research_window,
+                ),
+                gate_config=ResearchGateConfig(),
+            )
 
-            # Step 3: Run LLM research loop
-            strategy = self._run_research_loop(world, task, data_provider, result)
-            result.strategy = strategy
+            # Create experiment
+            experiment = Experiment(experiment_config)
+            result.experiment = experiment
 
-            if strategy is None:
-                result.status = "failed"
-                result.errors.append("No strategy proposed by LLM")
-                return result
+            # Build a QuantWorld for the legacy result.world field
+            from sas.quant.world import QuantWorldBuilder
+            builder = QuantWorldBuilder(world_id=experiment_config.world_id)
+            builder.customer("Sas Orchestrator").objective(
+                "Autonomous quantitative research: propose, backtest, and execute a trading strategy"
+            )
+            for sym in self.config.universe:
+                builder.universe(sym)
+            builder.add_dataset(
+                "ds-research",
+                "synthetic" if self.config.mode == "backtest-only" else "alpaca",
+                "1.0.0",
+                f"Market data for {', '.join(self.config.universe)}",
+            )
+            builder.portfolio({
+                "cash": self.config.initial_capital,
+                "positions": {},
+                "benchmark": self.config.universe[0] if self.config.universe else "SPY",
+                "mandate": "Autonomous research",
+            })
+            result.world = builder.build()
 
-            # Step 4: Backtest
-            bt_result = self._run_backtest(strategy, data_provider)
-            result.backtest_result = bt_result
+            # Build data provider
+            data_provider = self._build_data_provider()
 
-            # Step 5: Create trade intent from strategy
-            trade = self._create_trade_intent(strategy, bt_result)
-            result.trade_intents = [trade]
+            # Compute baseline
+            experiment.compute_baseline(data_provider)
 
-            # Step 6: Authorization gate
-            auth_result = self._run_authorization(trade, world)
-            result.authorization_results = [auth_result]
+            # Run research loop
+            researcher = Researcher(experiment, data_provider=data_provider)
+            research_result = researcher.run_research()
 
-            if auth_result.approved:
-                # Step 7: Submit to broker
-                order = self._submit_to_broker(trade)
-                result.executed_orders = [order]
-                result.status = "completed"
+            # Compute statistics
+            experiment.compute_statistics()
+
+            # Evaluate holdout
+            evaluated = experiment.trial_ledger.get_evaluated_trials()
+            if evaluated:
+                experiment.trial_ledger.set_incumbent(evaluated[0].trial_id)
+            experiment.evaluate_holdout(data_provider)
+
+            # Make decision (transitions to FINAL internally)
+            decision = experiment.make_decision()
+
+            # Translate back to legacy result shape
+            incumbent = experiment.trial_ledger.get_incumbent()
+            if incumbent:
+                result.strategy = StrategyArtifact(
+                    strategy_id=incumbent.trial_id,
+                    name=incumbent.strategy_spec.get("name", "unknown"),
+                    signal_definition=incumbent.strategy_spec.get("signal_definition", {}),
+                    universe=incumbent.strategy_spec.get("universe", self.config.universe),
+                    created_by="governed-research-loop",
+                )
+                if incumbent.backtest_result:
+                    br = incumbent.backtest_result
+                    result.backtest_result = BacktestResult(
+                        strategy_id=incumbent.trial_id,
+                        strategy_version="1.0.0",
+                        engine_version="1.0.0",
+                        dataset_version="1.0.0",
+                        seed=incumbent.random_seed,
+                        total_return=br.get("total_return", 0.0),
+                        annualized_return=br.get("annualized_return", 0.0),
+                        annualized_volatility=br.get("annualized_volatility", 0.0),
+                        sharpe_ratio=br.get("sharpe_ratio", 0.0),
+                        sortino_ratio=br.get("sortino_ratio", 0.0),
+                        max_drawdown=br.get("max_drawdown", 0.0),
+                        max_drawdown_duration=br.get("max_drawdown_duration", 0),
+                        var_95=br.get("var_95", 0.0),
+                        cvar_95=br.get("cvar_95", 0.0),
+                        win_rate=br.get("win_rate", 0.0),
+                        profit_factor=br.get("profit_factor", 0.0),
+                        total_trades=br.get("total_trades", 0),
+                        avg_trade_return=br.get("avg_trade_return", 0.0),
+                        monthly_returns=br.get("monthly_returns", []),
+                        equity_curve=br.get("equity_curve", []),
+                        drawdown_series=br.get("drawdown_series", []),
+                        transaction_costs=br.get("transaction_costs", 0.0),
+                        final_value=br.get("final_value", 0.0),
+                        train_period=(research_window[0], research_window[1]),
+                        validation_period=(research_window[0], research_window[1]),
+                        test_period=(holdout_window[0], holdout_window[1]),
+                        assumptions={},
+                    )
+
+                # Create trade intent from incumbent strategy
+                trade = self._create_trade_intent_from_incumbent(incumbent, result.backtest_result)
+                result.trade_intents = [trade]
+
+                # Run authorization gate
+                auth_result = self._run_authorization(trade)
+                result.authorization_results = [auth_result]
+
+                if auth_result.approved:
+                    # Submit to broker
+                    order = self._submit_to_broker(trade)
+                    result.executed_orders = [order]
+                    result.status = "completed"
+                else:
+                    result.status = "rejected"
             else:
                 result.status = "rejected"
+                result.errors.append("No incumbent strategy produced")
 
-            # Step 8: Capture provenance
+            # Capture provenance
             self._capture_provenance(result)
             result.provenance_graph = self._provenance
 
@@ -189,337 +287,29 @@ class QuantResearchOrchestrator:
 
         return result
 
-    def _build_world(self) -> tuple[QuantWorld, Task]:
-        """Build a QuantWorld and Task from the orchestrator config."""
-        builder = QuantWorldBuilder(world_id=f"qw-orch-{str(uuid.uuid4())[:8]}")
-        builder.customer("Sas Orchestrator").objective(
-            "Autonomous quantitative research: propose, backtest, and execute a trading strategy"
-        )
-
-        for sym in self.config.universe:
-            builder.universe(sym)
-
-        builder.add_dataset(
-            "ds-research",
-            "synthetic" if self.config.mode == "backtest-only" else "alpaca",
-            "1.0.0",
-            f"Market data for {', '.join(self.config.universe)}",
-        )
-
-        builder.add_policy(
-            "risk-policy",
-            "1.0.0",
-            "pol-hash-orchestrator",
-            "Max position 25%, max leverage 1.5x, max daily loss 5%",
-        )
-
-        builder.portfolio({
-            "cash": self.config.initial_capital,
-            "positions": {},
-            "benchmark": self.config.universe[0] if self.config.universe else "SPY",
-            "mandate": "Autonomous research",
-        })
-
-        builder.add_strategy(
-            "strat-orchestrator",
-            "1.0.0",
-            "Strategy proposed by LLM research loop",
-        )
-
-        # Add all tools
-        tool_names = [
-            "get_prices", "get_portfolio", "get_positions", "validate_data",
-            "compute_returns", "compute_risk_metrics", "compute_portfolio_returns",
-            "compute_factor_exposure", "compute_attribution", "compute_concentration",
-            "detect_anomalies", "compute_beta", "compute_var_cvar",
-            "compute_backtest", "evaluate_risk", "build_report", "get_provenance",
-        ]
-        for t in tool_names:
-            builder.add_tool(t, f"Tool: {t}", None)
-
-        # Add agent
-        from sas.quant.agents import quant_coordinator
-        builder.add_agent(quant_coordinator())
-
-        builder.constraints({
-            "max_drawdown_limit": 0.20,
-            "max_single_name_concentration": 0.25,
-            "approved_universe": list(self.config.universe),
-        })
-
-        # Set task prompt
-        task_prompt = (
-            f"Research the universe {', '.join(self.config.universe)} and propose "
-            f"a trading strategy. Backtest it and evaluate risk."
-        )
-        builder.task(task_prompt)
-
-        world = builder.build()
-
-        # Create Task object for the model adapter
-        task = Task(
-            world_id=world.id,
-            prompt=task_prompt,
-            expected_output_type="report",
-        )
-
-        return world, task
-
-    def _build_data_provider(self, world: QuantWorld) -> MarketDataProvider:
-        """Build the market data provider."""
-        if self.config.mode == "live-paper":
-            try:
-                from sas.quant.market.alpaca import AlpacaProvider
-                provider = AlpacaProvider(
-                    symbols=list(world.universe),
-                    start=self.config.start_date,
-                    end=self.config.end_date,
-                )
-                # Test if credentials are available
-                test_data = provider.get_prices(
-                    world.universe[0], self.config.start_date, self.config.end_date
-                )
-                if not test_data.empty:
-                    self._data_provider = provider
-                    return provider
-            except Exception:
-                pass
-            # Fallback to synthetic
-            self._data_provider = SyntheticDataProvider(seed=self.config.seed)
-            return self._data_provider
-        else:
-            self._data_provider = SyntheticDataProvider(seed=self.config.seed)
-            return self._data_provider
-
-    def _run_research_loop(
-        self,
-        world: QuantWorld,
-        task: Task,
-        data_provider: MarketDataProvider,
-        result: OrchestratorResult,
-    ) -> Optional[StrategyArtifact]:
-        """Run the LLM research loop to propose a strategy."""
-        from sas.quant.model import create_model_adapter
-        from sas.quant.agents import quant_coordinator
-
-        # Build toolbox
-        toolbox = create_toolbox_from_world(world, data_provider=data_provider, seed=self.config.seed)
-
-        # Create model adapter
-        model_config = {
-            "provider": self.config.model_provider,
-            "name": self.config.model_name,
-        }
-        if self.config.model_provider == "stub":
-            # Use a default script that proposes a momentum strategy
-            model_config["script"] = self._default_strategy_script(world)
-
-        model = create_model_adapter(model_config)
-        agent = quant_coordinator()
-
-        # Create execution run
-        run = ExecutionRun(
-            task_id=task.id,
-            world_id=world.id,
-            agent_name=agent.name,
-            agent_role=agent.role,
-            model=self.config.model_name,
-            model_provider=self.config.model_provider,
-        )
-
-        # Prepare context and run loop
-        ctx = model.prepare_context(world, task, agent, self._provenance)
-        loop_result = model.run_loop(ctx, toolbox, run, max_steps=50)
-
-        # Extract strategy from artifacts
-        result.artifacts = run.artifacts
-        for artifact in run.artifacts.values():
-            if artifact.get("artifact_type") == "strategy_proposal":
-                return self._parse_strategy_artifact(artifact, world)
-
-        # If no explicit strategy proposal, create one from the backtest tool result
-        for artifact in run.artifacts.values():
-            if artifact.get("artifact_type") == "backtest_result":
-                return self._strategy_from_backtest(artifact, world)
-
-        # Fallback: create a default momentum strategy
-        return self._default_strategy(world)
-
-    def _default_strategy_script(self, world: QuantWorld) -> list[dict]:
-        """Create a default scripted strategy proposal for stub model."""
-        return [
-            {
-                "tools": [
-                    {
-                        "name": "get_prices",
-                        "arguments": {
-                            "symbol": world.universe[0],
-                            "start": self.config.start_date,
-                            "end": self.config.end_date,
-                        },
-                    },
-                ],
-                "response": f"Fetched price data for {world.universe[0]}",
-            },
-            {
-                "tools": [
-                    {
-                        "name": "compute_returns",
-                        "arguments": {
-                            "symbol": world.universe[0],
-                            "start": self.config.start_date,
-                            "end": self.config.end_date,
-                        },
-                    },
-                ],
-                "response": "Computed returns",
-            },
-            {
-                "tools": [
-                    {
-                        "name": "compute_backtest",
-                        "arguments": {"strategy_id": "momentum-001", "prices": "from_previous"},
-                    },
-                ],
-                "response": "Backtest complete",
-            },
-            {
-                "tools": [
-                    {
-                        "name": "build_report",
-                        "arguments": {
-                            "findings": [
-                                {"artifact_type": "computation", "name": "momentum", "value": 0.15},
-                            ],
-                            "title": "Orchestrator Research Report",
-                        },
-                    },
-                ],
-                "response": "Report produced",
-            },
-        ]
-
-    def _parse_strategy_artifact(self, artifact: dict, world: QuantWorld) -> StrategyArtifact:
-        """Parse a strategy proposal artifact into a StrategyArtifact."""
-        strategy_data = artifact.get("result", {})
-        if isinstance(strategy_data, dict):
-            return StrategyArtifact(
-                name=strategy_data.get("name", "llm-proposed"),
-                universe=list(strategy_data.get("universe", world.universe)),
-                signal_definition=SignalDefinition(
-                    name=strategy_data.get("signal_name", "momentum"),
-                    type=strategy_data.get("signal_type", "momentum"),
-                    parameters=strategy_data.get("signal_params", {}),
-                ),
-                position_sizing=PositionSizing(
-                    method=strategy_data.get("sizing_method", "fixed_weight"),
-                    target_weight=strategy_data.get("target_weight", 0.10),
-                ),
-                created_by="llm-research-loop",
-            )
-        return self._default_strategy(world)
-
-    def _strategy_from_backtest(self, artifact: dict, world: QuantWorld) -> StrategyArtifact:
-        """Create a strategy from a backtest result artifact."""
-        return StrategyArtifact(
-            name="backtest-derived",
-            universe=list(world.universe),
-            signal_definition=SignalDefinition(
-                name="momentum",
-                type="momentum",
-                parameters={"lookback": 252, "skip": 21},
-            ),
-            position_sizing=PositionSizing(
-                method="fixed_weight",
-                target_weight=0.10,
-            ),
-            created_by="orchestrator",
-        )
-
-    def _default_strategy(self, world: QuantWorld) -> StrategyArtifact:
-        """Create a default momentum strategy."""
-        return StrategyArtifact(
-            name="default-momentum",
-            universe=list(world.universe),
-            signal_definition=SignalDefinition(
-                name="momentum",
-                type="momentum",
-                parameters={"lookback": 252, "skip": 21},
-            ),
-            position_sizing=PositionSizing(
-                method="fixed_weight",
-                target_weight=0.10,
-            ),
-            created_by="orchestrator-default",
-        )
-
-    def _run_backtest(
-        self,
-        strategy: StrategyArtifact,
-        data_provider: MarketDataProvider,
-    ) -> BacktestResult:
-        """Run a backtest for the proposed strategy."""
-        import pandas as pd
-        import numpy as np
-
-        # Get price data for the first universe symbol
-        prices = data_provider.get_prices(
-            strategy.universe[0],
-            self.config.start_date,
-            self.config.end_date,
-        )
-
-        if prices.empty:
-            # Create minimal price data
-            dates = pd.date_range(self.config.start_date, self.config.end_date, freq="B")
-            n = len(dates)
-            rng = np.random.default_rng(self.config.seed)
-            prices = pd.DataFrame(
-                {"close": 100 * np.exp(np.cumsum(rng.normal(0.0005, 0.02, n)))},
-                index=dates,
-            )
-
-        config = BacktestConfig(
-            strategy=strategy,
-            seed=self.config.seed,
-            initial_capital=self.config.initial_capital,
-            train_start=self.config.start_date,
-            train_end=self.config.end_date,
-        )
-        engine = BacktestEngine(config)
-        return engine.run(config, prices)
-
-    def _create_trade_intent(
-        self,
-        strategy: StrategyArtifact,
-        bt_result: BacktestResult,
-    ) -> TradeIntent:
-        """Create a trade intent from a backtested strategy."""
-        # Determine position size based on backtest results
-        target_weight = strategy.position_sizing.target_weight
+    def _create_trade_intent_from_incumbent(self, incumbent, bt_result: BacktestResult) -> TradeIntent:
+        """Create a trade intent from the incumbent strategy."""
+        assert bt_result is not None
+        target_weight = incumbent.strategy_spec.get("target_weight", 0.10)
         if bt_result.sharpe_ratio > 1.0:
-            target_weight = min(target_weight * 1.5, 0.25)  # Increase for good Sharpe
+            target_weight = min(target_weight * 1.5, 0.25)
         elif bt_result.sharpe_ratio < 0:
-            target_weight = target_weight * 0.5  # Decrease for negative Sharpe
+            target_weight = target_weight * 0.5
 
-        quantity = (self.config.initial_capital * target_weight) / 100  # Simplified
+        quantity = (self.config.initial_capital * target_weight) / 100
 
         return TradeIntent(
-            strategy_id=strategy.strategy_id,
-            symbol=strategy.universe[0],
+            strategy_id=incumbent.trial_id,
+            symbol=incumbent.strategy_spec.get("universe", self.config.universe)[0],
             side="buy",
             quantity=round(quantity, 2),
             target_weight=target_weight,
-            price_assumption=100.0,  # Simplified
-            reason=f"Strategy {strategy.name} passed backtest (Sharpe: {bt_result.sharpe_ratio:.2f})",
+            price_assumption=100.0,
+            reason=f"Strategy {incumbent.strategy_spec.get('name', 'unknown')} passed research (Sharpe: {bt_result.sharpe_ratio:.2f})",
             requested_by="orchestrator",
         )
 
-    def _run_authorization(
-        self,
-        trade: TradeIntent,
-        world: QuantWorld,
-    ) -> AuthorizationResult:
+    def _run_authorization(self, trade: TradeIntent) -> AuthorizationResult:
         """Run the authorization gate."""
         if self._gate is None:
             limits = SessionLimits(
@@ -532,7 +322,6 @@ class QuantResearchOrchestrator:
                 session_limits=limits,
             )
 
-        # Get current portfolio weights (simplified)
         portfolio_weights = {trade.symbol: trade.target_weight}
         return self._gate.authorize(trade, portfolio_weights)
 
@@ -553,9 +342,32 @@ class QuantResearchOrchestrator:
             self._gate.record_trade()
         return order
 
+    def _build_data_provider(self) -> MarketDataProvider:
+        """Build the market data provider."""
+        if self.config.mode == "live-paper":
+            try:
+                from sas.quant.market.alpaca import AlpacaProvider
+                provider = AlpacaProvider(
+                    symbols=list(self.config.universe),
+                    start=self.config.start_date,
+                    end=self.config.end_date,
+                )
+                test_data = provider.get_prices(
+                    self.config.universe[0], self.config.start_date, self.config.end_date
+                )
+                if not test_data.empty:
+                    self._data_provider = provider
+                    return provider
+            except Exception:
+                pass
+            self._data_provider = SyntheticDataProvider(seed=self.config.seed)
+            return self._data_provider
+        else:
+            self._data_provider = SyntheticDataProvider(seed=self.config.seed)
+            return self._data_provider
+
     def _capture_provenance(self, result: OrchestratorResult) -> None:
         """Capture provenance for the full orchestration run."""
-        # Root: dataset node
         root = ProvenanceNode(
             artifact_type="dataset",
             name=f"market-data-{self.config.start_date}-{self.config.end_date}",
@@ -564,48 +376,42 @@ class QuantResearchOrchestrator:
         )
         self._provenance.add(root)
 
-        # Strategy node
-        strategy_node = None
         if result.strategy:
             strategy_node = ProvenanceNode(
                 artifact_type="strategy",
                 name=result.strategy.name,
-                producer="llm-research-loop",
+                producer="governed-research-loop",
                 model=self.config.model_name,
                 parent_ids=[root.id],
             )
             self._provenance.add(strategy_node)
 
-        # Backtest node
-        bt_node = None
-        if result.backtest_result:
-            bt_node = ProvenanceNode(
-                artifact_type="backtest",
-                name=f"backtest-{result.strategy.strategy_id}" if result.strategy else "backtest",
-                producer="orchestrator",
-                model="none",
-                parent_ids=[strategy_node.id] if strategy_node else [root.id],
-            )
-            self._provenance.add(bt_node)
+            if result.backtest_result:
+                bt_node = ProvenanceNode(
+                    artifact_type="backtest",
+                    name=f"backtest-{result.strategy.strategy_id}",
+                    producer="orchestrator",
+                    model="none",
+                    parent_ids=[strategy_node.id],
+                )
+                self._provenance.add(bt_node)
 
-        # Trade node
-        for trade in result.trade_intents:
-            trade_node = ProvenanceNode(
-                artifact_type="trade",
-                name=f"{trade.side}-{trade.symbol}",
-                producer="orchestrator",
-                model="none",
-                parent_ids=[bt_node.id] if bt_node else [root.id],
-            )
-            self._provenance.add(trade_node)
+                for trade in result.trade_intents:
+                    trade_node = ProvenanceNode(
+                        artifact_type="trade",
+                        name=f"{trade.side}-{trade.symbol}",
+                        producer="orchestrator",
+                        model="none",
+                        parent_ids=[bt_node.id],
+                    )
+                    self._provenance.add(trade_node)
 
-        # Order node
-        for order in result.executed_orders:
-            order_node = ProvenanceNode(
-                artifact_type="order",
-                name=f"order-{order.id}",
-                producer=self._broker.name if self._broker else "unknown",
-                model="none",
-                parent_ids=[t.id for t in result.trade_intents],
-            )
-            self._provenance.add(order_node)
+                for order in result.executed_orders:
+                    order_node = ProvenanceNode(
+                        artifact_type="order",
+                        name=f"order-{order.id}",
+                        producer=self._broker.name if self._broker else "unknown",
+                        model="none",
+                        parent_ids=[t.id for t in result.trade_intents],
+                    )
+                    self._provenance.add(order_node)

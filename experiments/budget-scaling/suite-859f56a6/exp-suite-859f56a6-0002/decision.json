@@ -1,0 +1,13 @@
+{
+  "decision_id": "7d952ed1-de2",
+  "experiment_id": "exp-suite-859f56a6-0002",
+  "outcome": "candidate",
+  "incumbent_trial_id": "c83debff-38a",
+  "baseline_id": "c154822d-be3",
+  "holdout_id": "3bc6d15d-5f6",
+  "statistical_evaluation_id": "",
+  "rationale": "Strategy passed gates and outperformed baseline",
+  "trial_count": 50,
+  "evaluated_count": 50,
+  "created_at": "2026-09-07T15:16:06.466790+00:00"
+}

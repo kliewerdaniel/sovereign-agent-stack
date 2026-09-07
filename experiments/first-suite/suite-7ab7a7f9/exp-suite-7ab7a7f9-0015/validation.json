@@ -1,0 +1,43 @@
+{
+  "experiment_id": "exp-suite-7ab7a7f9-0015",
+  "checks": [
+    {
+      "name": "temporal_isolation",
+      "passed": true,
+      "details": "Research window (2024-01-01 to 2024-09-30) ends before holdout window (2024-10-01 to 2024-12-31)",
+      "severity": "error"
+    },
+    {
+      "name": "trial_population",
+      "passed": true,
+      "details": "All 20 trials have unique IDs, 20 evaluated trials have backtest results",
+      "severity": "error"
+    },
+    {
+      "name": "statistical_inputs",
+      "passed": true,
+      "details": "Statistical calculations use 20 evaluated trials. DSR and PBO trial counts match actual population.",
+      "severity": "error"
+    },
+    {
+      "name": "provenance_completeness",
+      "passed": true,
+      "details": "Event log contains 66 events covering 20 trials. Experiment completion event present.",
+      "severity": "error"
+    },
+    {
+      "name": "holdout_integrity",
+      "passed": true,
+      "details": "Holdout evaluated on window ('2024-10-01', '2024-12-31'). Strategy return: -0.2243, Baseline return: 0.6919",
+      "severity": "error"
+    },
+    {
+      "name": "decision_derivation",
+      "passed": true,
+      "details": "Decision 'passed_but_no_value' is derivable from immutable artifacts. Incumbent: 272be878-7be, Baseline: f901c715-f25, Holdout: 79b047d9-622",
+      "severity": "error"
+    }
+  ],
+  "is_valid": true,
+  "summary": "Validation: 6/6 checks passed"
+}

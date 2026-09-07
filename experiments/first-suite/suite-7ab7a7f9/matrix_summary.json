@@ -1,0 +1,327 @@
+{
+  "matrix_id": "suite-7ab7a7f9",
+  "created_at": "2026-09-07T15:15:52.787133+00:00",
+  "total_experiments": 16,
+  "experiments": [
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0000",
+      "universe": [
+        "AAPL"
+      ],
+      "trial_budget": 10,
+      "max_reflection_rounds": 0,
+      "seed": 42,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 3.2194871035790684,
+      "holdout_sharpe": -1.3812708519869388,
+      "dsr": null,
+      "pbo": -0.4054651081081643,
+      "sharpe_gap": 4.600757955566007,
+      "total_trials": 10,
+      "evaluated_trials": 10,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0000"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0001",
+      "universe": [
+        "AAPL"
+      ],
+      "trial_budget": 10,
+      "max_reflection_rounds": 0,
+      "seed": 123,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 2.19361583556084,
+      "holdout_sharpe": -2.388783258122074,
+      "dsr": null,
+      "pbo": -1.3862943611198906,
+      "sharpe_gap": 4.582399093682914,
+      "total_trials": 10,
+      "evaluated_trials": 10,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0001"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0002",
+      "universe": [
+        "AAPL"
+      ],
+      "trial_budget": 10,
+      "max_reflection_rounds": 1,
+      "seed": 42,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 3.2194871035790684,
+      "holdout_sharpe": -1.3812708519869388,
+      "dsr": null,
+      "pbo": -0.4054651081081643,
+      "sharpe_gap": 4.600757955566007,
+      "total_trials": 10,
+      "evaluated_trials": 10,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0002"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0003",
+      "universe": [
+        "AAPL"
+      ],
+      "trial_budget": 10,
+      "max_reflection_rounds": 1,
+      "seed": 123,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 2.19361583556084,
+      "holdout_sharpe": -2.388783258122074,
+      "dsr": null,
+      "pbo": -1.3862943611198906,
+      "sharpe_gap": 4.582399093682914,
+      "total_trials": 10,
+      "evaluated_trials": 10,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0003"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0004",
+      "universe": [
+        "AAPL"
+      ],
+      "trial_budget": 20,
+      "max_reflection_rounds": 0,
+      "seed": 42,
+      "decision_outcome": "no_strategy_passed",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": true,
+      "nominal_sharpe": 3.3842726674058983,
+      "holdout_sharpe": -0.03762313646893335,
+      "dsr": null,
+      "pbo": 1.3862943611198908,
+      "sharpe_gap": 3.4218958038748317,
+      "total_trials": 20,
+      "evaluated_trials": 20,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0004"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0005",
+      "universe": [
+        "AAPL"
+      ],
+      "trial_budget": 20,
+      "max_reflection_rounds": 0,
+      "seed": 123,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 2.19361583556084,
+      "holdout_sharpe": -3.10447330303547,
+      "dsr": null,
+      "pbo": -0.6190392084062235,
+      "sharpe_gap": 5.2980891385963105,
+      "total_trials": 20,
+      "evaluated_trials": 20,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0005"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0006",
+      "universe": [
+        "AAPL"
+      ],
+      "trial_budget": 20,
+      "max_reflection_rounds": 1,
+      "seed": 42,
+      "decision_outcome": "no_strategy_passed",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": true,
+      "nominal_sharpe": 3.3842726674058983,
+      "holdout_sharpe": -0.03762313646893335,
+      "dsr": null,
+      "pbo": 1.3862943611198908,
+      "sharpe_gap": 3.4218958038748317,
+      "total_trials": 20,
+      "evaluated_trials": 20,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0006"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0007",
+      "universe": [
+        "AAPL"
+      ],
+      "trial_budget": 20,
+      "max_reflection_rounds": 1,
+      "seed": 123,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 2.19361583556084,
+      "holdout_sharpe": -3.10447330303547,
+      "dsr": null,
+      "pbo": -0.6190392084062235,
+      "sharpe_gap": 5.2980891385963105,
+      "total_trials": 20,
+      "evaluated_trials": 20,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0007"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0008",
+      "universe": [
+        "MSFT"
+      ],
+      "trial_budget": 10,
+      "max_reflection_rounds": 0,
+      "seed": 42,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 3.2194871035790684,
+      "holdout_sharpe": -1.3812708519869388,
+      "dsr": null,
+      "pbo": -0.4054651081081643,
+      "sharpe_gap": 4.600757955566007,
+      "total_trials": 10,
+      "evaluated_trials": 10,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0008"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0009",
+      "universe": [
+        "MSFT"
+      ],
+      "trial_budget": 10,
+      "max_reflection_rounds": 0,
+      "seed": 123,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 2.19361583556084,
+      "holdout_sharpe": -2.388783258122074,
+      "dsr": null,
+      "pbo": -1.3862943611198906,
+      "sharpe_gap": 4.582399093682914,
+      "total_trials": 10,
+      "evaluated_trials": 10,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0009"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0010",
+      "universe": [
+        "MSFT"
+      ],
+      "trial_budget": 10,
+      "max_reflection_rounds": 1,
+      "seed": 42,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 3.2194871035790684,
+      "holdout_sharpe": -1.3812708519869388,
+      "dsr": null,
+      "pbo": -0.4054651081081643,
+      "sharpe_gap": 4.600757955566007,
+      "total_trials": 10,
+      "evaluated_trials": 10,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0010"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0011",
+      "universe": [
+        "MSFT"
+      ],
+      "trial_budget": 10,
+      "max_reflection_rounds": 1,
+      "seed": 123,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 2.19361583556084,
+      "holdout_sharpe": -2.388783258122074,
+      "dsr": null,
+      "pbo": -1.3862943611198906,
+      "sharpe_gap": 4.582399093682914,
+      "total_trials": 10,
+      "evaluated_trials": 10,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0011"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0012",
+      "universe": [
+        "MSFT"
+      ],
+      "trial_budget": 20,
+      "max_reflection_rounds": 0,
+      "seed": 42,
+      "decision_outcome": "no_strategy_passed",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": true,
+      "nominal_sharpe": 3.3842726674058983,
+      "holdout_sharpe": -0.03762313646893335,
+      "dsr": null,
+      "pbo": 1.3862943611198908,
+      "sharpe_gap": 3.4218958038748317,
+      "total_trials": 20,
+      "evaluated_trials": 20,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0012"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0013",
+      "universe": [
+        "MSFT"
+      ],
+      "trial_budget": 20,
+      "max_reflection_rounds": 0,
+      "seed": 123,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 2.19361583556084,
+      "holdout_sharpe": -3.10447330303547,
+      "dsr": null,
+      "pbo": -0.6190392084062235,
+      "sharpe_gap": 5.2980891385963105,
+      "total_trials": 20,
+      "evaluated_trials": 20,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0013"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0014",
+      "universe": [
+        "MSFT"
+      ],
+      "trial_budget": 20,
+      "max_reflection_rounds": 1,
+      "seed": 42,
+      "decision_outcome": "no_strategy_passed",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": true,
+      "nominal_sharpe": 3.3842726674058983,
+      "holdout_sharpe": -0.03762313646893335,
+      "dsr": null,
+      "pbo": 1.3862943611198908,
+      "sharpe_gap": 3.4218958038748317,
+      "total_trials": 20,
+      "evaluated_trials": 20,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0014"
+    },
+    {
+      "spec_id": "exp-suite-7ab7a7f9-0015",
+      "universe": [
+        "MSFT"
+      ],
+      "trial_budget": 20,
+      "max_reflection_rounds": 1,
+      "seed": 123,
+      "decision_outcome": "passed_but_no_value",
+      "gates_passed": false,
+      "holdout_outperformed_baseline": false,
+      "nominal_sharpe": 2.19361583556084,
+      "holdout_sharpe": -3.10447330303547,
+      "dsr": null,
+      "pbo": -0.6190392084062235,
+      "sharpe_gap": 5.2980891385963105,
+      "total_trials": 20,
+      "evaluated_trials": 20,
+      "artifacts_dir": "experiments/first-suite/suite-7ab7a7f9/exp-suite-7ab7a7f9-0015"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "decision_id": "e9f62970-2e9",
+  "experiment_id": "exp-suite-7ab7a7f9-0003",
+  "outcome": "passed_but_no_value",
+  "incumbent_trial_id": "6a526c9b-a3d",
+  "baseline_id": "fbeeea15-f86",
+  "holdout_id": "3ff3ce25-be2",
+  "statistical_evaluation_id": "",
+  "rationale": "Strategy passed gates but did not outperform baseline",
+  "trial_count": 10,
+  "evaluated_count": 10,
+  "created_at": "2026-09-07T15:15:53.241097+00:00"
+}

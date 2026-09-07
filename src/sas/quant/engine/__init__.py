@@ -53,6 +53,11 @@ class QuantEngine:
         """Annualized return."""
         if len(returns) == 0:
             return 0.0
+        # Require minimum observations for meaningful annualization.
+        # With fewer than `min_periods` observations, annualization
+        # amplifies noise to the point of meaninglessness.
+        if len(returns) < self.config.min_periods:
+            return 0.0
         total = np.prod(1 + returns) if not self._is_log(returns) else np.exp(np.sum(returns))
         years = len(returns) / self.config.trading_days
         return float(total ** (1 / years) - 1) if years > 0 else 0.0
@@ -61,7 +66,7 @@ class QuantEngine:
 
     def volatility(self, returns: np.ndarray, annualized: bool = True) -> float:
         """Standard deviation of returns."""
-        if len(returns) < 2:
+        if len(returns) < self.config.min_periods:
             return 0.0
         vol = float(np.std(returns, ddof=1))
         return vol * np.sqrt(self.config.trading_days) if annualized else vol
@@ -77,8 +82,10 @@ class QuantEngine:
         return dr * np.sqrt(self.config.trading_days) if annualized else dr
 
     def sharpe(self, returns: np.ndarray, rf: float | None = None) -> float:
-        """Sharpe ratio."""
+        """Sharpe ratio. Returns 0 if insufficient observations."""
         rf = rf or self.config.risk_free_rate
+        if len(returns) < self.config.min_periods:
+            return 0.0
         vol = self.volatility(returns)
         if vol == 0:
             return 0.0
@@ -88,6 +95,8 @@ class QuantEngine:
     def sortino(self, returns: np.ndarray, rf: float | None = None) -> float:
         """Sortino ratio (downside risk instead of total vol)."""
         rf = rf or self.config.risk_free_rate
+        if len(returns) < self.config.min_periods:
+            return 0.0
         dr = self.downside_risk(returns)
         if dr == 0:
             return 0.0
@@ -95,23 +104,22 @@ class QuantEngine:
         return (ret - rf) / dr
 
     def max_drawdown(self, returns: np.ndarray) -> dict:
-        """Maximum drawdown and duration."""
+        """Maximum drawdown and duration. Returns zeros if insufficient data."""
+        if len(returns) < self.config.min_periods:
+            return {"max_drawdown": 0.0, "duration_days": 0, "recovery_days": 0}
         cum = np.concatenate([[0], np.cumsum(returns)])
         peak = np.maximum.accumulate(cum)
         trough = cum - peak
         max_dd = float(np.min(trough))
-        # Duration
         below = trough < 0
         if not np.any(below):
             duration = 0
         else:
-            # longest consecutive run below zero
             runs = np.diff(np.concatenate([[0], below.astype(int), [0]]))
             starts = np.where(runs > 0)[0]
             ends = np.where(runs < 0)[0]
             duration = int(max(ends - starts)) if len(starts) else 0
-        return {"max_drawdown": max_dd, "duration_days": duration,
-                "recovery_days": duration}
+        return {"max_drawdown": max_dd, "duration_days": duration, "recovery_days": duration}
 
     def var(self, returns: np.ndarray, confidence: float = 0.95) -> float:
         """Value at Risk (historical)."""

@@ -1,0 +1,520 @@
+{
+  "experiment_id": "exp-suite-859f56a6-0000",
+  "event_count": 36,
+  "events": [
+    {
+      "event_id": "46e0b9ef-44d7-4a",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": null,
+      "event_type": "baseline.evaluated",
+      "timestamp": "2026-09-07T15:16:05.952678+00:00",
+      "actor": "system",
+      "artifact_refs": [
+        "dd8c0da1-66b"
+      ],
+      "parent_event_id": null,
+      "metadata": {
+        "baseline_type": "buy_and_hold"
+      }
+    },
+    {
+      "event_id": "d72a1eaf-8e0d-4b",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": null,
+      "event_type": "research.started",
+      "timestamp": "2026-09-07T15:16:05.952688+00:00",
+      "actor": "researcher",
+      "artifact_refs": [],
+      "parent_event_id": "46e0b9ef-44d7-4a",
+      "metadata": {
+        "trial_budget": 10,
+        "research_window": [
+          "2024-01-01",
+          "2024-09-30"
+        ]
+      }
+    },
+    {
+      "event_id": "5573c359-a05c-43",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "6e58f8f5-caa",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.952729+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "d72a1eaf-8e0d-4b",
+      "metadata": {
+        "trial_number": 0
+      }
+    },
+    {
+      "event_id": "0d7a8307-d397-44",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "6e58f8f5-caa",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.954578+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "5573c359-a05c-43",
+      "metadata": {
+        "sharpe_ratio": 0.2654898739532009
+      }
+    },
+    {
+      "event_id": "75522be2-c30d-43",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "6e58f8f5-caa",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.954597+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "78415b31-754"
+      ],
+      "parent_event_id": "0d7a8307-d397-44",
+      "metadata": {
+        "recommendation": "revise",
+        "severity": "high"
+      }
+    },
+    {
+      "event_id": "7b34d957-acef-4a",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "a5671289-349",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.954621+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "75522be2-c30d-43",
+      "metadata": {
+        "trial_number": 1
+      }
+    },
+    {
+      "event_id": "2ed17fe9-489a-40",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "a5671289-349",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.956268+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "7b34d957-acef-4a",
+      "metadata": {
+        "sharpe_ratio": 0.6774273029333693
+      }
+    },
+    {
+      "event_id": "c175a134-11cf-4a",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "a5671289-349",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.956284+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "30e43566-f72"
+      ],
+      "parent_event_id": "2ed17fe9-489a-40",
+      "metadata": {
+        "recommendation": "revise",
+        "severity": "low"
+      }
+    },
+    {
+      "event_id": "446f3933-473d-4d",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "873de816-58c",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.956309+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "c175a134-11cf-4a",
+      "metadata": {
+        "trial_number": 2
+      }
+    },
+    {
+      "event_id": "597bdfb2-78a8-48",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "873de816-58c",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.957910+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "446f3933-473d-4d",
+      "metadata": {
+        "sharpe_ratio": 1.4044474359032155
+      }
+    },
+    {
+      "event_id": "a199e5d3-e371-49",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "873de816-58c",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.957924+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "e8f0cf7c-cb7"
+      ],
+      "parent_event_id": "597bdfb2-78a8-48",
+      "metadata": {
+        "recommendation": "accept",
+        "severity": "low"
+      }
+    },
+    {
+      "event_id": "0f33858a-9309-45",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "debb518b-ed2",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.957947+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "a199e5d3-e371-49",
+      "metadata": {
+        "trial_number": 3
+      }
+    },
+    {
+      "event_id": "cc91af16-f8f9-4d",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "debb518b-ed2",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.959586+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "0f33858a-9309-45",
+      "metadata": {
+        "sharpe_ratio": 0.6668092503866817
+      }
+    },
+    {
+      "event_id": "9851bbb6-9da4-49",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "debb518b-ed2",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.959599+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "4cc98089-ce1"
+      ],
+      "parent_event_id": "cc91af16-f8f9-4d",
+      "metadata": {
+        "recommendation": "accept",
+        "severity": "low"
+      }
+    },
+    {
+      "event_id": "626bfa9e-1c10-42",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "68fe430c-8c9",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.959619+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "9851bbb6-9da4-49",
+      "metadata": {
+        "trial_number": 4
+      }
+    },
+    {
+      "event_id": "8a7f797d-fa3e-42",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "68fe430c-8c9",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.961197+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "626bfa9e-1c10-42",
+      "metadata": {
+        "sharpe_ratio": -0.5711424186571822
+      }
+    },
+    {
+      "event_id": "eaf5a791-dd32-49",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "68fe430c-8c9",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.961213+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "0bff90dd-769"
+      ],
+      "parent_event_id": "8a7f797d-fa3e-42",
+      "metadata": {
+        "recommendation": "revise",
+        "severity": "high"
+      }
+    },
+    {
+      "event_id": "7704d764-73a5-4d",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "b4251c23-2b6",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.961235+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "eaf5a791-dd32-49",
+      "metadata": {
+        "trial_number": 5
+      }
+    },
+    {
+      "event_id": "76f687ea-a351-4d",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "b4251c23-2b6",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.962830+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "7704d764-73a5-4d",
+      "metadata": {
+        "sharpe_ratio": 0.6821885484773653
+      }
+    },
+    {
+      "event_id": "449710eb-55a8-4b",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "b4251c23-2b6",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.962844+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "b865e75e-793"
+      ],
+      "parent_event_id": "76f687ea-a351-4d",
+      "metadata": {
+        "recommendation": "accept",
+        "severity": "low"
+      }
+    },
+    {
+      "event_id": "dd333670-be38-48",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "a70bee83-2c2",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.962865+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "449710eb-55a8-4b",
+      "metadata": {
+        "trial_number": 6
+      }
+    },
+    {
+      "event_id": "593def52-d11f-48",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "a70bee83-2c2",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.964982+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "dd333670-be38-48",
+      "metadata": {
+        "sharpe_ratio": -0.476906559394835
+      }
+    },
+    {
+      "event_id": "2e57c64b-74ee-45",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "a70bee83-2c2",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.964997+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "84e88332-1e6"
+      ],
+      "parent_event_id": "593def52-d11f-48",
+      "metadata": {
+        "recommendation": "revise",
+        "severity": "high"
+      }
+    },
+    {
+      "event_id": "64a382de-d387-44",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "15c0547c-1f8",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.965023+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "2e57c64b-74ee-45",
+      "metadata": {
+        "trial_number": 7
+      }
+    },
+    {
+      "event_id": "b4d82658-520d-49",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "15c0547c-1f8",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.966586+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "64a382de-d387-44",
+      "metadata": {
+        "sharpe_ratio": 3.2194871035790684
+      }
+    },
+    {
+      "event_id": "ecc7a8bb-14be-44",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "15c0547c-1f8",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.966601+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "fd0165f7-e82"
+      ],
+      "parent_event_id": "b4d82658-520d-49",
+      "metadata": {
+        "recommendation": "accept",
+        "severity": "low"
+      }
+    },
+    {
+      "event_id": "f1926cfb-3903-4f",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "69a9bd28-ae4",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.966622+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "ecc7a8bb-14be-44",
+      "metadata": {
+        "trial_number": 8
+      }
+    },
+    {
+      "event_id": "b732f47b-a47d-4b",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "69a9bd28-ae4",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.968174+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "f1926cfb-3903-4f",
+      "metadata": {
+        "sharpe_ratio": 1.7148858511177019
+      }
+    },
+    {
+      "event_id": "20fb1c37-fc3a-47",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "69a9bd28-ae4",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.968186+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "fa1fec9a-2ef"
+      ],
+      "parent_event_id": "b732f47b-a47d-4b",
+      "metadata": {
+        "recommendation": "accept",
+        "severity": "low"
+      }
+    },
+    {
+      "event_id": "77b0b25e-8c19-4a",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "b3e56735-c69",
+      "event_type": "trial.proposed",
+      "timestamp": "2026-09-07T15:16:05.968207+00:00",
+      "actor": "model",
+      "artifact_refs": [],
+      "parent_event_id": "20fb1c37-fc3a-47",
+      "metadata": {
+        "trial_number": 9
+      }
+    },
+    {
+      "event_id": "1ac2c73e-f579-46",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "b3e56735-c69",
+      "event_type": "backtest.completed",
+      "timestamp": "2026-09-07T15:16:05.969758+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "77b0b25e-8c19-4a",
+      "metadata": {
+        "sharpe_ratio": -0.14667114712307802
+      }
+    },
+    {
+      "event_id": "b41e18fb-0d46-43",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "b3e56735-c69",
+      "event_type": "critique.created",
+      "timestamp": "2026-09-07T15:16:05.969772+00:00",
+      "actor": "model",
+      "artifact_refs": [
+        "efa8284b-19f"
+      ],
+      "parent_event_id": "1ac2c73e-f579-46",
+      "metadata": {
+        "recommendation": "revise",
+        "severity": "high"
+      }
+    },
+    {
+      "event_id": "46ddfa61-f5e0-43",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": null,
+      "event_type": "research.terminated",
+      "timestamp": "2026-09-07T15:16:05.969781+00:00",
+      "actor": "researcher",
+      "artifact_refs": [],
+      "parent_event_id": "b41e18fb-0d46-43",
+      "metadata": {
+        "total_trials": 10,
+        "evaluated_trials": 10
+      }
+    },
+    {
+      "event_id": "740ddc4a-68bb-49",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": null,
+      "event_type": "statistics.computed",
+      "timestamp": "2026-09-07T15:16:06.330334+00:00",
+      "actor": "system",
+      "artifact_refs": [],
+      "parent_event_id": "46ddfa61-f5e0-43",
+      "metadata": {
+        "trial_count": 10,
+        "dsr": null,
+        "pbo": -0.4054651081081643
+      }
+    },
+    {
+      "event_id": "7305b579-4772-4c",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": "15c0547c-1f8",
+      "event_type": "holdout.evaluated",
+      "timestamp": "2026-09-07T15:16:06.331127+00:00",
+      "actor": "system",
+      "artifact_refs": [
+        "6dd57d53-240"
+      ],
+      "parent_event_id": "740ddc4a-68bb-49",
+      "metadata": {
+        "strategy_return": -0.12278026500589789,
+        "baseline_return": -0.03149378434201522,
+        "outperformed": false
+      }
+    },
+    {
+      "event_id": "1bb2e59b-6f06-4c",
+      "experiment_id": "exp-suite-859f56a6-0000",
+      "trial_id": null,
+      "event_type": "experiment.completed",
+      "timestamp": "2026-09-07T15:16:06.331159+00:00",
+      "actor": "system",
+      "artifact_refs": [
+        "d645eeb5-dab"
+      ],
+      "parent_event_id": "7305b579-4772-4c",
+      "metadata": {
+        "outcome": "passed_but_no_value",
+        "trial_count": 10
+      }
+    }
+  ]
+}

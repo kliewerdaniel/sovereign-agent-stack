@@ -1,0 +1,13 @@
+{
+  "decision_id": "0870dd64-56c",
+  "experiment_id": "exp-suite-7ab7a7f9-0004",
+  "outcome": "no_strategy_passed",
+  "incumbent_trial_id": "f3fbaf25-cfc",
+  "baseline_id": "2650657a-5ba",
+  "holdout_id": "2a71f96e-dc6",
+  "statistical_evaluation_id": "",
+  "rationale": "Statistical gate failed: PBO 1.3863 exceeds threshold 0.5",
+  "trial_count": 20,
+  "evaluated_count": 20,
+  "created_at": "2026-09-07T15:15:53.280385+00:00"
+}

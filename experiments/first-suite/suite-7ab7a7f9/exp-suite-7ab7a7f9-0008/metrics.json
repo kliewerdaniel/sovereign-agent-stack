@@ -1,0 +1,110 @@
+{
+  "experiment_id": "exp-suite-7ab7a7f9-0008",
+  "status": "completed",
+  "trial_efficiency": {
+    "total_trials": 10,
+    "evaluated_trials": 10,
+    "improving_trials": 7,
+    "wasted_trials": 0,
+    "evaluation_rate": 1.0,
+    "improvement_rate": 0.7
+  },
+  "incumbent_turnover": {
+    "incumbent_changes": 4,
+    "final_incumbent_trial": "8d989453-ab3",
+    "incumbent_sharpe_progression": [
+      0.2654898739532009,
+      0.6774273029333693,
+      1.4044474359032155,
+      3.2194871035790684
+    ],
+    "average_hold_duration": 2.5
+  },
+  "strategy_diversity": {
+    "unique_signal_types": 4,
+    "signal_type_distribution": {
+      "momentum": 4,
+      "trend": 3,
+      "volatility": 2,
+      "mean_reversion": 1
+    },
+    "parameter_spread": 60.582258128927485,
+    "effective_search_space": 0.9232196720469689
+  },
+  "nominal_vs_defensible": {
+    "nominal": {
+      "sharpe": 3.2194871035790684,
+      "max_drawdown": -0.07171628787559037,
+      "total_return": 0.5279126647778072
+    },
+    "defensible": {
+      "dsr": null,
+      "pbo": -0.4054651081081643,
+      "sharpe": null
+    },
+    "holdout": {
+      "sharpe": -1.3812708519869388,
+      "max_drawdown": 0.15686759045530643,
+      "total_return": -0.12278026500589789
+    },
+    "baseline": {
+      "sharpe": -0.0051893298601495205,
+      "total_return": -0.03149378434201522,
+      "alpha": -0.09128648066388267
+    },
+    "gaps": {
+      "sharpe_gap": 4.600757955566007,
+      "drawdown_gap": 0.2285838783308968,
+      "return_gap": 0.6506929297837051
+    }
+  },
+  "reflection_impact": {
+    "total_reflections": 10,
+    "revisions_triggered": 10,
+    "revision_acceptance_rate": 1.0,
+    "reflection_improved_holdout": -1.3812708519869388,
+    "no_reflection_baseline_sharpe": null,
+    "reflection_net_value": null
+  },
+  "decision_outcome": "passed_but_no_value",
+  "gates_passed": false,
+  "holdout_outperformed_baseline": false,
+  "total_events": 36,
+  "total_artifacts": 36,
+  "trial_sharpe_ratios": [
+    0.2654898739532009,
+    0.6774273029333693,
+    1.4044474359032155,
+    0.6668092503866817,
+    -0.5711424186571822,
+    0.6821885484773653,
+    -0.476906559394835,
+    3.2194871035790684,
+    1.7148858511177019,
+    -0.14667114712307802
+  ],
+  "trial_max_drawdowns": [
+    -0.17444310136198382,
+    -0.2162937066253363,
+    -0.09673174012176844,
+    -0.14580235021160703,
+    -0.3116575117422222,
+    -0.18091287774242026,
+    -0.3742618175778709,
+    -0.07171628787559037,
+    -0.1452115244971317,
+    -0.20219525389082982
+  ],
+  "trial_total_returns": [
+    0.06035816567982355,
+    0.12006189858318428,
+    0.2616095336269828,
+    0.12987512419210256,
+    -0.08470636771994511,
+    0.13039369238822274,
+    -0.07310881483630305,
+    0.5279126647778072,
+    0.2933684649545314,
+    -0.010687703580069208
+  ]
+}

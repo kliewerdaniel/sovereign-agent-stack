@@ -2,7 +2,12 @@
 
 Every research conclusion traces back through:
   Conclusion → Strategy → Backtest → Dataset → Agent → Model → Policy → Provenance
+
+This module provides the core provenance types (ProvenanceNode, ProvenanceGraph).
+For experiment-specific artifacts (Trial, Critique, Baseline, Holdout, Decision)
+and the EventLog, see the submodules.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -27,19 +32,19 @@ def content_hash(data: dict | str | bytes) -> str:
         raw = data
     else:
         raw = str(data).encode()
-    return hashlib.sha256(raw).hexdigest()
+    return hashlib.sha256(raw).hexdigest()[:16]
 
 
 @dataclass
 class ProvenanceNode:
     """A node in the provenance graph — one artifact with full ancestry."""
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    artifact_type: str = "unknown"       # strategy, backtest, dataset, trade, report, etc.
+    artifact_type: str = "unknown"
     name: str = ""
     version: str = "1.0.0"
     content_hash: str = ""
     parent_ids: list[str] = field(default_factory=list)
-    producer: str = "unknown"            # agent name
+    producer: str = "unknown"
     model: str = "unknown"
     policy_version: str = ""
     engine_version: str = "sas-quant"
@@ -75,7 +80,7 @@ class ProvenanceGraph:
 
     def __init__(self):
         self._nodes: dict[str, ProvenanceNode] = {}
-        self._edges: list[tuple[str, str]] = []  # (child_id, parent_id)
+        self._edges: list[tuple[str, str]] = []
 
     def add(self, node: ProvenanceNode) -> None:
         self._nodes[node.id] = node
@@ -86,7 +91,6 @@ class ProvenanceGraph:
         return self._nodes.get(node_id)
 
     def ancestors(self, node_id: str, max_depth: int = 50) -> list[ProvenanceNode]:
-        """Walk backward from a node to all ancestors."""
         result = []
         visited: set[str] = set()
         frontier = [node_id]
@@ -106,10 +110,6 @@ class ProvenanceGraph:
         return result
 
     def lineage_chain(self, node_id: str) -> list[ProvenanceNode]:
-        """Return the lineage chain from root to node.
-
-        Walks backward from node to root via parent_ids, then reverses.
-        """
         chain: list[ProvenanceNode] = []
         current_id = node_id
         visited: set[str] = set()
@@ -142,3 +142,14 @@ class ProvenanceGraph:
             "node_count": len(self._nodes),
             "edge_count": len(self._edges),
         }
+
+
+# Re-export experiment provenance types for convenience
+from sas.quant.provenance.graph import EventLog, ExperimentEvent
+from sas.quant.provenance.artifacts import (
+    TrialArtifact,
+    CritiqueArtifact,
+    BaselineArtifact,
+    HoldoutArtifact,
+    ResearchDecision,
+)

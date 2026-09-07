@@ -1,0 +1,18 @@
+{
+  "holdout_id": "6d8cae65-5a6",
+  "experiment_id": "exp-suite-7ab7a7f9-0011",
+  "trial_id": "6dc1a65f-795",
+  "holdout_window": [
+    "2024-10-01",
+    "2024-12-31"
+  ],
+  "strategy_total_return": -0.22903021658267697,
+  "strategy_sharpe_ratio": -2.388783258122074,
+  "strategy_max_drawdown": 0.24728438268308855,
+  "baseline_total_return": 0.6918800054292353,
+  "baseline_sharpe_ratio": 2.5109363908672266,
+  "outperformed_baseline": false,
+  "is_consistent": true,
+  "notes": "",
+  "created_at": "2026-09-07T15:15:53.515611+00:00"
+}

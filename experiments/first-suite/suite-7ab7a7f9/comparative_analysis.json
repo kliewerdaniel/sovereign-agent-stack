@@ -1,0 +1,60 @@
+{
+  "matrix_id": "suite-7ab7a7f9",
+  "total_experiments": 16,
+  "findings": [
+    {
+      "metric": "sharpe_gap",
+      "condition": "budget=10",
+      "value": 4.591578524624461,
+      "comparison": "budget=20",
+      "comparison_value": 4.3599924712355715,
+      "delta": 0.23158605338888982,
+      "interpretation": "Increasing trial budget from 10 to 20 decreased the average Sharpe gap by 0.2316"
+    },
+    {
+      "metric": "dsr",
+      "condition": "budget=10",
+      "value": 0.0,
+      "comparison": "budget=20",
+      "comparison_value": 0.0,
+      "delta": 0.0,
+      "interpretation": "Increasing trial budget from 10 to 20 decreased the average DSR by 0.0000"
+    },
+    {
+      "metric": "holdout_sharpe",
+      "condition": "budget=10",
+      "value": -1.8850270550545063,
+      "comparison": "budget=20",
+      "comparison_value": -1.5710482197522018,
+      "delta": -0.3139788353023045,
+      "interpretation": "Increasing trial budget from 10 to 20 increased the average holdout Sharpe by 0.3140"
+    },
+    {
+      "metric": "holdout_sharpe",
+      "condition": "reflection=0",
+      "value": -1.7280376374033541,
+      "comparison": "reflection=1",
+      "comparison_value": -1.7280376374033541,
+      "delta": 0.0,
+      "interpretation": "Changing reflection from 0 to 1 decreased the average holdout Sharpe by 0.0000"
+    },
+    {
+      "metric": "acceptance_rate",
+      "condition": "universe=AAPL",
+      "value": 0.0,
+      "comparison": "universe=MSFT",
+      "comparison_value": 0.0,
+      "delta": 0.0,
+      "interpretation": "Universe AAPL had 0% acceptance vs MSFT had 0% acceptance"
+    }
+  ],
+  "summary": {
+    "total_experiments": 16,
+    "acceptance_rate": 0.0,
+    "holdout_outperformance_rate": 0.25,
+    "average_nominal_sharpe": 2.747747860526662,
+    "average_holdout_sharpe": -1.7280376374033541,
+    "average_sharpe_gap": 4.4757854979300165,
+    "average_dsr": 0.0
+  }
+}

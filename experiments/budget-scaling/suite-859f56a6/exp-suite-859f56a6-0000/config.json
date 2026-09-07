@@ -1,0 +1,43 @@
+{
+  "experiment_id": "exp-suite-859f56a6-0000",
+  "world_id": "exp-world-exp-suite-859f56a6-0000",
+  "trial_budget": 10,
+  "research_window": [
+    "2024-01-01",
+    "2024-09-30"
+  ],
+  "holdout_window": [
+    "2024-10-01",
+    "2024-12-31"
+  ],
+  "model_id": "experimental-agent",
+  "task_id": "governed-research",
+  "random_seed": 42,
+  "initial_capital": 100000.0,
+  "max_reflection_rounds": 1,
+  "baseline_config": {
+    "baseline_type": "buy_and_hold",
+    "benchmark_symbol": null,
+    "universe": [
+      "AAPL"
+    ],
+    "weights": {},
+    "data_window": [
+      "2024-01-01",
+      "2024-09-30"
+    ],
+    "initial_capital": 100000.0,
+    "transaction_cost_bps": 0.0,
+    "seed": 42
+  },
+  "gate_config": {
+    "max_drawdown_limit": 0.2,
+    "max_single_name_concentration": 0.25,
+    "max_leverage": 1.5,
+    "max_daily_loss": 0.05,
+    "min_dsr": 0.0,
+    "max_pbo": 0.5,
+    "require_positive_sharpe": true
+  },
+  "metadata": {}
+}

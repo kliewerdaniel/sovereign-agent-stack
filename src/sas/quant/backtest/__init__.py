@@ -249,35 +249,94 @@ class BacktestEngine:
         trades = []
         strategy = config.strategy
 
-        # Simple momentum simulation for demonstration
         if test.empty:
             return equity, trades
+
+        # Check if lookback is too long relative to data
+        if strategy.signal_definition and strategy.signal_definition.parameters:
+            lookback = strategy.signal_definition.parameters.get("lookback", 20)
+            if lookback >= len(test) - self.engine.config.min_periods:
+                # Strategy has insufficient effective observations
+                return equity, trades
 
         tickers = strategy.universe if strategy.universe else ["DEFAULT"]
         n_tickers = len(tickers)
         weights = np.ones(n_tickers) / n_tickers
 
-        rng = np.random.default_rng(config.seed)
-        for i in range(1, len(test)):
-            ret = rng.normal(0.0005, 0.02, n_tickers)
-            day_return = float(np.dot(weights, ret))
-            new_equity = equity[-1] * (1 + day_return)
+        # Use actual returns from the test data if available
+        if "returns" in test.columns:
+            returns_series = test["returns"].values
+            # Use signal column if available (for signal recovery)
+            if "signal" in test.columns:
+                signal_series = test["signal"].values
+                for i in range(1, len(returns_series)):
+                    # Position based on signal: long when signal > 0, short when < 0
+                    position = 1.0 if signal_series[i-1] > 0 else (-1.0 if signal_series[i-1] < 0 else 0.0)
+                    day_return = float(returns_series[i]) * position
+                    new_equity = equity[-1] * (1 + day_return)
+                    
+                    # Apply transaction costs on rebalance
+                    if i % 21 == 0:  # Monthly rebalance
+                        tc = strategy.transaction_costs
+                        cost = tc.total_cost_per_share(1.0, capital * 0.1)
+                        new_equity -= cost
+                    
+                    equity.append(new_equity)
+                    
+                    if day_return != 0 and len(trades) < 1000:
+                        trades.append({
+                            "date": test.index[i] if hasattr(test.index, '__getitem__') else str(i),
+                            "return": day_return,
+                            "price": 1.0,
+                            "shares": capital,
+                        })
+            else:
+                # Fallback: simple momentum strategy
+                lookback = strategy.signal_definition.parameters.get("lookback", 20) if strategy.signal_definition.parameters else 20
+                for i in range(lookback, len(returns_series)):
+                    momentum = np.mean(returns_series[i-lookback:i])
+                    position = 1.0 if momentum > 0 else -1.0
+                    day_return = float(returns_series[i]) * position
+                    new_equity = equity[-1] * (1 + day_return)
+                    
+                    # Apply transaction costs on rebalance
+                    if i % 21 == 0:  # Monthly rebalance
+                        tc = strategy.transaction_costs
+                        cost = tc.total_cost_per_share(1.0, capital * 0.1)
+                        new_equity -= cost
+                    
+                    equity.append(new_equity)
+                    
+                    if day_return != 0 and len(trades) < 1000:
+                        trades.append({
+                            "date": test.index[i] if hasattr(test.index, '__getitem__') else str(i),
+                            "return": day_return,
+                            "price": 1.0,
+                            "shares": capital,
+                        })
+        else:
+            # Fallback: generate random returns (for demo/testing only)
+            rng = np.random.default_rng(config.seed)
+            for i in range(1, len(test)):
+                ret = rng.normal(0.0005, 0.02, n_tickers)
+                day_return = float(np.dot(weights, ret))
+                new_equity = equity[-1] * (1 + day_return)
 
-            # Apply transaction costs on rebalance
-            if i % 21 == 0:  # Monthly rebalance
-                tc = strategy.transaction_costs
-                cost = tc.total_cost_per_share(1.0, capital * 0.1)
-                new_equity -= cost
+                # Apply transaction costs on rebalance
+                if i % 21 == 0:  # Monthly rebalance
+                    tc = strategy.transaction_costs
+                    cost = tc.total_cost_per_share(1.0, capital * 0.1)
+                    new_equity -= cost
 
-            equity.append(new_equity)
+                equity.append(new_equity)
 
-            if day_return != 0 and len(trades) < 1000:
-                trades.append({
-                    "date": test.index[i] if hasattr(test.index, '__getitem__') else str(i),
-                    "return": day_return,
-                    "price": 1.0,
-                    "shares": capital,
-                })
+                if day_return != 0 and len(trades) < 1000:
+                    trades.append({
+                        "date": test.index[i] if hasattr(test.index, '__getitem__') else str(i),
+                        "return": day_return,
+                        "price": 1.0,
+                        "shares": capital,
+                    })
 
         return equity, trades
 
