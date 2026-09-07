@@ -1,25 +1,27 @@
-"""Mechanism Investigation — determine if the identified explanation is causal.
+"""Mechanism Investigation — interventions on the evidence-generating process.
 
 This module implements four investigation types that produce evidence artifacts
 WITHOUT changing the frozen epistemic API (SUPPORTED/REFUTED/INCONCLUSIVE).
 
 The investigations enrich the ObservedMechanismArtifact with causal evidence:
 
-1. Feature Ablation: Remove the claimed feature, measure performance drop.
-   If Sharpe drops → feature was causal → evidence FOR the mechanism.
-   If Sharpe persists → strategy used something else → evidence AGAINST.
+1. Feature Ablation: Remove the claimed feature, measure performance change.
+   Sharpe change → evidence the feature contributed to the observed outcome.
+   No change → evidence the strategy did not depend on this feature.
 
 2. Permutation/Placebo: Destroy the claimed temporal relationship while
-   preserving marginal statistics. If Sharpe persists → exploiting spurious
-   correlation. If Sharpe drops → temporal structure was genuine.
+   preserving marginal statistics. Sharpe persists → evidence of timing-invariant
+   structure (e.g., serial dependence). Sharpe drops → evidence the temporal
+   ordering carried information the strategy used.
 
 3. Competing Mechanisms: Create worlds where two mechanisms can explain the
-   same outcome. Determine which one the agent actually uses by comparing
-   feature sensitivity.
+   same outcome. Compare feature sensitivity to determine which feature the
+   strategy's performance depends on.
 
 4. Temporal Perturbation: Shift the purported causal information while
-   preserving superficial statistics. If performance is timing-sensitive →
-   genuine mechanism. If timing-invariant → exploiting spurious correlation.
+   preserving superficial statistics. Performance change → evidence the strategy
+   is timing-sensitive. No change → evidence the strategy exploits timing-invariant
+   structure.
 
 Key architectural principle:
     Evidence may become more precise, diverse, adversarial, and causally
@@ -27,9 +29,20 @@ Key architectural principle:
     system has accumulated more of it. Authority remains a separate governed
     transition.
 
+The evidence hierarchy:
+    Intervention → Observed difference → Evidence about dependency
+    → Mechanism evidence → Hypothesis evaluation
+
+NOT:
+    Intervention → CAUSALITY = TRUE
+
 Invariant: These investigations produce evidence. They do not produce
 new epistemic states. The frozen three-valued logic (SUPPORTED/REFUTED/
 INCONCLUSIVE) remains the only authority model.
+
+A conclusion like "feature was causal" is an ontological claim the evidence
+cannot support. The evidence supports: "removing the feature materially
+changes the observed outcome under the specified experimental conditions."
 """
 
 from __future__ import annotations
@@ -148,11 +161,12 @@ def run_feature_ablation(
     mechanism_id: str,
     feature: str = "returns",
 ) -> MechanismInvestigationResult:
-    """Remove the claimed explanatory feature and measure performance drop.
+    """Remove the claimed explanatory feature and measure performance change.
 
-    If the strategy's Sharpe drops when the feature is zeroed out, the feature
-    was causal — evidence FOR the mechanism. If Sharpe persists, the strategy
-    was using something else — evidence AGAINST the mechanism.
+    If the strategy's Sharpe changes when the feature is zeroed out, the
+    evidence is consistent with the feature contributing to the observed
+    outcome. If Sharpe persists, the evidence is consistent with the
+    strategy not depending on this feature.
 
     Args:
         world: The synthetic world to investigate.
@@ -162,7 +176,7 @@ def run_feature_ablation(
         feature: The feature to ablate (zero out).
 
     Returns:
-        MechanismInvestigationResult with causal evidence.
+        MechanismInvestigationResult with dependency evidence.
     """
     original_result = strategy_fn(world)
     original_sharpe = float(getattr(original_result, "sharpe_ratio", 0.0))
@@ -188,21 +202,21 @@ def run_feature_ablation(
 
     if abs(sharpe_drop) > 0.5:
         conclusion = (
-            f"Feature ablation: {feature} removed. Sharpe dropped "
-            f"{original_sharpe:.2f} → {perturbed_sharpe:.2f} (drop={sharpe_drop:.2f}). "
-            f"Feature was causal — evidence FOR mechanism."
+            f"Feature ablation: {feature} removed. Sharpe changed "
+            f"{original_sharpe:.2f} → {perturbed_sharpe:.2f} (Δ={sharpe_drop:.2f}). "
+            f"Evidence consistent with feature contributing to outcome."
         )
     elif abs(sharpe_drop) > 0.1:
         conclusion = (
-            f"Feature ablation: {feature} removed. Sharpe dropped "
-            f"{original_sharpe:.2f} → {perturbed_sharpe:.2f} (drop={sharpe_drop:.2f}). "
-            f"Feature contributed but was not sole cause."
+            f"Feature ablation: {feature} removed. Sharpe changed "
+            f"{original_sharpe:.2f} → {perturbed_sharpe:.2f} (Δ={sharpe_drop:.2f}). "
+            f"Evidence consistent with partial feature dependence."
         )
     else:
         conclusion = (
             f"Feature ablation: {feature} removed. Sharpe unchanged "
             f"({original_sharpe:.2f} → {perturbed_sharpe:.2f}). "
-            f"Strategy was NOT using this feature — evidence AGAINST mechanism."
+            f"Evidence consistent with strategy not depending on this feature."
         )
 
     return MechanismInvestigationResult(
@@ -239,9 +253,9 @@ def run_permutation_test(
 
     Shuffles the specified feature to destroy any temporal structure while
     preserving the marginal distribution. If the strategy's Sharpe persists
-    on shuffled data, it was exploiting spurious correlation (e.g., serial
-    dependence in the noise). If Sharpe drops to ~0, the temporal structure
-    was genuine.
+    on shuffled data, the evidence is consistent with timing-invariant
+    structure (e.g., serial dependence). If Sharpe drops, the evidence is
+    consistent with the temporal ordering carrying information the strategy used.
 
     Args:
         world: The synthetic world to investigate.
@@ -253,7 +267,7 @@ def run_permutation_test(
         seed: Random seed for reproducibility.
 
     Returns:
-        MechanismInvestigationResult with placebo evidence.
+        MechanismInvestigationResult with temporal-structure evidence.
     """
     original_result = strategy_fn(world)
     original_sharpe = float(getattr(original_result, "sharpe_ratio", 0.0))
@@ -290,21 +304,21 @@ def run_permutation_test(
 
     if abs(sharpe_drop) > 0.5:
         conclusion = (
-            f"Permutation test: {feature} shuffled {n_permutations}x. Sharpe dropped "
-            f"{original_sharpe:.2f} → {avg_perturbed_sharpe:.2f} (drop={sharpe_drop:.2f}). "
-            f"Temporal structure was genuine — evidence FOR mechanism."
+            f"Permutation test: {feature} shuffled {n_permutations}x. Sharpe changed "
+            f"{original_sharpe:.2f} → {avg_perturbed_sharpe:.2f} (Δ={sharpe_drop:.2f}). "
+            f"Evidence consistent with temporal ordering carrying information."
         )
     elif abs(sharpe_drop) > 0.1:
         conclusion = (
-            f"Permutation test: {feature} shuffled {n_permutations}x. Sharpe dropped "
-            f"{original_sharpe:.2f} → {avg_perturbed_sharpe:.2f} (drop={sharpe_drop:.2f}). "
-            f"Partial temporal dependence."
+            f"Permutation test: {feature} shuffled {n_permutations}x. Sharpe changed "
+            f"{original_sharpe:.2f} → {avg_perturbed_sharpe:.2f} (Δ={sharpe_drop:.2f}). "
+            f"Evidence consistent with partial temporal dependence."
         )
     else:
         conclusion = (
             f"Permutation test: {feature} shuffled {n_permutations}x. Sharpe persisted "
             f"({original_sharpe:.2f} → {avg_perturbed_sharpe:.2f}). "
-            f"Strategy exploits spurious correlation — evidence AGAINST mechanism."
+            f"Evidence consistent with timing-invariant structure."
         )
 
     return MechanismInvestigationResult(
@@ -342,12 +356,13 @@ def run_competing_mechanism_test(
 
     Runs two ablation tests — one for the signal feature, one for the
     momentum (autocorrelation) feature. Whichever ablation causes the
-    larger Sharpe drop is the mechanism the strategy is actually exploiting.
+    larger Sharpe change provides evidence about which feature the
+    strategy's performance depends on.
 
     This is the critical test for worlds with BOTH signal and AR:
-    - If ablating signal causes a bigger drop → strategy found the signal
-    - If ablating returns causes a bigger drop → strategy found momentum (AR)
-    - If both cause similar drops → strategy found both (ambiguous)
+    - If ablating signal causes a bigger drop → evidence strategy uses signal
+    - If ablating returns causes a bigger drop → evidence strategy uses AR
+    - If both cause similar drops → ambiguous evidence
 
     Args:
         world: The synthetic world to investigate.
@@ -390,27 +405,27 @@ def run_competing_mechanism_test(
     # Determine which mechanism the strategy actually uses
     if abs(signal_sharpe_drop) > 2 * abs(momentum_sharpe_drop) and signal_sharpe_drop > 0.3:
         conclusion = (
-            f"Competing mechanism: Signal ablation dropped Sharpe by {signal_sharpe_drop:.2f}, "
+            f"Competing mechanism: Signal ablation changed Sharpe by {signal_sharpe_drop:.2f}, "
             f"momentum ablation by {momentum_sharpe_drop:.2f}. "
-            f"Strategy is exploiting the SIGNAL — evidence FOR signal mechanism."
+            f"Evidence consistent with strategy depending on SIGNAL."
         )
         evidence_strength = min(abs(signal_sharpe_drop) / max(abs(original_sharpe), 0.5), 1.0)
         is_robust = False
         perturbed_sharpe = signal_ablated_sharpe
     elif abs(momentum_sharpe_drop) > 2 * abs(signal_sharpe_drop) and momentum_sharpe_drop > 0.3:
         conclusion = (
-            f"Competing mechanism: Momentum ablation dropped Sharpe by {momentum_sharpe_drop:.2f}, "
+            f"Competing mechanism: Momentum ablation changed Sharpe by {momentum_sharpe_drop:.2f}, "
             f"signal ablation by {signal_sharpe_drop:.2f}. "
-            f"Strategy is exploiting AUTOCORRELATION — evidence AGAINST signal mechanism."
+            f"Evidence consistent with strategy depending on AUTOCORRELATION."
         )
         evidence_strength = min(abs(momentum_sharpe_drop) / max(abs(original_sharpe), 0.5), 1.0)
         is_robust = True
         perturbed_sharpe = momentum_ablated_sharpe
     else:
         conclusion = (
-            f"Competing mechanism: Signal ablation dropped Sharpe by {signal_sharpe_drop:.2f}, "
+            f"Competing mechanism: Signal ablation changed Sharpe by {signal_sharpe_drop:.2f}, "
             f"momentum ablation by {momentum_sharpe_drop:.2f}. "
-            f"Strategy exploits BOTH or NEITHER — ambiguous."
+            f"Evidence ambiguous — strategy may depend on both or neither."
         )
         evidence_strength = 0.2
         is_robust = False
@@ -452,10 +467,9 @@ def run_temporal_perturbation(
     """Shift the purported causal information while preserving superficial stats.
 
     Shifts the feature by k periods (1 to max_shift). If the strategy's
-    performance is sensitive to exact timing, the mechanism is genuine.
-    If performance persists with shifted timing, the strategy is exploiting
-    spurious correlation (e.g., serial dependence that makes shifted features
-    still predictive).
+    performance changes, the evidence is consistent with timing sensitivity.
+    If performance persists, the evidence is consistent with the strategy
+    exploiting timing-invariant structure.
 
     Args:
         world: The synthetic world to investigate.
@@ -467,7 +481,7 @@ def run_temporal_perturbation(
         seed: Random seed for reproducibility.
 
     Returns:
-        MechanismInvestigationResult with temporal sensitivity evidence.
+        MechanismInvestigationResult with timing-sensitivity evidence.
     """
     original_result = strategy_fn(world)
     original_sharpe = float(getattr(original_result, "sharpe_ratio", 0.0))
@@ -507,22 +521,21 @@ def run_temporal_perturbation(
 
     if abs(sharpe_drop) > 0.5:
         conclusion = (
-            f"Temporal perturbation: {feature} shifted 1-{max_shift} periods. Sharpe dropped "
-            f"{original_sharpe:.2f} → {avg_shifted_sharpe:.2f} (drop={sharpe_drop:.2f}). "
-            f"Performance is timing-sensitive — evidence FOR genuine mechanism."
+            f"Temporal perturbation: {feature} shifted 1-{max_shift} periods. Sharpe changed "
+            f"{original_sharpe:.2f} → {avg_shifted_sharpe:.2f} (Δ={sharpe_drop:.2f}). "
+            f"Evidence consistent with timing-sensitive strategy."
         )
     elif abs(sharpe_drop) > 0.1:
         conclusion = (
-            f"Temporal perturbation: {feature} shifted 1-{max_shift} periods. Sharpe dropped "
-            f"{original_sharpe:.2f} → {avg_shifted_sharpe:.2f} (drop={sharpe_drop:.2f}). "
-            f"Partial timing sensitivity."
+            f"Temporal perturbation: {feature} shifted 1-{max_shift} periods. Sharpe changed "
+            f"{original_sharpe:.2f} → {avg_shifted_sharpe:.2f} (Δ={sharpe_drop:.2f}). "
+            f"Evidence consistent with partial timing sensitivity."
         )
     else:
         conclusion = (
             f"Temporal perturbation: {feature} shifted 1-{max_shift} periods. Sharpe persisted "
             f"({original_sharpe:.2f} → {avg_shifted_sharpe:.2f}). "
-            f"Performance is timing-INVARIANT — evidence AGAINST genuine mechanism "
-            f"(exploiting serial dependence)."
+            f"Evidence consistent with timing-invariant structure."
         )
 
     return MechanismInvestigationResult(

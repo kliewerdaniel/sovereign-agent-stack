@@ -113,6 +113,24 @@ from sas.quant.experiment.mechanism_investigation import (
     run_temporal_perturbation,
     run_all_investigations,
 )
+from sas.quant.experiment.mechanism_challenge import (
+    ChallengeResult,
+    build_challenge_worlds,
+    run_challenge,
+    run_challenge_suite,
+    generate_challenge_report,
+)
+from sas.quant.experiment.evidence_sufficiency import (
+    ConditionResult,
+    ExperimentalCondition,
+    MonotonicityResult,
+    analyze_monotonicity,
+    compute_aggregate_metrics,
+    compute_conditional_metrics,
+    generate_evidence_sufficiency_report,
+    run_evidence_sufficiency_experiment,
+    run_single_condition,
+)
 from sas.quant.experiment.substrate_validation import (
     RealizedDistribution,
     characterize_substrate,
@@ -187,6 +205,22 @@ __all__ = [
     "run_competing_mechanism_test",
     "run_temporal_perturbation",
     "run_all_investigations",
+    # Mechanism Challenge
+    "ChallengeResult",
+    "build_challenge_worlds",
+    "run_challenge",
+    "run_challenge_suite",
+    "generate_challenge_report",
+    # Evidence Sufficiency
+    "ConditionResult",
+    "ExperimentalCondition",
+    "MonotonicityResult",
+    "analyze_monotonicity",
+    "compute_aggregate_metrics",
+    "compute_conditional_metrics",
+    "generate_evidence_sufficiency_report",
+    "run_evidence_sufficiency_experiment",
+    "run_single_condition",
     # Substrate Validation
     "RealizedDistribution",
     "characterize_substrate",
