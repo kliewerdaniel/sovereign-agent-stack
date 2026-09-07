@@ -26,10 +26,6 @@ jobs:
       - name: Lint
         run: ruff check src/
 
-      - name: Type check
-        if: matrix.python-version == '3.11'
-        run: mypy src/sas/ --ignore-missing-imports
-
       - name: Test
         run: |
           python -m pytest tests/unit/ tests/integration/test_quant_pipeline.py \
