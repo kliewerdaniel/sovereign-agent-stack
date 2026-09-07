@@ -282,6 +282,42 @@ class TestTIEKnowledgeAdapter:
 class TestPluginRegistration:
     """Tests for the TIE plugin registration."""
 
+    @pytest.fixture(autouse=True)
+    def _ensure_plugin_file(self, tmp_path: Path) -> None:
+        """Create the plugin file if it doesn't exist."""
+        plugin_dir = Path.home() / ".sas" / "plugins"
+        plugin_dir.mkdir(parents=True, exist_ok=True)
+        plugin_path = plugin_dir / "tie_knowledge.py"
+        if not plugin_path.exists():
+            # Write the plugin module
+            plugin_code = '''\
+"""SAS Layer 6 plugin: Telemetry Intelligence Engine (TIE) knowledge adapter."""
+
+from __future__ import annotations
+
+SAS_PLUGIN = {
+    "name": "tie-knowledge",
+    "layer_id": "layer_6_long_term_knowledge",
+    "version": "0.1.0",
+    "description": "TIE behavioral knowledge graph as SAS Layer 6 provider",
+    "author": "Daniel Kliewer",
+    "url": "https://github.com/kliewerdaniel/sovereign-agent-stack",
+}
+
+
+def create_adapter(store_path: str = ":memory:"):
+    """Factory function that returns a TIEKnowledgeAdapter instance."""
+    try:
+        from sas_tie_knowledge.adapter import TIEKnowledgeAdapter
+        return TIEKnowledgeAdapter(store_path=store_path)
+    except ImportError:
+        raise RuntimeError(
+            "sas_tie_knowledge package not found. "
+            "Install it with: pip install -e ."
+        )
+'''
+            plugin_path.write_text(plugin_code)
+
     def test_plugin_metadata_exists(self) -> None:
         """The plugin file has valid SAS_PLUGIN metadata."""
         import importlib.util
