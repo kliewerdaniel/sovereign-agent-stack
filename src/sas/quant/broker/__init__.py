@@ -13,9 +13,14 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timezone
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
+
+from sas.quant.broker.adapter import BrokerAdapter
+
+if TYPE_CHECKING:
+    from sas.quant.risk import TradeIntent
 
 
 class OrderType(Enum):
@@ -106,7 +111,7 @@ class BrokerConfig:
     reject_above_value: float = 1_000_000
 
 
-class SimulatedBroker:
+class SimulatedBroker(BrokerAdapter):
     """Deterministic simulated broker."""
 
     def __init__(self, config: BrokerConfig | None = None,
@@ -116,10 +121,36 @@ class SimulatedBroker:
         self._rng = np.random.default_rng(seed)
         self._version = "1.0.0"
 
+    @property
+    def name(self) -> str:
+        return "simulated"
+
+    @property
+    def is_live(self) -> bool:
+        return False
+
+    def submit_trade(self, trade: TradeIntent) -> Order:
+        """Submit a trade intent to the simulated broker.
+
+        Args:
+            trade: An authorized ``TradeIntent``.
+
+        Returns:
+            An ``Order`` with simulated fill details.
+        """
+        return self.submit_order(
+            symbol=trade.symbol,
+            side=trade.side,
+            quantity=trade.quantity,
+            price=trade.price_assumption,
+            parent_trade_id=trade.id,
+        )
+
     def submit_order(self, symbol: str, side: str,
                       quantity: float, price: float,
                       order_type: OrderType = OrderType.MARKET,
-                      limit_price: float = 0.0) -> Order:
+                      limit_price: float = 0.0,
+                      parent_trade_id: str = "") -> Order:
         """Submit a simulated order."""
         # Validate
         if quantity <= 0:
@@ -136,6 +167,7 @@ class SimulatedBroker:
             symbol=symbol, side=side, quantity=quantity,
             price=price, order_type=order_type,
             limit_price=limit_price,
+            parent_trade_id=parent_trade_id,
         )
 
         # Simulate fill

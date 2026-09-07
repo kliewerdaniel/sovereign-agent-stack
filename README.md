@@ -125,11 +125,87 @@ python -m sas research --universe AAPL --horizon 1y
 python -m sas quant backtest --strategy-id momentum-001 --seed 42
 python -m sas quant risk --weights AAPL:0.5,MSFT:0.5
 python -m sas quant provenance [node_id]
+python -m sas quant auto-research --universe AAPL --universe MSFT --mode backtest-only --auto-approve
+python -m sas quant auto-research --universe AAPL --mode live-paper  # requires Alpaca credentials
 ```
 
 ---
 
-## Python API
+## Autonomous Quant Research Pipeline
+
+The autonomous research pipeline wires: **strategy proposal (LLM) → backtest → risk evaluation → authorization gate → broker → provenance**.
+
+```bash
+# Run full pipeline with synthetic data (no credentials needed)
+python -m sas quant auto-research --universe AAPL --universe MSFT --mode backtest-only --auto-approve
+
+# Run with live paper trading (requires Alpaca credentials)
+export APCA_API_KEY_ID="your-key"
+export APCA_API_SECRET_KEY="your-secret"
+python -m sas quant auto-research --universe AAPL --mode live-paper
+
+# Output options
+python -m sas quant auto-research --universe AAPL --output json                # JSON provenance
+python -m sas quant auto-research --universe AAPL --output markdown            # Human-readable report
+python -m sas quant auto-research --universe AAPL --output both --output-file report.md
+```
+
+### Architecture
+
+```
+QuantResearchOrchestrator.run()
+         │
+         ├── 1. Assemble QuantWorld (data + policies + agents + tools)
+         ├── 2. Run LLM research loop (propose_strategy tool → strategy artifact)
+         ├── 3. BacktestEngine.run() → BacktestResult
+         ├── 4. Create TradeIntent from strategy
+         ├── 5. TradeAuthorization gate (deterministic, LLM cannot bypass)
+         │      ├── RiskEngine.evaluate_trade() → RiskEvaluation
+         │      ├── Session limits (max trades, max order value)
+         │      └── Human approval (stdin prompt, or --auto-approve for CI)
+         ├── 6. BrokerAdapter.submit_trade() → Order
+         │      ├── SimulatedBroker (backtest-only mode)
+         │      └── AlpacaBrokerAdapter (live-paper mode)
+         └── 7. ProvenanceGraph capture (dataset → strategy → backtest → trade → order)
+```
+
+### Authorization Gate
+
+The `TradeAuthorization` gate is a **deterministic component the LLM cannot bypass**. No order reaches the broker without passing through it.
+
+- **Risk policy compliance**: Evaluates trades against `RiskPolicy` constraints
+- **Session limits**: Max trades per session, max single-order value
+- **Human-in-the-loop**: Blocks on stdin for approval (default). Use `--auto-approve` for CI/tests.
+
+### Broker Adapters
+
+Two implementations ship with SAS:
+
+| Adapter | Mode | Description |
+|---------|------|-------------|
+| `SimulatedBroker` | `backtest-only` | Deterministic, in-memory, no external calls |
+| `AlpacaBrokerAdapter` | `live-paper` | Alpaca paper trading API |
+
+Credentials are sourced from `APCA_API_KEY_ID` / `APCA_API_SECRET_KEY` environment variables or the local auth broker vault. They are **never logged, never serialized to provenance, and never exposed in error messages**.
+
+### Python API
+
+```python
+from sas.quant.orchestration import OrchestratorConfig, QuantResearchOrchestrator
+
+config = OrchestratorConfig(
+    universe=["AAPL", "MSFT"],
+    mode="backtest-only",
+    auto_approve=True,
+)
+orchestrator = QuantResearchOrchestrator(config)
+result = orchestrator.run()
+
+print(result.status)           # "completed"
+print(result.strategy.name)    # "default-momentum"
+print(result.backtest_result.sharpe_ratio)
+print(result.provenance_graph.to_dict())
+```
 
 ### Sovereignty
 

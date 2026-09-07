@@ -416,6 +416,60 @@ def _cmd_quant(args: argparse.Namespace) -> int:
         for n in lineage:
             print(f"  ← {n.artifact_type}: {n.name}")
 
+    elif sub == "auto-research":
+        from sas.quant.orchestration import OrchestratorConfig, QuantResearchOrchestrator
+
+        config = OrchestratorConfig(
+            universe=args.universe or ["AAPL", "MSFT"],
+            horizon=args.horizon,
+            start_date=args.start_date,
+            end_date=args.end_date,
+            initial_capital=args.capital,
+            seed=args.seed,
+            mode=args.mode,
+            auto_approve=args.auto_approve,
+            max_trades_per_session=args.max_trades,
+            max_order_value_usd=args.max_order_value,
+            model_provider=args.model_provider,
+            model_name=args.model_name,
+        )
+
+        print("═══ Sovereign Quant: Autonomous Research ═══")
+        print(f"Universe: {', '.join(config.universe)}")
+        print(f"Mode: {config.mode}")
+        print(f"Horizon: {config.horizon}")
+        print(f"Capital: ${config.initial_capital:,.0f}")
+        print()
+
+        orchestrator = QuantResearchOrchestrator(config)
+        result = orchestrator.run()
+
+        # Output results
+        if args.output in ("json", "both"):
+            import json
+            print(json.dumps(result.to_dict(), indent=2, default=str))
+
+        if args.output in ("markdown", "both"):
+            from sas.quant.cli import _format_markdown_report
+            report = _format_markdown_report(result)
+            if args.output != "both":
+                print(report)
+
+        # Write to file if requested
+        if args.output_file:
+            with open(args.output_file, "w") as f:
+                if args.output in ("json", "both"):
+                    import json
+                    f.write(json.dumps(result.to_dict(), indent=2, default=str))
+                else:
+                    from sas.quant.cli import _format_markdown_report
+                    f.write(_format_markdown_report(result))
+            print(f"\nReport written to: {args.output_file}")
+
+        # Exit code based on result
+        if result.status == "failed":
+            return 1
+
     else:
         print("Unknown quant subcommand:", sub)
         return 1
@@ -804,6 +858,24 @@ def main(argv: list[str] | None = None) -> int:
 
     quant_provenance_parser = quant_subparsers.add_parser("provenance", help="Inspect provenance")
     quant_provenance_parser.add_argument("node_id", nargs="?", default="")
+
+    quant_auto_research_parser = quant_subparsers.add_parser(
+        "auto-research", help="Run autonomous research: propose → backtest → risk → approve → execute"
+    )
+    quant_auto_research_parser.add_argument("--universe", "-u", action="append", default=[], help="Ticker universe")
+    quant_auto_research_parser.add_argument("--horizon", default="1y", help="Time horizon")
+    quant_auto_research_parser.add_argument("--mode", choices=["backtest-only", "live-paper"], default="backtest-only", help="Execution mode")
+    quant_auto_research_parser.add_argument("--start-date", default="2024-01-02", help="Start date")
+    quant_auto_research_parser.add_argument("--end-date", default="2024-12-31", help="End date")
+    quant_auto_research_parser.add_argument("--capital", default=100000.0, type=float, help="Initial capital")
+    quant_auto_research_parser.add_argument("--seed", default=42, type=int, help="Random seed")
+    quant_auto_research_parser.add_argument("--auto-approve", action="store_true", help="Auto-approve (for CI)")
+    quant_auto_research_parser.add_argument("--max-trades", default=10, type=int, help="Max trades per session")
+    quant_auto_research_parser.add_argument("--max-order-value", default=10000.0, type=float, help="Max order value")
+    quant_auto_research_parser.add_argument("--model-provider", default="stub", help="Model provider")
+    quant_auto_research_parser.add_argument("--model-name", default="stub-model", help="Model name")
+    quant_auto_research_parser.add_argument("--output", "-o", choices=["json", "markdown", "both"], default="both", help="Output format")
+    quant_auto_research_parser.add_argument("--output-file", "-f", default=None, help="Write report to file")
 
     # Knowledge subcommands
     knowledge_parser = subparsers.add_parser("knowledge", help="Compile-time knowledge graph")

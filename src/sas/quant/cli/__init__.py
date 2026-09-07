@@ -139,12 +139,171 @@ def reject(trade_id: str):
 
 
 @quant_cli.command()
-@click.option("--format", "-f", type=click.Choice(["json", "markdown"]),
-              default="markdown")
-def reports(format: str):
-    """Generate quant reports."""
-    click.echo(f"Generating report ({format})...")
-    click.echo("Report generated.")
+@click.option("--universe", "-u", multiple=True, help="Ticker universe (e.g. AAPL MSFT)")
+@click.option("--horizon", "-h", default="1y", help="Time horizon")
+@click.option("--mode", type=click.Choice(["backtest-only", "live-paper"]), default="backtest-only", help="Execution mode")
+@click.option("--start-date", default="2024-01-02", help="Start date (YYYY-MM-DD)")
+@click.option("--end-date", default="2024-12-31", help="End date (YYYY-MM-DD)")
+@click.option("--capital", default=100_000.0, help="Initial capital")
+@click.option("--seed", default=42, help="Random seed")
+@click.option("--auto-approve", is_flag=True, help="Auto-approve trades (for CI/tests)")
+@click.option("--max-trades", default=10, help="Max trades per session")
+@click.option("--max-order-value", default=10_000.0, help="Max single-order value (USD)")
+@click.option("--model-provider", default="stub", help="Model provider (stub, ollama, openai)")
+@click.option("--model-name", default="stub-model", help="Model name")
+@click.option("--output", "-o", type=click.Choice(["json", "markdown", "both"]), default="both", help="Output format")
+@click.option("--output-file", "-f", default=None, help="Write report to file")
+def auto_research(
+    universe: tuple,
+    horizon: str,
+    mode: str,
+    start_date: str,
+    end_date: str,
+    capital: float,
+    seed: int,
+    auto_approve: bool,
+    max_trades: int,
+    max_order_value: float,
+    model_provider: str,
+    model_name: str,
+    output: str,
+    output_file: str | None,
+):
+    """Run autonomous quant research: propose → backtest → risk → approve → execute.
+
+    Full pipeline: LLM proposes a strategy, backtest it, evaluate risk,
+    request human approval, and (on approval) execute via broker.
+    """
+    from sas.quant.orchestration import OrchestratorConfig, QuantResearchOrchestrator
+
+    config = OrchestratorConfig(
+        universe=list(universe) if universe else ["AAPL", "MSFT"],
+        horizon=horizon,
+        start_date=start_date,
+        end_date=end_date,
+        initial_capital=capital,
+        seed=seed,
+        mode=mode,
+        auto_approve=auto_approve,
+        max_trades_per_session=max_trades,
+        max_order_value_usd=max_order_value,
+        model_provider=model_provider,
+        model_name=model_name,
+    )
+
+    click.echo("═══ Sovereign Quant: Autonomous Research ═══")
+    click.echo(f"Universe: {', '.join(config.universe)}")
+    click.echo(f"Mode: {config.mode}")
+    click.echo(f"Horizon: {config.horizon}")
+    click.echo(f"Capital: ${config.initial_capital:,.0f}")
+    click.echo()
+
+    orchestrator = QuantResearchOrchestrator(config)
+    result = orchestrator.run()
+
+    # Output results
+    if output in ("json", "both"):
+        import json
+        click.echo(json.dumps(result.to_dict(), indent=2, default=str))
+
+    if output in ("markdown", "both"):
+        report = _format_markdown_report(result)
+        if output != "both":
+            click.echo(report)
+
+    # Write to file if requested
+    if output_file:
+        with open(output_file, "w") as f:
+            if output in ("json", "both"):
+                import json
+                f.write(json.dumps(result.to_dict(), indent=2, default=str))
+            else:
+                f.write(_format_markdown_report(result))
+        click.echo(f"\nReport written to: {output_file}")
+
+    # Exit code based on result
+    if result.status == "failed":
+        sys.exit(1)
+
+
+def _format_markdown_report(result) -> str:
+    """Format orchestrator result as markdown report."""
+    lines = [
+        "# Sovereign Quant: Autonomous Research Report",
+        "",
+        f"**Run ID:** {result.run_id}",
+        f"**Status:** {result.status}",
+        f"**World ID:** {result.world.id if result.world else 'N/A'}",
+        "",
+        "## Strategy",
+        "",
+    ]
+
+    if result.strategy:
+        lines.extend([
+            f"- **Name:** {result.strategy.name}",
+            f"- **Signal:** {result.strategy.signal_definition.name} ({result.strategy.signal_definition.type})",
+            f"- **Sizing:** {result.strategy.position_sizing.method} (target: {result.strategy.position_sizing.target_weight:.0%})",
+            f"- **Created by:** {result.strategy.created_by}",
+        ])
+    else:
+        lines.append("No strategy proposed.")
+
+    lines.extend(["", "## Backtest Results", ""])
+    if result.backtest_result:
+        bt = result.backtest_result
+        lines.extend([
+            f"- **Total Return:** {bt.total_return:.2%}",
+            f"- **Sharpe Ratio:** {bt.sharpe_ratio:.2f}",
+            f"- **Max Drawdown:** {bt.max_drawdown:.2%}",
+            f"- **Total Trades:** {bt.total_trades}",
+            f"- **Final Value:** ${bt.final_value:,.2f}",
+        ])
+    else:
+        lines.append("No backtest results.")
+
+    lines.extend(["", "## Authorization", ""])
+    for auth in result.authorization_results:
+        lines.extend([
+            f"- **Trade:** {auth.trade.symbol} {auth.trade.side} {auth.trade.quantity}",
+            f"- **Approved:** {auth.approved}",
+            f"- **Reason:** {auth.reason}",
+        ])
+
+    lines.extend(["", "## Executed Orders", ""])
+    if result.executed_orders:
+        for order in result.executed_orders:
+            lines.extend([
+                f"- **Order ID:** {order.id}",
+                f"- **Symbol:** {order.symbol}",
+                f"- **Side:** {order.side}",
+                f"- **Quantity:** {order.quantity}",
+                f"- **Price:** ${order.price:,.2f}",
+                f"- **Status:** {order.status.value}",
+            ])
+    else:
+        lines.append("No orders executed.")
+
+    lines.extend(["", "## Provenance", ""])
+    if result.provenance_graph:
+        lines.append(f"- **Nodes:** {len(result.provenance_graph._nodes)}")
+        lines.append(f"- **Edges:** {len(result.provenance_graph._edges)}")
+    else:
+        lines.append("No provenance captured.")
+
+    if result.errors:
+        lines.extend(["", "## Errors", ""])
+        for err in result.errors:
+            lines.append(f"- {err}")
+
+    if result.warnings:
+        lines.extend(["", "## Warnings", ""])
+        for warn in result.warnings:
+            lines.append(f"- {warn}")
+
+    lines.extend(["", "---", "*Generated by Sovereign Agent Stack Quant Orchestrator*"])
+
+    return "\n".join(lines)
 
 
 @quant_cli.command()

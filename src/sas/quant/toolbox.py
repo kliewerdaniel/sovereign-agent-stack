@@ -367,6 +367,19 @@ class QuantToolbox:
             )
         )
 
+        # ── Strategy Proposal Tool ──
+
+        self.register(
+            ToolDefinition(
+                name="propose_strategy",
+                description="Propose a trading strategy with full parameters. Call this to formalize a strategy idea before backtesting.",
+                capability_required="strategy_propose",
+                read_only=False,
+                produces_artifact_type="strategy_proposal",
+                handler=self._propose_strategy,
+            )
+        )
+
     def register(self, tool: ToolDefinition) -> None:
         """Register a tool."""
         self._tools[tool.name] = tool
@@ -887,6 +900,42 @@ class QuantToolbox:
         # For synthetic positions, use quantity as value proxy
         pos_value = sum(abs(q) for q in positions.values())
         return cash + pos_value
+
+    def _propose_strategy(
+        self,
+        name: str = "",
+        signal_name: str = "momentum",
+        signal_type: str = "momentum",
+        signal_params: dict | None = None,
+        sizing_method: str = "fixed_weight",
+        target_weight: float = 0.10,
+        max_position: float = 0.25,
+        rebalance_frequency: str = "monthly",
+        entry_rules: dict | None = None,
+        exit_rules: dict | None = None,
+        assumptions: dict | None = None,
+        **kwargs,
+    ) -> dict:
+        """Propose a trading strategy with full parameters.
+
+        This tool formalizes a strategy idea into a structured artifact
+        that can be backtested and evaluated. Call this before running
+        compute_backtest.
+        """
+        strategy_data = {
+            "name": name or f"strategy-{signal_type}",
+            "signal_name": signal_name,
+            "signal_type": signal_type,
+            "signal_params": signal_params or {},
+            "sizing_method": sizing_method,
+            "target_weight": target_weight,
+            "max_position": max_position,
+            "rebalance_frequency": rebalance_frequency,
+            "entry_rules": entry_rules or {},
+            "exit_rules": exit_rules or {},
+            "assumptions": assumptions or {},
+        }
+        return strategy_data
 
 
 # Need to import sas.quant.strategy inside methods to avoid circular import

@@ -19,6 +19,8 @@ from sas.quant.agents import (
 )
 from sas.quant.backtest import BacktestConfig, BacktestEngine, BacktestResult
 from sas.quant.broker import Account, BrokerConfig, Fill, Order, SimulatedBroker
+from sas.quant.broker.adapter import BrokerAdapter
+from sas.quant.broker.alpaca import AlpacaBrokerAdapter
 from sas.quant.cli import register
 from sas.quant.engine import EngineConfig, QuantEngine
 from sas.quant.evaluation import (
@@ -54,6 +56,16 @@ from sas.quant.model import (
     ToolCallResult,
     ToolFormatter,
     create_model_adapter,
+)
+from sas.quant.orchestration import (
+    OrchestratorConfig,
+    OrchestratorResult,
+    QuantResearchOrchestrator,
+)
+from sas.quant.orchestration.gate import (
+    AuthorizationResult,
+    SessionLimits,
+    TradeAuthorization,
 )
 from sas.quant.provenance import ProvenanceGraph, ProvenanceNode
 from sas.quant.reports import QuantReport, ReportGenerator
@@ -98,11 +110,14 @@ __all__ = [
     "TRANSITIONS",
     "Account",
     "AgentCapabilities",
+    "AuthorizationResult",
     "BacktestConfig",
     "BacktestEngine",
     "BacktestResult",
     "BenchmarkResult",
     "BenchmarkRunner",
+    "AlpacaBrokerAdapter",
+    "BrokerAdapter",
     "BrokerConfig",
     "CapabilityComposition",
     "Criterion",
@@ -120,6 +135,8 @@ __all__ = [
     "OllamaModelAdapter",
     "OpenAIModelAdapter",
     "Order",
+    "OrchestratorConfig",
+    "OrchestratorResult",
     "PositionSizing",
     "ProvenanceGraph",
     "ProvenanceNode",
@@ -127,6 +144,7 @@ __all__ = [
     "QuantEngine",
     "QuantKnowledgeCompiler",
     "QuantReport",
+    "QuantResearchOrchestrator",
     "QuantToolbox",
     "QuantWorld",
     "QuantWorldBuilder",
@@ -140,6 +158,7 @@ __all__ = [
     "Rubric",
     "RunEvaluation",
     "RunEvaluator",
+    "SessionLimits",
     "SignalDefinition",
     "SimulatedBroker",
     "StrategyArtifact",
@@ -150,6 +169,7 @@ __all__ = [
     "ToolCallResult",
     "ToolDefinition",
     "ToolFormatter",
+    "TradeAuthorization",
     "TradeIntent",
     "TrajectoryStep",
     "TransactionCosts",
