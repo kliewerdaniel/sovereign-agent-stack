@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Agent Stack — Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-left">
+                <h1 class="logo">SAS</h1>
+                <span class="subtitle">Sovereign Agent Stack</span>
+            </div>
+            <div class="header-right">
+                <span class="status-dot" id="status-dot"></span>
+                <span class="status-text" id="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <nav class="nav">
+            <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="nav-btn" data-tab="pipeline">Pipeline</button>
+            <button class="nav-btn" data-tab="worlds">Worlds</button>
+            <button class="nav-btn" data-tab="knowledge">Knowledge</button>
+            <button class="nav-btn" data-tab="agent">Agent</button>
+            <button class="nav-btn" data-tab="layers">Layers</button>
+        </nav>
+
+        <main class="main">
+            <!-- Dashboard Tab -->
+            <section class="tab-content active" id="tab-dashboard">
+                <div class="grid">
+                    <div class="card">
+                        <h3>Sovereignty Score</h3>
+                        <div class="score-display" id="score-display">—</div>
+                        <div class="score-verdict" id="score-verdict">Loading...</div>
+                    </div>
+                    <div class="card">
+                        <h3>Active Worlds</h3>
+                        <div class="stat" id="world-count">—</div>
+                        <div class="stat-label">Quant Worlds</div>
+                    </div>
+                    <div class="card">
+                        <h3>Pipeline Runs</h3>
+                        <div class="stat" id="run-count">0</div>
+                        <div class="stat-label">Total Runs</div>
+                    </div>
+                    <div class="card">
+                        <h3>System Status</h3>
+                        <div class="status-grid" id="system-status">
+                            <div class="status-item"><span class="status-label">API</span><span class="status-value" id="api-status">—</span></div>
+                            <div class="status-item"><span class="status-label">SSE</span><span class="status-value" id="sse-status">—</span></div>
+                            <div class="status-item"><span class="status-label">Run</span><span class="status-value" id="run-status">Idle</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Quick Actions</h3>
+                    <div class="actions">
+                        <button class="btn btn-primary" id="btn-run-portfolio">Run Portfolio Intelligence</button>
+                        <button class="btn" id="btn-run-risk-parity">Run Risk Parity</button>
+                        <button class="btn" id="btn-run-momentum">Run Momentum</button>
+                        <button class="btn btn-secondary" id="btn-refresh-layers">Refresh Layers</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pipeline Tab -->
+            <section class="tab-content" id="tab-pipeline">
+                <div class="card">
+                    <h3>Pipeline Control</h3>
+                    <div class="form-row">
+                        <label for="world-select">World:</label>
+                        <select id="world-select"></select>
+                        <button class="btn btn-primary" id="btn-run-pipeline">Run Pipeline</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Live Progress</h3>
+                    <div class="progress-container">
+                        <div class="progress-stepper" id="progress-stepper"></div>
+                        <div class="console" id="pipeline-console"></div>
+                    </div>
+                </div>
+
+                <div class="card" id="results-card" style="display:none;">
+                    <h3>Results</h3>
+                    <div class="results-grid" id="results-grid"></div>
+                </div>
+            </section>
+
+            <!-- Worlds Tab -->
+            <section class="tab-content" id="tab-worlds">
+                <div class="card">
+                    <h3>Quant Worlds</h3>
+                    <div class="worlds-list" id="worlds-list"></div>
+                </div>
+            </section>
+
+            <!-- Knowledge Tab -->
+            <section class="tab-content" id="tab-knowledge">
+                <div class="card">
+                    <h3>Knowledge Graph</h3>
+                    <div class="form-row">
+                        <input type="text" id="knowledge-query" placeholder="Search knowledge..." />
+                        <button class="btn btn-primary" id="btn-query-knowledge">Query</button>
+                    </div>
+                    <div class="knowledge-results" id="knowledge-results"></div>
+                </div>
+            </section>
+
+            <!-- Agent Tab -->
+            <section class="tab-content" id="tab-agent">
+                <div class="card">
+                    <h3>Agent Chat</h3>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages"></div>
+                        <div class="chat-input">
+                            <input type="text" id="chat-input" placeholder="Type a message..." />
+                            <button class="btn btn-primary" id="btn-send-chat">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Layers Tab -->
+            <section class="tab-content" id="tab-layers">
+                <div class="card">
+                    <h3>Sovereignty Layers</h3>
+                    <div class="layers-list" id="layers-list"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
