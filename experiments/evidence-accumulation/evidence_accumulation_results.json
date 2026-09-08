@@ -1,0 +1,192 @@
+[
+  {
+    "experiment_type": "single_strong",
+    "n_evidence": 1,
+    "scalar_status": "SUPPORTED",
+    "structured_status": "INCONCLUSIVE",
+    "profile": {
+      "magnitude": 0.8,
+      "consistency": 1.0,
+      "replication": 1,
+      "independence": 1.0,
+      "intervention_diversity": 1,
+      "temporal_robustness": false,
+      "generalization": false,
+      "alternative_exclusion": 0.1
+    },
+    "replication": {
+      "n_replications": 1,
+      "n_seeds": 1,
+      "n_independent": 1,
+      "consistency_score": 1.0,
+      "independence_score": 1.0
+    },
+    "established": [
+      "effect magnitude (0.80)",
+      "independence (1.00)"
+    ],
+    "not_established": [
+      "replication (1 trials)",
+      "intervention diversity (1 types)",
+      "temporal robustness",
+      "generalization",
+      "alternative exclusion (0.10)"
+    ],
+    "limitations": [
+      "single intervention type",
+      "competing mechanisms not adequately tested"
+    ]
+  },
+  {
+    "experiment_type": "many_independent",
+    "n_evidence": 10,
+    "scalar_status": "SUPPORTED",
+    "structured_status": "SUPPORTED",
+    "profile": {
+      "magnitude": 0.6336155641566431,
+      "consistency": 0.9304681991658932,
+      "replication": 10,
+      "independence": 0.92,
+      "intervention_diversity": 3,
+      "temporal_robustness": true,
+      "generalization": false,
+      "alternative_exclusion": 0.3
+    },
+    "replication": {
+      "n_replications": 10,
+      "n_seeds": 10,
+      "n_independent": 10,
+      "consistency_score": 0.9304681991658932,
+      "independence_score": 0.92
+    },
+    "established": [
+      "effect magnitude (0.63)",
+      "replication (10 trials)",
+      "independence (0.92)",
+      "intervention diversity (3 types)",
+      "temporal robustness"
+    ],
+    "not_established": [
+      "generalization",
+      "alternative exclusion (0.30)"
+    ],
+    "limitations": [
+      "competing mechanisms not adequately tested"
+    ]
+  },
+  {
+    "experiment_type": "many_dependent",
+    "n_evidence": 10,
+    "scalar_status": "SUPPORTED",
+    "structured_status": "INCONCLUSIVE",
+    "profile": {
+      "magnitude": 0.8,
+      "consistency": 1.0,
+      "replication": 10,
+      "independence": 0.0,
+      "intervention_diversity": 1,
+      "temporal_robustness": false,
+      "generalization": false,
+      "alternative_exclusion": 0.1
+    },
+    "replication": {
+      "n_replications": 10,
+      "n_seeds": 1,
+      "n_independent": 0,
+      "consistency_score": 1.0,
+      "independence_score": 0.0
+    },
+    "established": [
+      "effect magnitude (0.80)",
+      "replication (10 trials)"
+    ],
+    "not_established": [
+      "independence (0.00)",
+      "intervention diversity (1 types)",
+      "temporal robustness",
+      "generalization",
+      "alternative exclusion (0.10)"
+    ],
+    "limitations": [
+      "evidence may be correlated",
+      "single intervention type",
+      "competing mechanisms not adequately tested"
+    ]
+  },
+  {
+    "experiment_type": "many_contradictory",
+    "n_evidence": 10,
+    "scalar_status": "INCONCLUSIVE",
+    "structured_status": "INCONCLUSIVE",
+    "profile": {
+      "magnitude": 0.0,
+      "consistency": 1.249999981300931e-08,
+      "replication": 10,
+      "independence": 0.7,
+      "intervention_diversity": 1,
+      "temporal_robustness": true,
+      "generalization": false,
+      "alternative_exclusion": 0.1
+    },
+    "replication": {
+      "n_replications": 10,
+      "n_seeds": 10,
+      "n_independent": 10,
+      "consistency_score": 1.249999981300931e-08,
+      "independence_score": 0.7
+    },
+    "established": [
+      "replication (10 trials)",
+      "independence (0.70)",
+      "temporal robustness"
+    ],
+    "not_established": [
+      "effect magnitude (0.00)",
+      "intervention diversity (1 types)",
+      "generalization",
+      "alternative exclusion (0.10)"
+    ],
+    "limitations": [
+      "single intervention type",
+      "competing mechanisms not adequately tested"
+    ]
+  },
+  {
+    "experiment_type": "many_convergent",
+    "n_evidence": 10,
+    "scalar_status": "INCONCLUSIVE",
+    "structured_status": "INCONCLUSIVE",
+    "profile": {
+      "magnitude": 0.8,
+      "consistency": 1.0,
+      "replication": 10,
+      "independence": 0.7,
+      "intervention_diversity": 1,
+      "temporal_robustness": true,
+      "generalization": false,
+      "alternative_exclusion": 0.1
+    },
+    "replication": {
+      "n_replications": 10,
+      "n_seeds": 10,
+      "n_independent": 10,
+      "consistency_score": 1.0,
+      "independence_score": 0.7
+    },
+    "established": [
+      "effect magnitude (0.80)",
+      "replication (10 trials)",
+      "independence (0.70)",
+      "temporal robustness"
+    ],
+    "not_established": [
+      "intervention diversity (1 types)",
+      "generalization",
+      "alternative exclusion (0.10)"
+    ],
+    "limitations": [
+      "single intervention type",
+      "competing mechanisms not adequately tested"
+    ]
+  }
+]
