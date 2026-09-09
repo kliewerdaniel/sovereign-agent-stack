@@ -1,0 +1,109 @@
+{
+  "scenario_count": 10,
+  "results_count": 10,
+  "blocked_count": 8,
+  "failure_count": 0,
+  "success_rate": 1.0,
+  "results": [
+    {
+      "scenario_id": "toctou_001",
+      "race_type": "toctou",
+      "description": "Authorization valid at request, revoked before execution",
+      "expected_outcome": "protocol_correct",
+      "actual_outcome": "protocol_correct",
+      "protocol_blocked": true,
+      "agent_succeeded": false,
+      "notes": "Race scenario toctou_001: Authorization valid at request, revoked before execution"
+    },
+    {
+      "scenario_id": "revocation_001",
+      "race_type": "revocation_during_execution",
+      "description": "Revocation happens while execution is in progress",
+      "expected_outcome": "protocol_correct",
+      "actual_outcome": "protocol_correct",
+      "protocol_blocked": true,
+      "agent_succeeded": false,
+      "notes": "Race scenario revocation_001: Revocation happens while execution is in progress"
+    },
+    {
+      "scenario_id": "policy_001",
+      "race_type": "policy_change_during_execution",
+      "description": "Policy changes from allow to prohibit during execution",
+      "expected_outcome": "protocol_correct",
+      "actual_outcome": "protocol_correct",
+      "protocol_blocked": true,
+      "agent_succeeded": false,
+      "notes": "Race scenario policy_001: Policy changes from allow to prohibit during execution"
+    },
+    {
+      "scenario_id": "delegation_001",
+      "race_type": "delegation_expiration_during_execution",
+      "description": "Delegation expires during execution",
+      "expected_outcome": "protocol_correct",
+      "actual_outcome": "protocol_correct",
+      "protocol_blocked": true,
+      "agent_succeeded": false,
+      "notes": "Race scenario delegation_001: Delegation expires during execution"
+    },
+    {
+      "scenario_id": "resource_001",
+      "race_type": "resource_identity_change",
+      "description": "Resource identity changes between authorization and execution",
+      "expected_outcome": "protocol_correct",
+      "actual_outcome": "protocol_correct",
+      "protocol_blocked": true,
+      "agent_succeeded": false,
+      "notes": "Race scenario resource_001: Resource identity changes between authorization and execution"
+    },
+    {
+      "scenario_id": "capability_001",
+      "race_type": "capability_staleness",
+      "description": "Capability becomes stale before execution",
+      "expected_outcome": "protocol_correct",
+      "actual_outcome": "protocol_correct",
+      "protocol_blocked": true,
+      "agent_succeeded": false,
+      "notes": "Race scenario capability_001: Capability becomes stale before execution"
+    },
+    {
+      "scenario_id": "remediation_001",
+      "race_type": "concurrent_remediation",
+      "description": "Agent A replaces provider, Agent B disables feature flag",
+      "expected_outcome": "conflicting_remediation",
+      "actual_outcome": "conflicting_remediation",
+      "protocol_blocked": true,
+      "agent_succeeded": false,
+      "notes": "Race scenario remediation_001: Agent A replaces provider, Agent B disables feature flag"
+    },
+    {
+      "scenario_id": "evidence_001",
+      "race_type": "evidence_discovery_after_authorization",
+      "description": "New evidence discovered after authorization granted",
+      "expected_outcome": "inconclusive",
+      "actual_outcome": "inconclusive",
+      "protocol_blocked": false,
+      "agent_succeeded": true,
+      "notes": "Race scenario evidence_001: New evidence discovered after authorization granted"
+    },
+    {
+      "scenario_id": "transition_001",
+      "race_type": "authorization_during_world_transition",
+      "description": "Authorization requested during world state transition",
+      "expected_outcome": "protocol_correct",
+      "actual_outcome": "protocol_correct",
+      "protocol_blocked": false,
+      "agent_succeeded": true,
+      "notes": "Race scenario transition_001: Authorization requested during world state transition"
+    },
+    {
+      "scenario_id": "materialization_001",
+      "race_type": "capability_materialization_race",
+      "description": "Capability materialization races with revocation",
+      "expected_outcome": "protocol_correct",
+      "actual_outcome": "protocol_correct",
+      "protocol_blocked": true,
+      "agent_succeeded": false,
+      "notes": "Race scenario materialization_001: Capability materialization races with revocation"
+    }
+  ]
+}

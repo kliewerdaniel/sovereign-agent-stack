@@ -1,0 +1,1200 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-09T14:07:54.398067",
+    "repository": ".",
+    "experiment": "runtime_authority_topology"
+  },
+  "static_graph": {
+    "total_hypotheses": 19,
+    "hypotheses": [
+      {
+        "hypothesis_id": "hyp_0001",
+        "source": "src/sas/argopack.py",
+        "target": "subprocess.run(sys.executable, \"-m\", \"sas\")",
+        "operation": "subprocess_execution",
+        "consequence_type": "external_consequential",
+        "static_evidence": "d return parsed result.\"\"\"\n    cmd = [sys.executable, \"-m\", \"sas\"] + args\n    try:\n        result = subprocess.run(\n            cmd,\n            capture_output=True,\n            text=True,\n            timeout=30,\n            **kwargs,\n        )\n        return {\n            \"ok\": result.returncode == 0,\n           ",
+        "expected_authority_boundary": "none",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "authority_escape",
+        "confidence": 0.6,
+        "source_location": "src/sas/argopack.py",
+        "target_location": "line 119",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)",
+          "Subprocess command is parameterized and safe",
+          "Subprocess is invoked by a trusted TCB component"
+        ],
+        "created_at": "2026-09-09T14:07:54.030510"
+      },
+      {
+        "hypothesis_id": "hyp_0002",
+        "source": "src/sas/quant/broker/alpaca.py",
+        "target": "requests.post()",
+        "operation": "network_mutation",
+        "consequence_type": "external_consequential",
+        "static_evidence": "  \"type\": \"market\",\n            \"time_in_force\": \"day\",\n        }\n\n        try:\n            resp = _requests.post(\n                f\"{self._base_url}/v2/orders\",\n                json=order_data,\n                headers=headers,\n                timeout=30,\n            )\n        except Exception as e:\n            r",
+        "expected_authority_boundary": "none",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "authority_escape",
+        "confidence": 0.6,
+        "source_location": "src/sas/quant/broker/alpaca.py",
+        "target_location": "line 133",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only"
+        ],
+        "created_at": "2026-09-09T14:07:54.056834"
+      },
+      {
+        "hypothesis_id": "hyp_0003",
+        "source": "src/sas/registry.py",
+        "target": "open(write)",
+        "operation": "filesystem_mutation",
+        "consequence_type": "state_transforming",
+        "static_evidence": "istry to disk.\"\"\"\n        self.registry_path.parent.mkdir(parents=True, exist_ok=True)\n        with open(self.registry_path, \"w\") as f:\n            json.dump(self._data, f, indent=2)\n\n    def publish(self, entry: RegistryEntry) -> None:\n        \"\"\"Publish a plugin entry to the registry.\n\n        If a plugin with the same name ",
+        "expected_authority_boundary": "internal_state",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "static_false_positive",
+        "confidence": 0.8,
+        "source_location": "src/sas/registry.py",
+        "target_location": "line 87",
+        "alternatives": [
+          "Internal state management (config/cache/registry)",
+          "External file mutation",
+          "Test-only file creation"
+        ],
+        "created_at": "2026-09-09T14:07:54.092197"
+      },
+      {
+        "hypothesis_id": "hyp_0004",
+        "source": "src/sas/__main__.py",
+        "target": "open(write)",
+        "operation": "filesystem_mutation",
+        "consequence_type": "state_transforming",
+        "static_evidence": "  print(report)\n\n        # Write to file if requested\n        if args.output_file:\n            with open(args.output_file, \"w\") as f:\n                if args.output in (\"json\", \"both\"):\n                    import json\n                    f.write(json.dumps(result.to_dict(), indent=2, default=str))\n                else:\n     ",
+        "expected_authority_boundary": "internal_state",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "static_false_positive",
+        "confidence": 0.8,
+        "source_location": "src/sas/__main__.py",
+        "target_location": "line 460",
+        "alternatives": [
+          "Internal state management (config/cache/registry)",
+          "External file mutation",
+          "Test-only file creation"
+        ],
+        "created_at": "2026-09-09T14:07:54.092765"
+      },
+      {
+        "hypothesis_id": "hyp_0005",
+        "source": "src/sas/quant/cli/__init__.py",
+        "target": "open(write)",
+        "operation": "filesystem_mutation",
+        "consequence_type": "state_transforming",
+        "static_evidence": ":\n            click.echo(report)\n\n    # Write to file if requested\n    if output_file:\n        with open(output_file, \"w\") as f:\n            if output in (\"json\", \"both\"):\n                f.write(json.dumps(result.to_dict(), indent=2, default=str))\n            else:\n                f.write(_format_markdown_report(result",
+        "expected_authority_boundary": "internal_state",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "static_false_positive",
+        "confidence": 0.8,
+        "source_location": "src/sas/quant/cli/__init__.py",
+        "target_location": "line 221",
+        "alternatives": [
+          "Internal state management (config/cache/registry)",
+          "External file mutation",
+          "Test-only file creation"
+        ],
+        "created_at": "2026-09-09T14:07:54.099712"
+      },
+      {
+        "hypothesis_id": "hyp_0006",
+        "source": "src/sas/quant/experiment/epistemic_calibration.py",
+        "target": "open(write)",
+        "operation": "filesystem_mutation",
+        "consequence_type": "state_transforming",
+        "static_evidence": "_status\": s.expected_status,\n            \"actual_statuses\": s.actual_statuses,\n        })\n\n    with open(path / \"calibration_results.json\", \"w\") as f:\n        json.dump(data, f, indent=2)\n\n\n# ---------------------------------------------------------------------------\n# Report Generation\n# -----------------------------------------------------",
+        "expected_authority_boundary": "internal_state",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "static_false_positive",
+        "confidence": 0.8,
+        "source_location": "src/sas/quant/experiment/epistemic_calibration.py",
+        "target_location": "line 533",
+        "alternatives": [
+          "Internal state management (config/cache/registry)",
+          "External file mutation",
+          "Test-only file creation"
+        ],
+        "created_at": "2026-09-09T14:07:54.105485"
+      },
+      {
+        "hypothesis_id": "hyp_0007",
+        "source": "src/sas/quant/experiment/evidence_accumulation.py",
+        "target": "open(write)",
+        "operation": "filesystem_mutation",
+        "consequence_type": "state_transforming",
+        "static_evidence": "not_established\": r.not_established,\n            \"limitations\": r.limitations,\n        })\n\n    with open(path / \"evidence_accumulation_results.json\", \"w\") as f:\n        json.dump(data, f, indent=2)\n\n\n# ---------------------------------------------------------------------------\n# Report Generation\n# -----------------------------------------------------",
+        "expected_authority_boundary": "internal_state",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "static_false_positive",
+        "confidence": 0.8,
+        "source_location": "src/sas/quant/experiment/evidence_accumulation.py",
+        "target_location": "line 292",
+        "alternatives": [
+          "Internal state management (config/cache/registry)",
+          "External file mutation",
+          "Test-only file creation"
+        ],
+        "created_at": "2026-09-09T14:07:54.107981"
+      },
+      {
+        "hypothesis_id": "hyp_0008",
+        "source": "src/sas/quant/runtime_enforcement.py",
+        "target": "submit_trade()",
+        "operation": "broker_call",
+        "consequence_type": "external_consequential",
+        "static_evidence": "=trade_intent.id,\n        )\n\n        # Submit to underlying broker\n        submitted = self._broker.submit_trade(trade_intent)\n\n        # Record execution\n        receipt = self._enforcer.record_execution(\n            capability=capability,\n            order=submitted,\n            status=ExecutionStatus(submitte",
+        "expected_authority_boundary": "capability_bound",
+        "expected_capability": "CapabilityBoundBroker",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "authority_controlled",
+        "confidence": 0.75,
+        "source_location": "src/sas/quant/runtime_enforcement.py",
+        "target_location": "line 252",
+        "alternatives": [
+          "Wrapped by CapabilityBoundBroker",
+          "Direct broker access",
+          "Test-only invocation"
+        ],
+        "created_at": "2026-09-09T14:07:54.120252"
+      },
+      {
+        "hypothesis_id": "hyp_0009",
+        "source": "src/sas/quant/capability_bound_broker.py",
+        "target": "submit_trade()",
+        "operation": "broker_call",
+        "consequence_type": "external_consequential",
+        "static_evidence": "s not positive\",\n            )\n\n        # Submit to underlying broker\n        order = self.__broker.submit_trade(trade_intent)\n\n        # Mark nonce as used\n        if capability.replay_guard and capability.replay_guard.nonce:\n            self.__replay_store.mark_used(\n                capability.replay_guard.non",
+        "expected_authority_boundary": "capability_bound",
+        "expected_capability": "CapabilityBoundBroker",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "authority_controlled",
+        "confidence": 0.75,
+        "source_location": "src/sas/quant/capability_bound_broker.py",
+        "target_location": "line 148",
+        "alternatives": [
+          "Wrapped by CapabilityBoundBroker",
+          "Direct broker access",
+          "Test-only invocation"
+        ],
+        "created_at": "2026-09-09T14:07:54.123663"
+      },
+      {
+        "hypothesis_id": "hyp_0010",
+        "source": "src/sas/quant/broker/adapter.py",
+        "target": "submit_trade()",
+        "operation": "broker_call",
+        "consequence_type": "external_consequential",
+        "static_evidence": "fic order and returning an ``Order``\n    with the fill result.\n    \"\"\"\n\n    @abstractmethod\n    def submit_trade(self, trade: TradeIntent) -> Order:\n        \"\"\"Submit an approved trade intent to the broker.\n\n        Args:\n            trade: A ``TradeIntent`` that has passed risk evaluation\n                and au",
+        "expected_authority_boundary": "none",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "authority_escape",
+        "confidence": 0.65,
+        "source_location": "src/sas/quant/broker/adapter.py",
+        "target_location": "line 38",
+        "alternatives": [
+          "Wrapped by CapabilityBoundBroker",
+          "Direct broker access",
+          "Test-only invocation"
+        ],
+        "created_at": "2026-09-09T14:07:54.125478"
+      },
+      {
+        "hypothesis_id": "hyp_0011",
+        "source": "src/sas/quant/broker/__init__.py",
+        "target": "submit_trade()",
+        "operation": "broker_call",
+        "consequence_type": "external_consequential",
+        "static_evidence": "     return \"simulated\"\n\n    @property\n    def is_live(self) -> bool:\n        return False\n\n    def submit_trade(self, trade: TradeIntent) -> Order:\n        \"\"\"Submit a trade intent to the simulated broker.\n\n        Args:\n            trade: An authorized ``TradeIntent``.\n\n        Returns:\n            An ``Order`",
+        "expected_authority_boundary": "none",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "authority_escape",
+        "confidence": 0.65,
+        "source_location": "src/sas/quant/broker/__init__.py",
+        "target_location": "line 132",
+        "alternatives": [
+          "Wrapped by CapabilityBoundBroker",
+          "Direct broker access",
+          "Test-only invocation"
+        ],
+        "created_at": "2026-09-09T14:07:54.125613"
+      },
+      {
+        "hypothesis_id": "hyp_0012",
+        "source": "src/sas/quant/broker/alpaca.py",
+        "target": "submit_trade()",
+        "operation": "broker_call",
+        "consequence_type": "external_consequential",
+        "static_evidence": "paper else \"alpaca-live\"\n\n    @property\n    def is_live(self) -> bool:\n        return True\n\n    def submit_trade(self, trade: TradeIntent) -> Order:\n        \"\"\"Submit a trade intent to Alpaca.\n\n        Args:\n            trade: An authorized ``TradeIntent``.\n\n        Returns:\n            An ``Order`` with fill de",
+        "expected_authority_boundary": "none",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "authority_escape",
+        "confidence": 0.65,
+        "source_location": "src/sas/quant/broker/alpaca.py",
+        "target_location": "line 106",
+        "alternatives": [
+          "Wrapped by CapabilityBoundBroker",
+          "Direct broker access",
+          "Test-only invocation"
+        ],
+        "created_at": "2026-09-09T14:07:54.125707"
+      },
+      {
+        "hypothesis_id": "hyp_0013",
+        "source": "src/sas/quant/orchestration/__init__.py",
+        "target": "submit_trade()",
+        "operation": "broker_call",
+        "consequence_type": "external_consequential",
+        "static_evidence": "          # Fallback for legacy broker (should not happen in production)\n            order = broker.submit_trade(trade)\n            return order, None\n\n    def _create_trade_intent_from_incumbent(self, incumbent, bt_result: BacktestResult) -> TradeIntent:\n        \"\"\"Create a trade intent from the incumbent strat",
+        "expected_authority_boundary": "capability_bound",
+        "expected_capability": "CapabilityBoundBroker",
+        "expected_authorization": "AuthorizationArtifact",
+        "expected_provenance": "none",
+        "predicted_classification": "authority_controlled",
+        "confidence": 0.75,
+        "source_location": "src/sas/quant/orchestration/__init__.py",
+        "target_location": "line 511",
+        "alternatives": [
+          "Wrapped by CapabilityBoundBroker",
+          "Direct broker access",
+          "Test-only invocation"
+        ],
+        "created_at": "2026-09-09T14:07:54.128275"
+      },
+      {
+        "hypothesis_id": "hyp_0014",
+        "source": "src/sas/plugins.py",
+        "target": "importlib.dynamic_import",
+        "operation": "dynamic_import",
+        "consequence_type": "state_transforming",
+        "static_evidence": " source=PluginSource.LOCAL,\n    ))\n\"\"\"\n\nfrom __future__ import annotations\n\nimport importlib\nimport importlib.metadata\nfrom dataclasses import dataclass\nfrom enum import IntEnum\nfrom pathlib import Path\nfrom typing import Any, Protocol\n\n\nclass PluginSource(IntEnum):\n    \"\"\"Plugin source \u2014 higher value = highe",
+        "expected_authority_boundary": "unknown",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "inconclusive",
+        "confidence": 0.4,
+        "source_location": "src/sas/plugins.py",
+        "target_location": "line 26",
+        "alternatives": [
+          "Dynamic plugin loading",
+          "Dynamic backend selection",
+          "Dynamic test fixture loading"
+        ],
+        "created_at": "2026-09-09T14:07:54.145361"
+      },
+      {
+        "hypothesis_id": "hyp_0015",
+        "source": "src/sas/plugins.py",
+        "target": "importlib.dynamic_import",
+        "operation": "dynamic_import",
+        "consequence_type": "state_transforming",
+        "static_evidence": "d plugins via entry points.\"\"\"\n    plugins: list[LayerPlugin] = []\n\n    try:\n        entry_points = importlib.metadata.entry_points()\n        if hasattr(entry_points, \"select\"):\n            sas_plugins = entry_points.select(group=\"sas.layers\")\n        else:\n            sas_plugins = entry_points.get(\"sas.laye",
+        "expected_authority_boundary": "unknown",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "inconclusive",
+        "confidence": 0.4,
+        "source_location": "src/sas/plugins.py",
+        "target_location": "line 173",
+        "alternatives": [
+          "Dynamic plugin loading",
+          "Dynamic backend selection",
+          "Dynamic test fixture loading"
+        ],
+        "created_at": "2026-09-09T14:07:54.145392"
+      },
+      {
+        "hypothesis_id": "hyp_0016",
+        "source": "src/sas/plugins.py",
+        "target": "importlib.dynamic_import",
+        "operation": "dynamic_import",
+        "consequence_type": "state_transforming",
+        "static_evidence": "(\"_\"):\n            continue\n\n        try:\n            # Import the plugin module\n            import importlib.util\n            spec = importlib.util.spec_from_file_location(\n                plugin_file.stem, str(plugin_file)\n            )\n            if spec and spec.loader:\n                module = importlib",
+        "expected_authority_boundary": "unknown",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "inconclusive",
+        "confidence": 0.4,
+        "source_location": "src/sas/plugins.py",
+        "target_location": "line 214",
+        "alternatives": [
+          "Dynamic plugin loading",
+          "Dynamic backend selection",
+          "Dynamic test fixture loading"
+        ],
+        "created_at": "2026-09-09T14:07:54.145408"
+      },
+      {
+        "hypothesis_id": "hyp_0017",
+        "source": "src/sas/plugins.py",
+        "target": "importlib.dynamic_import",
+        "operation": "dynamic_import",
+        "consequence_type": "state_transforming",
+        "static_evidence": "   try:\n            # Import the plugin module\n            import importlib.util\n            spec = importlib.util.spec_from_file_location(\n                plugin_file.stem, str(plugin_file)\n            )\n            if spec and spec.loader:\n                module = importlib.util.module_from_spec(spec)\n     ",
+        "expected_authority_boundary": "unknown",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "inconclusive",
+        "confidence": 0.4,
+        "source_location": "src/sas/plugins.py",
+        "target_location": "line 215",
+        "alternatives": [
+          "Dynamic plugin loading",
+          "Dynamic backend selection",
+          "Dynamic test fixture loading"
+        ],
+        "created_at": "2026-09-09T14:07:54.145420"
+      },
+      {
+        "hypothesis_id": "hyp_0018",
+        "source": "src/sas/plugins.py",
+        "target": "importlib.dynamic_import",
+        "operation": "dynamic_import",
+        "consequence_type": "state_transforming",
+        "static_evidence": ".stem, str(plugin_file)\n            )\n            if spec and spec.loader:\n                module = importlib.util.module_from_spec(spec)\n                spec.loader.exec_module(module)\n\n                # Look for plugin metadata\n                if hasattr(module, \"SAS_PLUGIN\"):\n                    meta = mod",
+        "expected_authority_boundary": "unknown",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "inconclusive",
+        "confidence": 0.4,
+        "source_location": "src/sas/plugins.py",
+        "target_location": "line 219",
+        "alternatives": [
+          "Dynamic plugin loading",
+          "Dynamic backend selection",
+          "Dynamic test fixture loading"
+        ],
+        "created_at": "2026-09-09T14:07:54.145432"
+      },
+      {
+        "hypothesis_id": "hyp_0019",
+        "source": "src/sas/plugins.py",
+        "target": "importlib.dynamic_import",
+        "operation": "dynamic_import",
+        "consequence_type": "state_transforming",
+        "static_evidence": "on(name: str) -> str:\n    \"\"\"Get the version of a pip-installed package.\"\"\"\n    try:\n        return importlib.metadata.version(name)\n    except Exception:\n        return \"0.0.0\"\n\n\ndef auto_register_discovered() -> None:\n    \"\"\"Auto-discover and register all plugins.\"\"\"\n    for plugin in discover_plugins():\n  ",
+        "expected_authority_boundary": "unknown",
+        "expected_capability": "none",
+        "expected_authorization": "none",
+        "expected_provenance": "none",
+        "predicted_classification": "inconclusive",
+        "confidence": 0.4,
+        "source_location": "src/sas/plugins.py",
+        "target_location": "line 262",
+        "alternatives": [
+          "Dynamic plugin loading",
+          "Dynamic backend selection",
+          "Dynamic test fixture loading"
+        ],
+        "created_at": "2026-09-09T14:07:54.145449"
+      }
+    ],
+    "summary": {
+      "by_classification": {
+        "authority_escape": 5,
+        "static_false_positive": 5,
+        "authority_controlled": 3,
+        "inconclusive": 6
+      },
+      "by_consequence": {
+        "external_consequential": 8,
+        "state_transforming": 11
+      }
+    }
+  },
+  "argopack_experiment": {
+    "static_analysis": {
+      "subprocess_calls": 1,
+      "has_capability": false,
+      "has_authorization": false,
+      "has_provenance": false,
+      "file": "src/sas/argopack.py"
+    },
+    "runtime_trace": {
+      "events_recorded": 2,
+      "subprocess_events": 2,
+      "capability_events": 0,
+      "authorization_events": 0
+    },
+    "authority_reconstruction": {
+      "state": "unauthorized",
+      "capability_present": false,
+      "authorization_present": false,
+      "provenance_present": false,
+      "total_events": 2
+    },
+    "classification": {
+      "classification": "authority_escape",
+      "confidence": 0.75,
+      "epistemic_state": "unauthorized"
+    }
+  },
+  "reconciliation": {
+    "total_reconciliations": 19,
+    "results": [
+      {
+        "reconciliation_id": "rec_hyp_0001",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0001",
+          "source": "src/sas/argopack.py",
+          "target": "subprocess.run(sys.executable, \"-m\", \"sas\")",
+          "operation": "subprocess_execution",
+          "consequence_type": "external_consequential",
+          "static_evidence": "d return parsed result.\"\"\"\n    cmd = [sys.executable, \"-m\", \"sas\"] + args\n    try:\n        result = subprocess.run(\n            cmd,\n            capture_output=True,\n            text=True,\n            timeout=30,\n            **kwargs,\n        )\n        return {\n            \"ok\": result.returncode == 0,\n           ",
+          "expected_authority_boundary": "none",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "authority_escape",
+          "confidence": 0.6,
+          "source_location": "src/sas/argopack.py",
+          "target_location": "line 119",
+          "alternatives": [
+            "Path is wrapped by capability-bound executor",
+            "Path is only reachable from trusted computing base",
+            "Path is test-only and not reachable in production",
+            "Path is informational (read-only)",
+            "Subprocess command is parameterized and safe",
+            "Subprocess is invoked by a trusted TCB component"
+          ],
+          "created_at": "2026-09-09T14:07:54.030510"
+        },
+        "classification": "authority_escape",
+        "confidence": 0.75,
+        "runtime_events": [
+          {
+            "event_id": "evt_46a7a01ecd50",
+            "timestamp": "2026-09-09T14:07:54.179094",
+            "actor": "argopack_experiment",
+            "component": "argopack.py",
+            "operation": "invoke",
+            "resource": "sas.cli",
+            "consequence_type": "external_consequential",
+            "parent_event": null,
+            "call_path": [],
+            "authority_context": {
+              "experiment": "argopack_subprocess",
+              "controlled": true,
+              "local": true
+            },
+            "capability_id": null,
+            "authorization_id": null,
+            "provenance_id": null,
+            "environment": "controlled_local",
+            "process_id": 19605,
+            "thread_id": 8344052096,
+            "result": "attempting",
+            "scope": "controlled_local",
+            "limitations": "Runtime observation only - not authorization",
+            "event_type": "subprocess_creation",
+            "raw_evidence": ""
+          },
+          {
+            "event_id": "evt_6319ab713c4c",
+            "timestamp": "2026-09-09T14:07:54.397579",
+            "actor": "argopack_experiment",
+            "component": "subprocess.run",
+            "operation": "execute",
+            "resource": "python -m sas --help",
+            "consequence_type": "informational",
+            "parent_event": "evt_46a7a01ecd50",
+            "call_path": [
+              "evt_46a7a01ecd50"
+            ],
+            "authority_context": {
+              "command": "/Users/danielkliewer/.hermes/hermes-agent/venv/bin/python -m sas --help",
+              "experiment": "argopack_subprocess"
+            },
+            "capability_id": null,
+            "authorization_id": null,
+            "provenance_id": null,
+            "environment": "controlled_local",
+            "process_id": 19605,
+            "thread_id": 8344052096,
+            "result": "exit_code=0",
+            "scope": "controlled_local",
+            "limitations": "Subprocess executed in controlled environment",
+            "event_type": "subprocess_creation",
+            "raw_evidence": "stdout_len=1054, stderr_len=0"
+          }
+        ],
+        "static_evidence": "d return parsed result.\"\"\"\n    cmd = [sys.executable, \"-m\", \"sas\"] + args\n    try:\n        result = subprocess.run(\n            cmd,\n            capture_output=True,\n            text=True,\n            timeout=30,\n            **kwargs,\n        )\n        return {\n            \"ok\": result.returncode == 0,\n           ",
+        "runtime_evidence": "Observed 2 runtime events",
+        "authority_reconstruction": {
+          "state": "unauthorized",
+          "capability_events": 0,
+          "authorization_events": 0,
+          "provenance_events": 0,
+          "total_events": 2
+        },
+        "epistemic_state": "unauthorized",
+        "limitations": "Runtime observation under controlled conditions",
+        "created_at": "2026-09-09T14:07:54.397870"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0002",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0002",
+          "source": "src/sas/quant/broker/alpaca.py",
+          "target": "requests.post()",
+          "operation": "network_mutation",
+          "consequence_type": "external_consequential",
+          "static_evidence": "  \"type\": \"market\",\n            \"time_in_force\": \"day\",\n        }\n\n        try:\n            resp = _requests.post(\n                f\"{self._base_url}/v2/orders\",\n                json=order_data,\n                headers=headers,\n                timeout=30,\n            )\n        except Exception as e:\n            r",
+          "expected_authority_boundary": "none",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "authority_escape",
+          "confidence": 0.6,
+          "source_location": "src/sas/quant/broker/alpaca.py",
+          "target_location": "line 133",
+          "alternatives": [
+            "Path is wrapped by capability-bound executor",
+            "Path is only reachable from trusted computing base",
+            "Path is test-only"
+          ],
+          "created_at": "2026-09-09T14:07:54.056834"
+        },
+        "classification": "static_only",
+        "confidence": 0.6,
+        "runtime_events": [],
+        "static_evidence": "  \"type\": \"market\",\n            \"time_in_force\": \"day\",\n        }\n\n        try:\n            resp = _requests.post(\n                f\"{self._base_url}/v2/orders\",\n                json=order_data,\n                headers=headers,\n                timeout=30,\n            )\n        except Exception as e:\n            r",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "inconclusive",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397886"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0003",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0003",
+          "source": "src/sas/registry.py",
+          "target": "open(write)",
+          "operation": "filesystem_mutation",
+          "consequence_type": "state_transforming",
+          "static_evidence": "istry to disk.\"\"\"\n        self.registry_path.parent.mkdir(parents=True, exist_ok=True)\n        with open(self.registry_path, \"w\") as f:\n            json.dump(self._data, f, indent=2)\n\n    def publish(self, entry: RegistryEntry) -> None:\n        \"\"\"Publish a plugin entry to the registry.\n\n        If a plugin with the same name ",
+          "expected_authority_boundary": "internal_state",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "static_false_positive",
+          "confidence": 0.8,
+          "source_location": "src/sas/registry.py",
+          "target_location": "line 87",
+          "alternatives": [
+            "Internal state management (config/cache/registry)",
+            "External file mutation",
+            "Test-only file creation"
+          ],
+          "created_at": "2026-09-09T14:07:54.092197"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": "istry to disk.\"\"\"\n        self.registry_path.parent.mkdir(parents=True, exist_ok=True)\n        with open(self.registry_path, \"w\") as f:\n            json.dump(self._data, f, indent=2)\n\n    def publish(self, entry: RegistryEntry) -> None:\n        \"\"\"Publish a plugin entry to the registry.\n\n        If a plugin with the same name ",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397899"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0004",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0004",
+          "source": "src/sas/__main__.py",
+          "target": "open(write)",
+          "operation": "filesystem_mutation",
+          "consequence_type": "state_transforming",
+          "static_evidence": "  print(report)\n\n        # Write to file if requested\n        if args.output_file:\n            with open(args.output_file, \"w\") as f:\n                if args.output in (\"json\", \"both\"):\n                    import json\n                    f.write(json.dumps(result.to_dict(), indent=2, default=str))\n                else:\n     ",
+          "expected_authority_boundary": "internal_state",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "static_false_positive",
+          "confidence": 0.8,
+          "source_location": "src/sas/__main__.py",
+          "target_location": "line 460",
+          "alternatives": [
+            "Internal state management (config/cache/registry)",
+            "External file mutation",
+            "Test-only file creation"
+          ],
+          "created_at": "2026-09-09T14:07:54.092765"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": "  print(report)\n\n        # Write to file if requested\n        if args.output_file:\n            with open(args.output_file, \"w\") as f:\n                if args.output in (\"json\", \"both\"):\n                    import json\n                    f.write(json.dumps(result.to_dict(), indent=2, default=str))\n                else:\n     ",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397907"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0005",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0005",
+          "source": "src/sas/quant/cli/__init__.py",
+          "target": "open(write)",
+          "operation": "filesystem_mutation",
+          "consequence_type": "state_transforming",
+          "static_evidence": ":\n            click.echo(report)\n\n    # Write to file if requested\n    if output_file:\n        with open(output_file, \"w\") as f:\n            if output in (\"json\", \"both\"):\n                f.write(json.dumps(result.to_dict(), indent=2, default=str))\n            else:\n                f.write(_format_markdown_report(result",
+          "expected_authority_boundary": "internal_state",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "static_false_positive",
+          "confidence": 0.8,
+          "source_location": "src/sas/quant/cli/__init__.py",
+          "target_location": "line 221",
+          "alternatives": [
+            "Internal state management (config/cache/registry)",
+            "External file mutation",
+            "Test-only file creation"
+          ],
+          "created_at": "2026-09-09T14:07:54.099712"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": ":\n            click.echo(report)\n\n    # Write to file if requested\n    if output_file:\n        with open(output_file, \"w\") as f:\n            if output in (\"json\", \"both\"):\n                f.write(json.dumps(result.to_dict(), indent=2, default=str))\n            else:\n                f.write(_format_markdown_report(result",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397913"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0006",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0006",
+          "source": "src/sas/quant/experiment/epistemic_calibration.py",
+          "target": "open(write)",
+          "operation": "filesystem_mutation",
+          "consequence_type": "state_transforming",
+          "static_evidence": "_status\": s.expected_status,\n            \"actual_statuses\": s.actual_statuses,\n        })\n\n    with open(path / \"calibration_results.json\", \"w\") as f:\n        json.dump(data, f, indent=2)\n\n\n# ---------------------------------------------------------------------------\n# Report Generation\n# -----------------------------------------------------",
+          "expected_authority_boundary": "internal_state",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "static_false_positive",
+          "confidence": 0.8,
+          "source_location": "src/sas/quant/experiment/epistemic_calibration.py",
+          "target_location": "line 533",
+          "alternatives": [
+            "Internal state management (config/cache/registry)",
+            "External file mutation",
+            "Test-only file creation"
+          ],
+          "created_at": "2026-09-09T14:07:54.105485"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": "_status\": s.expected_status,\n            \"actual_statuses\": s.actual_statuses,\n        })\n\n    with open(path / \"calibration_results.json\", \"w\") as f:\n        json.dump(data, f, indent=2)\n\n\n# ---------------------------------------------------------------------------\n# Report Generation\n# -----------------------------------------------------",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397921"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0007",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0007",
+          "source": "src/sas/quant/experiment/evidence_accumulation.py",
+          "target": "open(write)",
+          "operation": "filesystem_mutation",
+          "consequence_type": "state_transforming",
+          "static_evidence": "not_established\": r.not_established,\n            \"limitations\": r.limitations,\n        })\n\n    with open(path / \"evidence_accumulation_results.json\", \"w\") as f:\n        json.dump(data, f, indent=2)\n\n\n# ---------------------------------------------------------------------------\n# Report Generation\n# -----------------------------------------------------",
+          "expected_authority_boundary": "internal_state",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "static_false_positive",
+          "confidence": 0.8,
+          "source_location": "src/sas/quant/experiment/evidence_accumulation.py",
+          "target_location": "line 292",
+          "alternatives": [
+            "Internal state management (config/cache/registry)",
+            "External file mutation",
+            "Test-only file creation"
+          ],
+          "created_at": "2026-09-09T14:07:54.107981"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": "not_established\": r.not_established,\n            \"limitations\": r.limitations,\n        })\n\n    with open(path / \"evidence_accumulation_results.json\", \"w\") as f:\n        json.dump(data, f, indent=2)\n\n\n# ---------------------------------------------------------------------------\n# Report Generation\n# -----------------------------------------------------",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397929"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0008",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0008",
+          "source": "src/sas/quant/runtime_enforcement.py",
+          "target": "submit_trade()",
+          "operation": "broker_call",
+          "consequence_type": "external_consequential",
+          "static_evidence": "=trade_intent.id,\n        )\n\n        # Submit to underlying broker\n        submitted = self._broker.submit_trade(trade_intent)\n\n        # Record execution\n        receipt = self._enforcer.record_execution(\n            capability=capability,\n            order=submitted,\n            status=ExecutionStatus(submitte",
+          "expected_authority_boundary": "capability_bound",
+          "expected_capability": "CapabilityBoundBroker",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "authority_controlled",
+          "confidence": 0.75,
+          "source_location": "src/sas/quant/runtime_enforcement.py",
+          "target_location": "line 252",
+          "alternatives": [
+            "Wrapped by CapabilityBoundBroker",
+            "Direct broker access",
+            "Test-only invocation"
+          ],
+          "created_at": "2026-09-09T14:07:54.120252"
+        },
+        "classification": "static_only",
+        "confidence": 0.6,
+        "runtime_events": [],
+        "static_evidence": "=trade_intent.id,\n        )\n\n        # Submit to underlying broker\n        submitted = self._broker.submit_trade(trade_intent)\n\n        # Record execution\n        receipt = self._enforcer.record_execution(\n            capability=capability,\n            order=submitted,\n            status=ExecutionStatus(submitte",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "inconclusive",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397944"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0009",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0009",
+          "source": "src/sas/quant/capability_bound_broker.py",
+          "target": "submit_trade()",
+          "operation": "broker_call",
+          "consequence_type": "external_consequential",
+          "static_evidence": "s not positive\",\n            )\n\n        # Submit to underlying broker\n        order = self.__broker.submit_trade(trade_intent)\n\n        # Mark nonce as used\n        if capability.replay_guard and capability.replay_guard.nonce:\n            self.__replay_store.mark_used(\n                capability.replay_guard.non",
+          "expected_authority_boundary": "capability_bound",
+          "expected_capability": "CapabilityBoundBroker",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "authority_controlled",
+          "confidence": 0.75,
+          "source_location": "src/sas/quant/capability_bound_broker.py",
+          "target_location": "line 148",
+          "alternatives": [
+            "Wrapped by CapabilityBoundBroker",
+            "Direct broker access",
+            "Test-only invocation"
+          ],
+          "created_at": "2026-09-09T14:07:54.123663"
+        },
+        "classification": "static_only",
+        "confidence": 0.6,
+        "runtime_events": [],
+        "static_evidence": "s not positive\",\n            )\n\n        # Submit to underlying broker\n        order = self.__broker.submit_trade(trade_intent)\n\n        # Mark nonce as used\n        if capability.replay_guard and capability.replay_guard.nonce:\n            self.__replay_store.mark_used(\n                capability.replay_guard.non",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "inconclusive",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397951"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0010",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0010",
+          "source": "src/sas/quant/broker/adapter.py",
+          "target": "submit_trade()",
+          "operation": "broker_call",
+          "consequence_type": "external_consequential",
+          "static_evidence": "fic order and returning an ``Order``\n    with the fill result.\n    \"\"\"\n\n    @abstractmethod\n    def submit_trade(self, trade: TradeIntent) -> Order:\n        \"\"\"Submit an approved trade intent to the broker.\n\n        Args:\n            trade: A ``TradeIntent`` that has passed risk evaluation\n                and au",
+          "expected_authority_boundary": "none",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "authority_escape",
+          "confidence": 0.65,
+          "source_location": "src/sas/quant/broker/adapter.py",
+          "target_location": "line 38",
+          "alternatives": [
+            "Wrapped by CapabilityBoundBroker",
+            "Direct broker access",
+            "Test-only invocation"
+          ],
+          "created_at": "2026-09-09T14:07:54.125478"
+        },
+        "classification": "static_only",
+        "confidence": 0.6,
+        "runtime_events": [],
+        "static_evidence": "fic order and returning an ``Order``\n    with the fill result.\n    \"\"\"\n\n    @abstractmethod\n    def submit_trade(self, trade: TradeIntent) -> Order:\n        \"\"\"Submit an approved trade intent to the broker.\n\n        Args:\n            trade: A ``TradeIntent`` that has passed risk evaluation\n                and au",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "inconclusive",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397958"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0011",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0011",
+          "source": "src/sas/quant/broker/__init__.py",
+          "target": "submit_trade()",
+          "operation": "broker_call",
+          "consequence_type": "external_consequential",
+          "static_evidence": "     return \"simulated\"\n\n    @property\n    def is_live(self) -> bool:\n        return False\n\n    def submit_trade(self, trade: TradeIntent) -> Order:\n        \"\"\"Submit a trade intent to the simulated broker.\n\n        Args:\n            trade: An authorized ``TradeIntent``.\n\n        Returns:\n            An ``Order`",
+          "expected_authority_boundary": "none",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "authority_escape",
+          "confidence": 0.65,
+          "source_location": "src/sas/quant/broker/__init__.py",
+          "target_location": "line 132",
+          "alternatives": [
+            "Wrapped by CapabilityBoundBroker",
+            "Direct broker access",
+            "Test-only invocation"
+          ],
+          "created_at": "2026-09-09T14:07:54.125613"
+        },
+        "classification": "static_only",
+        "confidence": 0.6,
+        "runtime_events": [],
+        "static_evidence": "     return \"simulated\"\n\n    @property\n    def is_live(self) -> bool:\n        return False\n\n    def submit_trade(self, trade: TradeIntent) -> Order:\n        \"\"\"Submit a trade intent to the simulated broker.\n\n        Args:\n            trade: An authorized ``TradeIntent``.\n\n        Returns:\n            An ``Order`",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "inconclusive",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397964"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0012",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0012",
+          "source": "src/sas/quant/broker/alpaca.py",
+          "target": "submit_trade()",
+          "operation": "broker_call",
+          "consequence_type": "external_consequential",
+          "static_evidence": "paper else \"alpaca-live\"\n\n    @property\n    def is_live(self) -> bool:\n        return True\n\n    def submit_trade(self, trade: TradeIntent) -> Order:\n        \"\"\"Submit a trade intent to Alpaca.\n\n        Args:\n            trade: An authorized ``TradeIntent``.\n\n        Returns:\n            An ``Order`` with fill de",
+          "expected_authority_boundary": "none",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "authority_escape",
+          "confidence": 0.65,
+          "source_location": "src/sas/quant/broker/alpaca.py",
+          "target_location": "line 106",
+          "alternatives": [
+            "Wrapped by CapabilityBoundBroker",
+            "Direct broker access",
+            "Test-only invocation"
+          ],
+          "created_at": "2026-09-09T14:07:54.125707"
+        },
+        "classification": "static_only",
+        "confidence": 0.6,
+        "runtime_events": [],
+        "static_evidence": "paper else \"alpaca-live\"\n\n    @property\n    def is_live(self) -> bool:\n        return True\n\n    def submit_trade(self, trade: TradeIntent) -> Order:\n        \"\"\"Submit a trade intent to Alpaca.\n\n        Args:\n            trade: An authorized ``TradeIntent``.\n\n        Returns:\n            An ``Order`` with fill de",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "inconclusive",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.397998"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0013",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0013",
+          "source": "src/sas/quant/orchestration/__init__.py",
+          "target": "submit_trade()",
+          "operation": "broker_call",
+          "consequence_type": "external_consequential",
+          "static_evidence": "          # Fallback for legacy broker (should not happen in production)\n            order = broker.submit_trade(trade)\n            return order, None\n\n    def _create_trade_intent_from_incumbent(self, incumbent, bt_result: BacktestResult) -> TradeIntent:\n        \"\"\"Create a trade intent from the incumbent strat",
+          "expected_authority_boundary": "capability_bound",
+          "expected_capability": "CapabilityBoundBroker",
+          "expected_authorization": "AuthorizationArtifact",
+          "expected_provenance": "none",
+          "predicted_classification": "authority_controlled",
+          "confidence": 0.75,
+          "source_location": "src/sas/quant/orchestration/__init__.py",
+          "target_location": "line 511",
+          "alternatives": [
+            "Wrapped by CapabilityBoundBroker",
+            "Direct broker access",
+            "Test-only invocation"
+          ],
+          "created_at": "2026-09-09T14:07:54.128275"
+        },
+        "classification": "static_only",
+        "confidence": 0.6,
+        "runtime_events": [],
+        "static_evidence": "          # Fallback for legacy broker (should not happen in production)\n            order = broker.submit_trade(trade)\n            return order, None\n\n    def _create_trade_intent_from_incumbent(self, incumbent, bt_result: BacktestResult) -> TradeIntent:\n        \"\"\"Create a trade intent from the incumbent strat",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "inconclusive",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.398012"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0014",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0014",
+          "source": "src/sas/plugins.py",
+          "target": "importlib.dynamic_import",
+          "operation": "dynamic_import",
+          "consequence_type": "state_transforming",
+          "static_evidence": " source=PluginSource.LOCAL,\n    ))\n\"\"\"\n\nfrom __future__ import annotations\n\nimport importlib\nimport importlib.metadata\nfrom dataclasses import dataclass\nfrom enum import IntEnum\nfrom pathlib import Path\nfrom typing import Any, Protocol\n\n\nclass PluginSource(IntEnum):\n    \"\"\"Plugin source \u2014 higher value = highe",
+          "expected_authority_boundary": "unknown",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "inconclusive",
+          "confidence": 0.4,
+          "source_location": "src/sas/plugins.py",
+          "target_location": "line 26",
+          "alternatives": [
+            "Dynamic plugin loading",
+            "Dynamic backend selection",
+            "Dynamic test fixture loading"
+          ],
+          "created_at": "2026-09-09T14:07:54.145361"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": " source=PluginSource.LOCAL,\n    ))\n\"\"\"\n\nfrom __future__ import annotations\n\nimport importlib\nimport importlib.metadata\nfrom dataclasses import dataclass\nfrom enum import IntEnum\nfrom pathlib import Path\nfrom typing import Any, Protocol\n\n\nclass PluginSource(IntEnum):\n    \"\"\"Plugin source \u2014 higher value = highe",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.398020"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0015",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0015",
+          "source": "src/sas/plugins.py",
+          "target": "importlib.dynamic_import",
+          "operation": "dynamic_import",
+          "consequence_type": "state_transforming",
+          "static_evidence": "d plugins via entry points.\"\"\"\n    plugins: list[LayerPlugin] = []\n\n    try:\n        entry_points = importlib.metadata.entry_points()\n        if hasattr(entry_points, \"select\"):\n            sas_plugins = entry_points.select(group=\"sas.layers\")\n        else:\n            sas_plugins = entry_points.get(\"sas.laye",
+          "expected_authority_boundary": "unknown",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "inconclusive",
+          "confidence": 0.4,
+          "source_location": "src/sas/plugins.py",
+          "target_location": "line 173",
+          "alternatives": [
+            "Dynamic plugin loading",
+            "Dynamic backend selection",
+            "Dynamic test fixture loading"
+          ],
+          "created_at": "2026-09-09T14:07:54.145392"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": "d plugins via entry points.\"\"\"\n    plugins: list[LayerPlugin] = []\n\n    try:\n        entry_points = importlib.metadata.entry_points()\n        if hasattr(entry_points, \"select\"):\n            sas_plugins = entry_points.select(group=\"sas.layers\")\n        else:\n            sas_plugins = entry_points.get(\"sas.laye",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.398032"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0016",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0016",
+          "source": "src/sas/plugins.py",
+          "target": "importlib.dynamic_import",
+          "operation": "dynamic_import",
+          "consequence_type": "state_transforming",
+          "static_evidence": "(\"_\"):\n            continue\n\n        try:\n            # Import the plugin module\n            import importlib.util\n            spec = importlib.util.spec_from_file_location(\n                plugin_file.stem, str(plugin_file)\n            )\n            if spec and spec.loader:\n                module = importlib",
+          "expected_authority_boundary": "unknown",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "inconclusive",
+          "confidence": 0.4,
+          "source_location": "src/sas/plugins.py",
+          "target_location": "line 214",
+          "alternatives": [
+            "Dynamic plugin loading",
+            "Dynamic backend selection",
+            "Dynamic test fixture loading"
+          ],
+          "created_at": "2026-09-09T14:07:54.145408"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": "(\"_\"):\n            continue\n\n        try:\n            # Import the plugin module\n            import importlib.util\n            spec = importlib.util.spec_from_file_location(\n                plugin_file.stem, str(plugin_file)\n            )\n            if spec and spec.loader:\n                module = importlib",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.398038"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0017",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0017",
+          "source": "src/sas/plugins.py",
+          "target": "importlib.dynamic_import",
+          "operation": "dynamic_import",
+          "consequence_type": "state_transforming",
+          "static_evidence": "   try:\n            # Import the plugin module\n            import importlib.util\n            spec = importlib.util.spec_from_file_location(\n                plugin_file.stem, str(plugin_file)\n            )\n            if spec and spec.loader:\n                module = importlib.util.module_from_spec(spec)\n     ",
+          "expected_authority_boundary": "unknown",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "inconclusive",
+          "confidence": 0.4,
+          "source_location": "src/sas/plugins.py",
+          "target_location": "line 215",
+          "alternatives": [
+            "Dynamic plugin loading",
+            "Dynamic backend selection",
+            "Dynamic test fixture loading"
+          ],
+          "created_at": "2026-09-09T14:07:54.145420"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": "   try:\n            # Import the plugin module\n            import importlib.util\n            spec = importlib.util.spec_from_file_location(\n                plugin_file.stem, str(plugin_file)\n            )\n            if spec and spec.loader:\n                module = importlib.util.module_from_spec(spec)\n     ",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.398044"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0018",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0018",
+          "source": "src/sas/plugins.py",
+          "target": "importlib.dynamic_import",
+          "operation": "dynamic_import",
+          "consequence_type": "state_transforming",
+          "static_evidence": ".stem, str(plugin_file)\n            )\n            if spec and spec.loader:\n                module = importlib.util.module_from_spec(spec)\n                spec.loader.exec_module(module)\n\n                # Look for plugin metadata\n                if hasattr(module, \"SAS_PLUGIN\"):\n                    meta = mod",
+          "expected_authority_boundary": "unknown",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "inconclusive",
+          "confidence": 0.4,
+          "source_location": "src/sas/plugins.py",
+          "target_location": "line 219",
+          "alternatives": [
+            "Dynamic plugin loading",
+            "Dynamic backend selection",
+            "Dynamic test fixture loading"
+          ],
+          "created_at": "2026-09-09T14:07:54.145432"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": ".stem, str(plugin_file)\n            )\n            if spec and spec.loader:\n                module = importlib.util.module_from_spec(spec)\n                spec.loader.exec_module(module)\n\n                # Look for plugin metadata\n                if hasattr(module, \"SAS_PLUGIN\"):\n                    meta = mod",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.398053"
+      },
+      {
+        "reconciliation_id": "rec_hyp_0019",
+        "hypothesis": {
+          "hypothesis_id": "hyp_0019",
+          "source": "src/sas/plugins.py",
+          "target": "importlib.dynamic_import",
+          "operation": "dynamic_import",
+          "consequence_type": "state_transforming",
+          "static_evidence": "on(name: str) -> str:\n    \"\"\"Get the version of a pip-installed package.\"\"\"\n    try:\n        return importlib.metadata.version(name)\n    except Exception:\n        return \"0.0.0\"\n\n\ndef auto_register_discovered() -> None:\n    \"\"\"Auto-discover and register all plugins.\"\"\"\n    for plugin in discover_plugins():\n  ",
+          "expected_authority_boundary": "unknown",
+          "expected_capability": "none",
+          "expected_authorization": "none",
+          "expected_provenance": "none",
+          "predicted_classification": "inconclusive",
+          "confidence": 0.4,
+          "source_location": "src/sas/plugins.py",
+          "target_location": "line 262",
+          "alternatives": [
+            "Dynamic plugin loading",
+            "Dynamic backend selection",
+            "Dynamic test fixture loading"
+          ],
+          "created_at": "2026-09-09T14:07:54.145449"
+        },
+        "classification": "static_false_positive",
+        "confidence": 0.7,
+        "runtime_events": [],
+        "static_evidence": "on(name: str) -> str:\n    \"\"\"Get the version of a pip-installed package.\"\"\"\n    try:\n        return importlib.metadata.version(name)\n    except Exception:\n        return \"0.0.0\"\n\n\ndef auto_register_discovered() -> None:\n    \"\"\"Auto-discover and register all plugins.\"\"\"\n    for plugin in discover_plugins():\n  ",
+        "runtime_evidence": "No matching runtime events observed",
+        "authority_reconstruction": null,
+        "epistemic_state": "observed",
+        "limitations": "Runtime experiment did not exercise this path",
+        "created_at": "2026-09-09T14:07:54.398061"
+      }
+    ],
+    "summary": {
+      "by_classification": {
+        "authority_escape": 1,
+        "static_only": 7,
+        "static_false_positive": 11
+      },
+      "by_epistemic_state": {
+        "unauthorized": 1,
+        "inconclusive": 7,
+        "observed": 11
+      }
+    }
+  }
+}

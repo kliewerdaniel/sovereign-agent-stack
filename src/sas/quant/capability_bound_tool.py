@@ -7,6 +7,9 @@ Architectural law:
     REGISTRATION IS DISCOVERABILITY.
     CAPABILITY IS AUTHORITY.
     THOSE MUST BE SEPARATE CONCEPTS.
+
+This implementation uses the canonical CapabilityVerifier to ensure
+authority semantics are identical across all boundaries.
 """
 
 from __future__ import annotations
@@ -18,6 +21,11 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, Callable, Optional
 
+from sas.quant.capability_verifier import (
+    CapabilityVerifier,
+    VerificationResult,
+    create_capability_verifier,
+)
 from sas.quant.experiment.execution_capability import (
     ExecutionCapability,
     ExecutionReceipt,
@@ -56,6 +64,9 @@ class CapabilityBoundTool:
 
     The tool handler is never directly accessible — it can only be
     invoked through the capability-bound interface.
+
+    Uses the canonical CapabilityVerifier so that authority semantics
+    are identical across all boundaries.
     """
 
     def __init__(
@@ -64,12 +75,14 @@ class CapabilityBoundTool:
         description: str,
         handler: Callable[..., Any],
         parameters: dict | None = None,
+        verifier: CapabilityVerifier | None = None,
     ):
         self.name = name
         self.description = description
-        self._handler = handler
-        self._parameters = parameters or {"type": "object", "properties": {}}
-        self._receipts: list[ExecutionReceipt] = []
+        self.__handler = handler
+        self.__parameters = parameters or {"type": "object", "properties": {}}
+        self.__verifier = verifier
+        self.__receipts: list[ExecutionReceipt] = []
 
     def invoke(
         self,
@@ -86,51 +99,29 @@ class CapabilityBoundTool:
         if not current_time:
             current_time = datetime.now(UTC).isoformat()
 
-        conflicts: list[str] = []
-
-        # 1. Verify capability is valid at current time
-        if not capability.is_valid_at(current_time):
-            conflicts.append(f"Capability not valid at {current_time}")
-
-        # 2. Verify capability can be executed (replay guard)
-        if not capability.can_execute():
-            conflicts.append("Capability replay guard exhausted")
-
-        # 3. Verify domain binding
-        if capability.domain_id and capability.domain_id != domain.domain_id:
-            conflicts.append(
-                f"Domain mismatch: capability.domain_id={capability.domain_id} "
-                f"!= tool.domain_id={domain.domain_id}"
-            )
-
-        # 4. Verify action matches
         tool_action = f"tool.{self.name}"
-        if not capability.scope.permits_action(tool_action):
-            # Also check for wildcard "tool.*" permission
-            if not capability.scope.permits_action("tool.*"):
-                conflicts.append(
-                    f"Action mismatch: capability permits '{capability.scope.action}', "
-                    f"tool requires '{tool_action}'"
-                )
 
-        # 5. Verify nonce hasn't been used (replay protection)
-        # Note: We don't track nonces here; the gate does that
+        # Use canonical verifier
+        verifier = self.__verifier or create_capability_verifier(domain)
+        verification = verifier.verify(
+            capability=capability,
+            action=tool_action,
+            resource=self.name,
+            arguments=arguments,
+            current_time=current_time,
+        )
 
-        # 6. Verify authorization reference is present
-        if not capability.authorization_ref:
-            conflicts.append("Missing authorization reference")
-
-        if conflicts:
+        if not verification.is_permitted:
             return ToolEnforcementResult(
                 is_permitted=False,
-                conflicts=conflicts,
-                rejection_reason="; ".join(conflicts),
+                conflicts=verification.conflicts,
+                rejection_reason=verification.rejection_reason,
             )
 
         # Invoke the handler
         start_time = datetime.now(UTC).isoformat()
         try:
-            result = self._handler(**arguments)
+            result = self.__handler(**arguments)
             status = ExecutionStatus.COMPLETED
             observed_effect = str(result)
             reported_result = "completed"
@@ -167,7 +158,7 @@ class CapabilityBoundTool:
             provenance_hash=capability.compute_hash(),
         )
 
-        self._receipts.append(receipt)
+        self.__receipts.append(receipt)
 
         return ToolEnforcementResult(
             is_permitted=True,
@@ -176,6 +167,7 @@ class CapabilityBoundTool:
             provenance_hash=receipt.compute_hash(),
         )
 
-    def get_receipts(self) -> list[ExecutionReceipt]:
-        """Get all recorded receipts."""
-        return list(self._receipts)
+    @property
+    def parameters(self) -> dict:
+        """Get the tool parameters."""
+        return self.__parameters

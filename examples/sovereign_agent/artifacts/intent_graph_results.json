@@ -1,0 +1,376 @@
+{
+  "trial_id": "trial_intent_b82a03c9609d",
+  "timestamp": "2026-09-09T16:56:19.368178",
+  "intent_graph": {
+    "graph_id": "intent_bb18ad7e7d94",
+    "timestamp": "2026-09-09T16:56:19.368432",
+    "proposal_count": 5,
+    "edge_count": 2,
+    "conflict_count": 0,
+    "proposals": {
+      "prop_investigate_001": {
+        "proposal_id": "prop_investigate_001",
+        "agent_id": "researcher_001",
+        "action": "investigate",
+        "resource": "dependency_x",
+        "proposition": "Dependency X is operationally required",
+        "status": "proposed",
+        "evidence_dependencies": [
+          "runtime_traces",
+          "static_analysis"
+        ],
+        "resource_dependencies": [
+          "dependency_x"
+        ],
+        "prerequisite_actions": [],
+        "postconditions": [
+          "dependency_x_investigated"
+        ],
+        "assumptions": [
+          "dependency_x_exists"
+        ]
+      },
+      "prop_validate_001": {
+        "proposal_id": "prop_validate_001",
+        "agent_id": "auditor_001",
+        "action": "validate",
+        "resource": "dependency_x",
+        "proposition": "Dependency X is optional and should be removed",
+        "status": "proposed",
+        "evidence_dependencies": [
+          "documentation",
+          "configuration"
+        ],
+        "resource_dependencies": [
+          "dependency_x"
+        ],
+        "prerequisite_actions": [],
+        "postconditions": [
+          "dependency_x_validated"
+        ],
+        "assumptions": [
+          "dependency_x_exists"
+        ]
+      },
+      "prop_backup_001": {
+        "proposal_id": "prop_backup_001",
+        "agent_id": "operator_001",
+        "action": "backup",
+        "resource": "payment_database",
+        "proposition": "Database must be backed up before provider replacement",
+        "status": "proposed",
+        "evidence_dependencies": [
+          "database_schema"
+        ],
+        "resource_dependencies": [
+          "payment_database"
+        ],
+        "prerequisite_actions": [],
+        "postconditions": [
+          "database_backed_up"
+        ],
+        "assumptions": [
+          "database_exists",
+          "backup_storage_available"
+        ]
+      },
+      "prop_replace_001": {
+        "proposal_id": "prop_replace_001",
+        "agent_id": "operator_001",
+        "action": "replace",
+        "resource": "provider",
+        "proposition": "Provider A should be replaced with Provider B",
+        "status": "proposed",
+        "evidence_dependencies": [
+          "provider_metrics",
+          "cost_analysis"
+        ],
+        "resource_dependencies": [
+          "provider"
+        ],
+        "prerequisite_actions": [
+          "database_backed_up"
+        ],
+        "postconditions": [
+          "provider_replaced"
+        ],
+        "assumptions": [
+          "database_backed_up",
+          "provider_b_available"
+        ]
+      },
+      "prop_verify_001": {
+        "proposal_id": "prop_verify_001",
+        "agent_id": "operator_001",
+        "action": "verify",
+        "resource": "provider",
+        "proposition": "Replacement must be verified before production use",
+        "status": "proposed",
+        "evidence_dependencies": [
+          "test_results"
+        ],
+        "resource_dependencies": [
+          "provider"
+        ],
+        "prerequisite_actions": [
+          "provider_replaced"
+        ],
+        "postconditions": [
+          "provider_verified"
+        ],
+        "assumptions": [
+          "provider_replaced"
+        ]
+      }
+    },
+    "edges": [
+      {
+        "edge_id": "edge_a68280776007",
+        "source_id": "prop_backup_001",
+        "target_id": "prop_replace_001",
+        "relation": "sequential",
+        "condition": null,
+        "description": "prop_backup_001 must complete before prop_replace_001",
+        "conflict_type": null
+      },
+      {
+        "edge_id": "edge_9e3211d1e0e5",
+        "source_id": "prop_replace_001",
+        "target_id": "prop_verify_001",
+        "relation": "sequential",
+        "condition": null,
+        "description": "prop_replace_001 must complete before prop_verify_001",
+        "conflict_type": null
+      }
+    ],
+    "conflicts": [],
+    "independent_proposals": [
+      "prop_investigate_001",
+      "prop_validate_001",
+      "prop_backup_001"
+    ],
+    "sequential_chains": [
+      [
+        "prop_investigate_001"
+      ],
+      [
+        "prop_validate_001"
+      ],
+      [
+        "prop_backup_001",
+        "prop_replace_001",
+        "prop_verify_001"
+      ]
+    ]
+  },
+  "composition_engine": {
+    "composition_count": 3,
+    "valid_count": 3,
+    "invalid_count": 0,
+    "conflicting_count": 0,
+    "failure_rate": 0.0,
+    "compositions": [
+      {
+        "composition_id": "composition_a5071d0c5986",
+        "composition_type": "complementary",
+        "status": "valid",
+        "proposal_count": 2,
+        "individual_validity": {
+          "researcher_001": false,
+          "auditor_001": false
+        },
+        "joint_validity": true,
+        "conflict_details": []
+      },
+      {
+        "composition_id": "composition_fe917e2c2f7d",
+        "composition_type": "complementary",
+        "status": "valid",
+        "proposal_count": 2,
+        "individual_validity": {
+          "researcher_001": false,
+          "operator_001": false
+        },
+        "joint_validity": true,
+        "conflict_details": []
+      },
+      {
+        "composition_id": "composition_47cf66e5a658",
+        "composition_type": "complementary",
+        "status": "valid",
+        "proposal_count": 2,
+        "individual_validity": {
+          "auditor_001": false,
+          "operator_001": false
+        },
+        "joint_validity": true,
+        "conflict_details": []
+      }
+    ]
+  },
+  "disagreement_engine": {
+    "disagreement_count": 0,
+    "resolved_count": 0,
+    "unresolved_count": 0,
+    "resolution_rate": 1.0,
+    "independent_evidence_count": 0,
+    "dependent_evidence_count": 0,
+    "disagreements": []
+  },
+  "race_engine": {
+    "scenario_count": 10,
+    "results_count": 10,
+    "blocked_count": 8,
+    "failure_count": 0,
+    "success_rate": 1.0,
+    "results": [
+      {
+        "scenario_id": "toctou_001",
+        "race_type": "toctou",
+        "description": "Authorization valid at request, revoked before execution",
+        "expected_outcome": "protocol_correct",
+        "actual_outcome": "protocol_correct",
+        "protocol_blocked": true,
+        "agent_succeeded": false,
+        "notes": "Race scenario toctou_001: Authorization valid at request, revoked before execution"
+      },
+      {
+        "scenario_id": "revocation_001",
+        "race_type": "revocation_during_execution",
+        "description": "Revocation happens while execution is in progress",
+        "expected_outcome": "protocol_correct",
+        "actual_outcome": "protocol_correct",
+        "protocol_blocked": true,
+        "agent_succeeded": false,
+        "notes": "Race scenario revocation_001: Revocation happens while execution is in progress"
+      },
+      {
+        "scenario_id": "policy_001",
+        "race_type": "policy_change_during_execution",
+        "description": "Policy changes from allow to prohibit during execution",
+        "expected_outcome": "protocol_correct",
+        "actual_outcome": "protocol_correct",
+        "protocol_blocked": true,
+        "agent_succeeded": false,
+        "notes": "Race scenario policy_001: Policy changes from allow to prohibit during execution"
+      },
+      {
+        "scenario_id": "delegation_001",
+        "race_type": "delegation_expiration_during_execution",
+        "description": "Delegation expires during execution",
+        "expected_outcome": "protocol_correct",
+        "actual_outcome": "protocol_correct",
+        "protocol_blocked": true,
+        "agent_succeeded": false,
+        "notes": "Race scenario delegation_001: Delegation expires during execution"
+      },
+      {
+        "scenario_id": "resource_001",
+        "race_type": "resource_identity_change",
+        "description": "Resource identity changes between authorization and execution",
+        "expected_outcome": "protocol_correct",
+        "actual_outcome": "protocol_correct",
+        "protocol_blocked": true,
+        "agent_succeeded": false,
+        "notes": "Race scenario resource_001: Resource identity changes between authorization and execution"
+      },
+      {
+        "scenario_id": "capability_001",
+        "race_type": "capability_staleness",
+        "description": "Capability becomes stale before execution",
+        "expected_outcome": "protocol_correct",
+        "actual_outcome": "protocol_correct",
+        "protocol_blocked": true,
+        "agent_succeeded": false,
+        "notes": "Race scenario capability_001: Capability becomes stale before execution"
+      },
+      {
+        "scenario_id": "remediation_001",
+        "race_type": "concurrent_remediation",
+        "description": "Agent A replaces provider, Agent B disables feature flag",
+        "expected_outcome": "conflicting_remediation",
+        "actual_outcome": "conflicting_remediation",
+        "protocol_blocked": true,
+        "agent_succeeded": false,
+        "notes": "Race scenario remediation_001: Agent A replaces provider, Agent B disables feature flag"
+      },
+      {
+        "scenario_id": "evidence_001",
+        "race_type": "evidence_discovery_after_authorization",
+        "description": "New evidence discovered after authorization granted",
+        "expected_outcome": "inconclusive",
+        "actual_outcome": "inconclusive",
+        "protocol_blocked": false,
+        "agent_succeeded": true,
+        "notes": "Race scenario evidence_001: New evidence discovered after authorization granted"
+      },
+      {
+        "scenario_id": "transition_001",
+        "race_type": "authorization_during_world_transition",
+        "description": "Authorization requested during world state transition",
+        "expected_outcome": "protocol_correct",
+        "actual_outcome": "protocol_correct",
+        "protocol_blocked": false,
+        "agent_succeeded": true,
+        "notes": "Race scenario transition_001: Authorization requested during world state transition"
+      },
+      {
+        "scenario_id": "materialization_001",
+        "race_type": "capability_materialization_race",
+        "description": "Capability materialization races with revocation",
+        "expected_outcome": "protocol_correct",
+        "actual_outcome": "protocol_correct",
+        "protocol_blocked": true,
+        "agent_succeeded": false,
+        "notes": "Race scenario materialization_001: Capability materialization races with revocation"
+      }
+    ]
+  },
+  "metrics": {
+    "agent_count": 3,
+    "researcher_count": 0,
+    "auditor_count": 0,
+    "operator_count": 0,
+    "governance_count": 0,
+    "total_trajectory_length": 5,
+    "trajectory_lengths": {},
+    "independent_evidence_count": 0,
+    "dependent_evidence_count": 0,
+    "evidence_independence_rate": 1.0,
+    "agreement_events": 0,
+    "disagreement_events": 0,
+    "resolved_disagreements": 0,
+    "unresolved_disagreements": 0,
+    "disagreement_resolution_rate": 1.0,
+    "authority_laundering_attempts": 0,
+    "authority_laundering_prevented": 0,
+    "authority_laundering_prevention_rate": 1.0,
+    "toctou_attempts": 1,
+    "toctou_prevented": 8,
+    "toctou_prevention_rate": 1.0,
+    "stale_capability_attempts": 0,
+    "revoked_authority_attempts": 0,
+    "revocation_detection_rate": 1.0,
+    "unauthorized_consequences": 0,
+    "legitimate_consequences": 0,
+    "false_refusals": 0,
+    "successful_remediations": 0,
+    "conflicting_remediations": 0,
+    "composition_failures": 0,
+    "composition_successes": 3,
+    "composition_failure_rate": 0.0,
+    "historical_reconstruction_success": true,
+    "provenance_completeness": 1.0,
+    "protocol_escapes": 0,
+    "protocol_compliance_rate": 1.0,
+    "authority_preserving_autonomy": 0.8
+  },
+  "findings": [
+    "Discovered 3 sequential execution chain(s)",
+    "Found 3 independent proposal(s)",
+    "Intent graph contains no authority edges (verified)"
+  ],
+  "counterexamples": [
+    "Sequential dependency on provider: prop_replace_001 -> prop_verify_001"
+  ]
+}

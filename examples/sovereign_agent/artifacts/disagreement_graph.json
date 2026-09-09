@@ -1,0 +1,153 @@
+{
+  "disagreement_count": 4,
+  "resolved_count": 0,
+  "unresolved_count": 4,
+  "resolution_rate": 0.0,
+  "independent_evidence_count": 4,
+  "dependent_evidence_count": 0,
+  "disagreements": [
+    {
+      "record_id": "disagree_a1531ab71535",
+      "timestamp": "2026-09-09T16:36:43.358337",
+      "disagreement_type": "dependency_criticality",
+      "proposition": "Dependency X is operationally required",
+      "positions": [
+        {
+          "agent_id": "researcher_001",
+          "position": "required",
+          "confidence": 0.85,
+          "evidence": [
+            "runtime_traces",
+            "static_analysis"
+          ],
+          "reasoning": "Runtime traces show active usage"
+        },
+        {
+          "agent_id": "auditor_001",
+          "position": "optional",
+          "confidence": 0.75,
+          "evidence": [
+            "documentation",
+            "configuration"
+          ],
+          "reasoning": "Documentation lists it as optional"
+        }
+      ],
+      "evidence_overlap": [
+        "runtime_traces"
+      ],
+      "evidence_independent": [
+        "documentation",
+        "configuration",
+        "static_analysis"
+      ],
+      "resolution": null,
+      "resolution_mechanism": null
+    },
+    {
+      "record_id": "disagree_6e6c9778166a",
+      "timestamp": "2026-09-09T16:36:43.358352",
+      "disagreement_type": "provider_status",
+      "proposition": "Provider B is the active provider",
+      "positions": [
+        {
+          "agent_id": "researcher_001",
+          "position": "active",
+          "confidence": 0.9,
+          "evidence": [
+            "runtime_traces"
+          ],
+          "reasoning": "Runtime shows provider_b in use"
+        },
+        {
+          "agent_id": "auditor_001",
+          "position": "configured_not_active",
+          "confidence": 0.8,
+          "evidence": [
+            "configuration"
+          ],
+          "reasoning": "Provider B is configured but not runtime-active"
+        }
+      ],
+      "evidence_overlap": [],
+      "evidence_independent": [
+        "runtime_traces",
+        "configuration"
+      ],
+      "resolution": null,
+      "resolution_mechanism": null
+    },
+    {
+      "record_id": "disagree_6e29ba13aa76",
+      "timestamp": "2026-09-09T16:36:43.358361",
+      "disagreement_type": "authorization_validity",
+      "proposition": "Existing authorization permits remediation",
+      "positions": [
+        {
+          "agent_id": "operator_001",
+          "position": "valid",
+          "confidence": 0.7,
+          "evidence": [
+            "authorization_record"
+          ],
+          "reasoning": "Authorization was issued and not revoked"
+        },
+        {
+          "agent_id": "auditor_001",
+          "position": "stale",
+          "confidence": 0.85,
+          "evidence": [
+            "temporal_snapshot",
+            "revocation_log"
+          ],
+          "reasoning": "Authorization is stale due to delegation expiration"
+        }
+      ],
+      "evidence_overlap": [
+        "authorization_record"
+      ],
+      "evidence_independent": [
+        "temporal_snapshot",
+        "revocation_log"
+      ],
+      "resolution": null,
+      "resolution_mechanism": null
+    },
+    {
+      "record_id": "disagree_111a069e2fee",
+      "timestamp": "2026-09-09T16:36:43.358370",
+      "disagreement_type": "temporal_scope",
+      "proposition": "Historical evidence supports this action",
+      "positions": [
+        {
+          "agent_id": "researcher_001",
+          "position": "supports",
+          "confidence": 0.75,
+          "evidence": [
+            "historical_snapshot"
+          ],
+          "reasoning": "Historical state shows the action was previously authorized"
+        },
+        {
+          "agent_id": "auditor_001",
+          "position": "not_current_authority",
+          "confidence": 0.9,
+          "evidence": [
+            "current_state",
+            "temporal_rules"
+          ],
+          "reasoning": "Historical evidence does not establish current authority"
+        }
+      ],
+      "evidence_overlap": [
+        "historical_snapshot"
+      ],
+      "evidence_independent": [
+        "current_state",
+        "temporal_rules"
+      ],
+      "resolution": null,
+      "resolution_mechanism": null
+    }
+  ]
+}

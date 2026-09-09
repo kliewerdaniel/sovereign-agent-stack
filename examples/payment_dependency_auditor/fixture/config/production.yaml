@@ -1,0 +1,90 @@
+# Production Configuration
+
+environment: production
+version: "2.1.0"
+
+services:
+  checkout:
+    replicas: 3
+    database:
+      host: prod-checkout-db.internal
+      port: 5432
+      name: checkout
+    dependencies:
+      - payments
+      - customer-profile
+      # NOTE: feature-flags NOT documented here but used in code
+
+  payments:
+    replicas: 5
+    database:
+      host: prod-payments-db.internal
+      port: 5432
+      name: payments
+    cache:
+      host: prod-redis.internal
+      port: 6379
+    dependencies:
+      - ledger
+      - fraud
+      - customer-profile
+      # NOTE: feature-flags and external-tax NOT documented here
+    external:
+      payment_provider: stripe
+      provider_endpoint: https://api.stripe.com
+
+  ledger:
+    replicas: 3
+    database:
+      host: prod-ledger-db.internal
+      port: 5432
+      name: ledger
+    dependencies: []
+
+  refunds:
+    replicas: 2
+    database:
+      host: prod-refunds-db.internal
+      port: 5432
+      name: refunds
+    dependencies:
+      - payments
+      - ledger
+      # NOTE: customer-profile and feature-flags NOT documented here
+
+  notifications:
+    replicas: 2
+    dependencies: []
+    external:
+      email_provider: sendgrid
+      sms_provider: twilio
+
+  fraud:
+    replicas: 3
+    dependencies: []
+    external:
+      ml_model_endpoint: http://fraud-ml-model:8080
+
+  reconciliation:
+    replicas: 1
+    database:
+      host: prod-reconciliation-db.internal
+      port: 5432
+      name: reconciliation
+    dependencies:
+      - ledger
+      - payments
+    external:
+      payment_provider: stripe
+
+# Feature flags service (NOT documented in architecture)
+feature_flags:
+  endpoint: http://feature-flags:8080
+  environment: production
+
+# External tax service (NOT documented in architecture)
+external_tax:
+  endpoint: http://tax-service:8080
+  environments:
+    - production
+    - staging

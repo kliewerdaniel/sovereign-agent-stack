@@ -1,0 +1,81 @@
+# Staging Configuration
+
+environment: staging
+version: "2.1.0-rc1"
+
+services:
+  checkout:
+    replicas: 1
+    database:
+      host: staging-db.internal
+      port: 5432
+      name: checkout
+    dependencies:
+      - payments
+      - customer-profile
+
+  payments:
+    replicas: 2
+    database:
+      host: staging-db.internal
+      port: 5432
+      name: payments
+    cache:
+      host: staging-redis.internal
+      port: 6379
+    dependencies:
+      - ledger
+      - fraud
+      - customer-profile
+    external:
+      payment_provider: stripe
+      provider_endpoint: https://api.stripe.com
+
+  ledger:
+    replicas: 1
+    database:
+      host: staging-db.internal
+      port: 5432
+      name: ledger
+    dependencies: []
+
+  refunds:
+    replicas: 1
+    database:
+      host: staging-db.internal
+      port: 5432
+      name: refunds
+    dependencies:
+      - payments
+      - ledger
+
+  notifications:
+    replicas: 1
+    dependencies: []
+    external:
+      email_provider: sendgrid
+      sms_provider: twilio
+
+  fraud:
+    replicas: 1
+    dependencies: []
+    external:
+      ml_model_endpoint: http://fraud-ml-model:8080
+
+  reconciliation:
+    replicas: 1
+    database:
+      host: staging-db.internal
+      port: 5432
+      name: reconciliation
+    dependencies:
+      - ledger
+      - payments
+
+# Feature flags in staging
+feature_flags:
+  endpoint: http://feature-flags:8080
+  environment: staging
+
+# External tax service NOT enabled in staging
+# This is an environment-specific dependency

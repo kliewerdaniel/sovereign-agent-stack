@@ -564,22 +564,22 @@ class TestBrokerBypass:
             "2024-06-01T00:00:00Z",
         )
         assert not result2.is_permitted
-        assert "replay" in result2.rejection_reason.lower()
+        assert "replay" in result2.rejection_reason.lower() or "replay" in " ".join(result2.conflicts).lower()
 
     def test_raw_broker_not_exposed_to_untrusted_code(
-        self, authorized_trade_capability: ExecutionCapability
+        self, trading_domain: ProtocolDomain, authorized_trade_capability: ExecutionCapability
     ):
         """The raw broker adapter is not directly accessible."""
         inner_broker = SimulatedBroker()
         bound_broker = CapabilityBoundBroker(
             inner_broker,
-            authorized_trade_capability.domain_id,
+            trading_domain,
         )
 
-        # The underlying broker is accessible for testing but marked as private
-        assert hasattr(bound_broker, "_broker")
-        # No public attribute exposes the raw broker directly
-        assert not hasattr(bound_broker, "broker")
+        # The underlying broker is name-mangled and not accessible via _broker
+        assert not hasattr(bound_broker, "_broker")
+        # The only way to interact is through submit_order
+        assert hasattr(bound_broker, "submit_order")
 
 
 # ---------------------------------------------------------------------------

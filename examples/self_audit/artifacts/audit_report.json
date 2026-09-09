@@ -1,0 +1,3465 @@
+{
+  "audit_metadata": {
+    "timestamp": "2026-09-09T13:43:59.029388",
+    "repository": ".",
+    "total_files_analyzed": 144,
+    "total_observations": 7388,
+    "total_documentation_claims": 0,
+    "total_test_observations": 924
+  },
+  "summary": {
+    "total_architectural_claims": 70,
+    "total_drift_items": 415,
+    "total_authority_paths": 10,
+    "total_compositions": 0,
+    "epistemic_state_distribution": {
+      "inferred": 15,
+      "inconclusive": 5,
+      "observed": 50
+    },
+    "authority_level_distribution": {
+      "IMPLEMENTED": 15,
+      "UNVERIFIED": 5,
+      "DRIFT DETECTED": 50
+    },
+    "drift_type_distribution": {
+      "undiscovered": 415
+    }
+  },
+  "architectural_claims": [
+    {
+      "claim_id": "claim_001",
+      "proposition_type": "operational_dependency",
+      "claim": "Every consequential runtime effect passes through the canonical authority gate",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/runtime/mcp_server.py",
+        "src/sas/quant/capability_bound_tool.py",
+        "src/sas/quant/experiment/typed_propositions.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_001",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/runtime/mcp_server.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_002",
+      "proposition_type": "operational_dependency",
+      "claim": "No runtime component can manufacture authority",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/capability_bound_tool.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/orchestration/gate.py",
+        "src/sas/quant/runtime_authority_gate.py",
+        "src/sas/quant/capability_verifier.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_002",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/capability_bound_tool.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/orchestration/gate.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_003",
+      "proposition_type": "operational_dependency",
+      "claim": "Model output cannot directly create authority",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/experiment/evidence_sufficiency.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/experiment/hypothesis.py",
+        "src/sas/quant/runtime_authority_gate.py",
+        "src/sas/quant/experiment/mechanism_investigation.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_003",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/experiment/evidence_sufficiency.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/experiment/hypothesis.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_004",
+      "proposition_type": "operational_dependency",
+      "claim": "Registration does not create authority",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inconclusive",
+      "authority_level": "UNVERIFIED",
+      "provenance_id": "prov_004",
+      "documentation_refs": [],
+      "implementation_refs": [],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_005",
+      "proposition_type": "operational_dependency",
+      "claim": "Capability does not exceed authorization",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/runtime/mcp_server.py",
+        "src/sas/quant/capability_bound_tool.py",
+        "src/sas/quant/worlds/__init__.py",
+        "src/sas/quant/runtime_authority_gate.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_005",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/runtime/mcp_server.py",
+        "src/sas/quant/capability_bound_tool.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_006",
+      "proposition_type": "operational_dependency",
+      "claim": "Credentials do not become authority",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/layers/__init__.py",
+        "src/sas/quant/capability_bound_substrate.py",
+        "src/sas/core/config.py",
+        "src/sas/quant/capability_bound_auth.py",
+        "src/sas/layers/auth.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_006",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/layers/__init__.py",
+        "src/sas/quant/capability_bound_substrate.py",
+        "src/sas/core/config.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_007",
+      "proposition_type": "operational_dependency",
+      "claim": "Executor privilege does not become caller authority",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inconclusive",
+      "authority_level": "UNVERIFIED",
+      "provenance_id": "prov_007",
+      "documentation_refs": [],
+      "implementation_refs": [],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_008",
+      "proposition_type": "operational_dependency",
+      "claim": "Epistemic evidence cannot silently become authorization",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/experiment/evidence_sufficiency.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/experiment/hypothesis.py",
+        "src/sas/quant/runtime_authority_gate.py",
+        "src/sas/quant/experiment/mechanism_investigation.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_008",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/experiment/evidence_sufficiency.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/experiment/hypothesis.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_009",
+      "proposition_type": "operational_dependency",
+      "claim": "Documentation does not establish runtime behavior",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/layers/__init__.py",
+        "src/sas/core/config.py",
+        "src/sas/runtime/mcp_server.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_009",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/layers/__init__.py"
+      ],
+      "test_refs": [
+        "tests/adversarial/test_sovereign_operations_attacks.py",
+        "tests/integration/test_adversarial.py",
+        "tests/unit/test_runtime_enforcement.py"
+      ],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_010",
+      "proposition_type": "operational_dependency",
+      "claim": "Tests do not establish runtime behavior",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/layers/__init__.py",
+        "src/sas/core/config.py",
+        "src/sas/runtime/mcp_server.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_010",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/layers/__init__.py"
+      ],
+      "test_refs": [
+        "tests/adversarial/test_sovereign_operations_attacks.py",
+        "tests/integration/test_adversarial.py",
+        "tests/unit/test_runtime_enforcement.py"
+      ],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_011",
+      "proposition_type": "operational_dependency",
+      "claim": "Graph reachability does not establish semantic dependency",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/layers/__init__.py",
+        "src/sas/core/config.py",
+        "src/sas/quant/experiment/evidence_sufficiency.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_011",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/layers/__init__.py"
+      ],
+      "test_refs": [
+        "tests/adversarial/test_sovereign_operations_attacks.py",
+        "tests/integration/test_adversarial.py",
+        "tests/unit/test_runtime_enforcement.py"
+      ],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_012",
+      "proposition_type": "operational_dependency",
+      "claim": "Epistemic composition does not amplify authority",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/experiment/evidence_sufficiency.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/experiment/hypothesis.py",
+        "src/sas/quant/runtime_authority_gate.py",
+        "src/sas/quant/experiment/mechanism_investigation.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_012",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/experiment/evidence_sufficiency.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/experiment/hypothesis.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_013",
+      "proposition_type": "operational_dependency",
+      "claim": "Provenance is sufficient to reconstruct authority",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/provenance/graph.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/runtime/mcp_server.py",
+        "src/sas/quant/capability_bound_tool.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_013",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/provenance/graph.py",
+        "src/sas/quant/strategy/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_014",
+      "proposition_type": "operational_dependency",
+      "claim": "Revocation propagates correctly",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inconclusive",
+      "authority_level": "UNVERIFIED",
+      "provenance_id": "prov_014",
+      "documentation_refs": [],
+      "implementation_refs": [],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_015",
+      "proposition_type": "operational_dependency",
+      "claim": "Temporal boundaries are preserved",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inconclusive",
+      "authority_level": "UNVERIFIED",
+      "provenance_id": "prov_015",
+      "documentation_refs": [],
+      "implementation_refs": [],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_016",
+      "proposition_type": "operational_dependency",
+      "claim": "Domain boundaries are preserved",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inconclusive",
+      "authority_level": "UNVERIFIED",
+      "provenance_id": "prov_016",
+      "documentation_refs": [],
+      "implementation_refs": [],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_017",
+      "proposition_type": "operational_dependency",
+      "claim": "Capability replay is prevented",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/runtime/mcp_server.py",
+        "src/sas/quant/capability_bound_tool.py",
+        "src/sas/quant/worlds/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_017",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/runtime/mcp_server.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_018",
+      "proposition_type": "operational_dependency",
+      "claim": "External consequential effects are identifiable",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/layers/__init__.py",
+        "src/sas/core/config.py",
+        "src/sas/runtime/mcp_server.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_018",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/orchestration/holdout.py",
+        "src/sas/quant/strategy/__init__.py",
+        "src/sas/layers/__init__.py"
+      ],
+      "test_refs": [
+        "tests/adversarial/test_sovereign_operations_attacks.py",
+        "tests/integration/test_adversarial.py",
+        "tests/unit/test_runtime_enforcement.py"
+      ],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_019",
+      "proposition_type": "operational_dependency",
+      "claim": "All consequential interfaces are known",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/capability_bound_substrate.py",
+        "src/sas/quant/capability_bound_broker.py",
+        "src/sas/quant/experiment/epistemic_experiment_selection.py",
+        "src/sas/quant/runtime_authority_gate.py",
+        "src/sas/quant/consequence_types.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_019",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/capability_bound_substrate.py",
+        "src/sas/quant/capability_bound_broker.py",
+        "src/sas/quant/experiment/epistemic_experiment_selection.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "claim_020",
+      "proposition_type": "operational_dependency",
+      "claim": "There are no undocumented authority roots",
+      "scope": "SAS architecture",
+      "environment": "all",
+      "temporal_boundary": "runtime",
+      "evidence_refs": [
+        "src/sas/quant/capability_bound_tool.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/orchestration/gate.py",
+        "src/sas/quant/runtime_authority_gate.py",
+        "src/sas/quant/capability_verifier.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Undocumented path exists",
+        "Test coverage is incomplete",
+        "Documentation is outdated"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "inferred",
+      "authority_level": "IMPLEMENTED",
+      "provenance_id": "prov_020",
+      "documentation_refs": [],
+      "implementation_refs": [
+        "src/sas/quant/capability_bound_tool.py",
+        "src/sas/quant/experiment/typed_propositions.py",
+        "src/sas/quant/orchestration/gate.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only",
+        "No runtime verification",
+        "Test coverage may be incomplete"
+      ],
+      "next_experiment": "Runtime verification recommended"
+    },
+    {
+      "claim_id": "drift_021",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.core.config' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/__main__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_021",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/__main__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_022",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.dashboard.report' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/__main__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_022",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/__main__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_023",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.agents' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/world.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_023",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/world.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_024",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.provenance' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/world.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_024",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/world.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_025",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.broker' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_025",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_026",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.broker.adapter' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_026",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_027",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_027",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_028",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_028",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_029",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.risk' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_029",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/runtime_enforcement.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_030",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.backtest' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_030",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_031",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.engine' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_031",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_032",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.market' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_032",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_033",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.provenance' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_033",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_034",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.risk' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_034",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_035",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.world' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_035",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/toolbox.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_036",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.consequence_types' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/cli_transport.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_036",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/cli_transport.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_037",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/cli_transport.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_037",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/cli_transport.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_038",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/cli_transport.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_038",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/cli_transport.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_039",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.capability_verifier' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/capability_bound_substrate.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_039",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/capability_bound_substrate.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_040",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/capability_bound_substrate.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_040",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/capability_bound_substrate.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_041",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/capability_bound_substrate.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_041",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/capability_bound_substrate.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_042",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.capability_verifier' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/capability_bound_tool.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_042",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/capability_bound_tool.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_043",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/capability_bound_tool.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_043",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/capability_bound_tool.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_044",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/capability_bound_tool.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_044",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/capability_bound_tool.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_045",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.agents' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_045",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_046",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.backtest' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_046",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_047",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.broker' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_047",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_048",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.broker.adapter' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_048",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_049",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.broker.alpaca' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_049",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_050",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.cli' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_050",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_051",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.engine' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_051",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_052",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.evaluation' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_052",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_053",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_053",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_054",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.knowledge.compiler' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_054",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_055",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.lifecycle' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_055",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_056",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.market' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_056",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_057",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.model' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_057",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_058",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.orchestration' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_058",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_059",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.orchestration.gate' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_059",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_060",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.provenance' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_060",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_061",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.reports' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_061",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_062",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.risk' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_062",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_063",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.strategy' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_063",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_064",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.toolbox' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_064",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_065",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.world' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_065",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_066",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.worlds.adversarial' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_066",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_067",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.worlds.portfolio_intelligence' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_067",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/__init__.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_068",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.world' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/evaluator_legacy.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_068",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/evaluator_legacy.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_069",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.provenance' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/model.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_069",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/model.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    },
+    {
+      "claim_id": "drift_070",
+      "proposition_type": "static_reference",
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.toolbox' not documented",
+      "scope": "Documentation",
+      "environment": "all",
+      "temporal_boundary": "permanent",
+      "evidence_refs": [
+        "src/sas/quant/model.py"
+      ],
+      "parent_claims": [],
+      "alternative_hypotheses": [
+        "Documentation is outdated",
+        "Implementation changed without doc update",
+        "Intentional omission"
+      ],
+      "intervention_refs": [],
+      "epistemic_state": "observed",
+      "authority_level": "DRIFT DETECTED",
+      "provenance_id": "drift_070",
+      "documentation_refs": [
+        "Not found in documentation"
+      ],
+      "implementation_refs": [
+        "src/sas/quant/model.py"
+      ],
+      "test_refs": [],
+      "limitations": [
+        "Static analysis only"
+      ],
+      "next_experiment": "Manual review recommended"
+    }
+  ],
+  "documentation_drift": [
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.core.config' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/__main__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.dashboard.report' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/__main__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.agents' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/world.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/world.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/runtime_enforcement.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker.adapter' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/runtime_enforcement.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/runtime_enforcement.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/runtime_enforcement.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.risk' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/runtime_enforcement.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.backtest' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/toolbox.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.engine' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/toolbox.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.market' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/toolbox.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/toolbox.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.risk' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/toolbox.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.world' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/toolbox.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.consequence_types' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/cli_transport.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/cli_transport.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/cli_transport.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.capability_verifier' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_substrate.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_substrate.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_substrate.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.capability_verifier' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_tool.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_tool.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_tool.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.agents' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.backtest' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker.adapter' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker.alpaca' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.cli' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.engine' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.evaluation' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.knowledge.compiler' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.lifecycle' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.market' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.model' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.orchestration' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.orchestration.gate' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.reports' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.risk' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.strategy' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.toolbox' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.world' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.worlds.adversarial' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.worlds.portfolio_intelligence' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.world' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/evaluator_legacy.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/model.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.toolbox' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/model.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.world' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/model.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.capability_verifier' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_auth.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_auth.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_auth.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.capability_verifier' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_plugin.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_plugin.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_plugin.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.capability_verifier' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/consequence_executor.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/consequence_executor.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/consequence_executor.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_broker.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker.adapter' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_broker.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.capability_verifier' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_broker.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_broker.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_broker.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.risk' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_bound_broker.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_verifier.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/capability_verifier.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.epistemic_governance' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/runtime_authority_gate.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.execution_capability' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/runtime_authority_gate.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.experiment.protocol_lineage' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/runtime_authority_gate.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance.artifacts' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/research/trial.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance.artifacts' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/research/reflection.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.evaluation.baseline' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/research/experiment.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.evaluation.gates' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/research/experiment.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.market' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/research/experiment.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance.artifacts' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/research/experiment.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance.graph' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/research/experiment.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.research.temporal' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/research/experiment.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.research.trial' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/research/experiment.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.statistics.cscv' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/statistics/pbo.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker.adapter' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/broker/__init__.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker.adapter' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/broker/alpaca.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.agents' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.backtest' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.engine' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.knowledge.compiler' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.lifecycle' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.market' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.reports' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.risk' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.strategy' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_quant.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.agents' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_adversarial.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.backtest' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_adversarial.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.broker' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_adversarial.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.provenance' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_adversarial.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.risk' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_adversarial.py"
+    },
+    {
+      "drift_type": "undiscovered",
+      "description": "Implemented dependency 'sas.quant.strategy' not documented",
+      "severity": "low",
+      "documentation_reference": "Not found in documentation",
+      "implementation_reference": "src/sas/quant/tests/test_adversarial.py"
+    }
+  ],
+  "authority_paths": [
+    {
+      "name": "Quant Trading",
+      "path": [
+        "Model",
+        "ResearchDecision",
+        "AuthorizationArtifact",
+        "ExecutionCapability",
+        "CapabilityBoundBroker",
+        "BrokerAdapter",
+        "ExternalEffect"
+      ],
+      "boundary": "Canonical",
+      "authorization_required": true,
+      "capability_required": true,
+      "verification": true,
+      "provenance": true
+    },
+    {
+      "name": "Agent Tool Execution",
+      "path": [
+        "Model",
+        "AgentRuntime",
+        "CapabilityBoundTool",
+        "ToolHandler",
+        "ExternalEffect"
+      ],
+      "boundary": "Canonical",
+      "authorization_required": true,
+      "capability_required": true,
+      "verification": true,
+      "provenance": true
+    },
+    {
+      "name": "CLI Command",
+      "path": [
+        "CLI",
+        "Runtime",
+        "ConsequenceExecutor",
+        "ExternalEffect"
+      ],
+      "boundary": "Canonical",
+      "authorization_required": true,
+      "capability_required": true,
+      "verification": true,
+      "provenance": true
+    },
+    {
+      "name": "Plugin Execution",
+      "path": [
+        "Plugin",
+        "CapabilityBoundPluginExecutor",
+        "PluginHandler",
+        "ExternalEffect"
+      ],
+      "boundary": "Canonical",
+      "authorization_required": true,
+      "capability_required": true,
+      "verification": true,
+      "provenance": true
+    },
+    {
+      "name": "Credential Access",
+      "path": [
+        "Caller",
+        "CapabilityBoundAuthBroker",
+        "Credential",
+        "ExternalEffect"
+      ],
+      "boundary": "Canonical",
+      "authorization_required": true,
+      "capability_required": true,
+      "verification": true,
+      "provenance": true
+    },
+    {
+      "name": "Substrate Execution",
+      "path": [
+        "Caller",
+        "CapabilityBoundSubstrate",
+        "Process",
+        "ExternalEffect"
+      ],
+      "boundary": "Canonical",
+      "authorization_required": true,
+      "capability_required": true,
+      "verification": true,
+      "provenance": true
+    },
+    {
+      "name": "Direct Broker Access",
+      "path": [
+        "Caller",
+        "BrokerAdapter",
+        "ExternalEffect"
+      ],
+      "boundary": "ESCAPE",
+      "authorization_required": false,
+      "capability_required": false,
+      "verification": false,
+      "provenance": false,
+      "risk": "HIGH"
+    },
+    {
+      "name": "Direct Subprocess",
+      "path": [
+        "Caller",
+        "subprocess",
+        "ExternalEffect"
+      ],
+      "boundary": "ESCAPE",
+      "authorization_required": false,
+      "capability_required": false,
+      "verification": false,
+      "provenance": false,
+      "risk": "CRITICAL"
+    },
+    {
+      "name": "Direct Network",
+      "path": [
+        "Caller",
+        "httpx/requests",
+        "ExternalEffect"
+      ],
+      "boundary": "ESCAPE",
+      "authorization_required": false,
+      "capability_required": false,
+      "verification": false,
+      "provenance": false,
+      "risk": "HIGH"
+    },
+    {
+      "name": "Direct Filesystem",
+      "path": [
+        "Caller",
+        "open/write",
+        "ExternalEffect"
+      ],
+      "boundary": "ESCAPE",
+      "authorization_required": false,
+      "capability_required": false,
+      "verification": false,
+      "provenance": false,
+      "risk": "MEDIUM"
+    }
+  ],
+  "composition_audit": {
+    "total_compositions": 0,
+    "authority_amplified_count": 0,
+    "authority_reduced_count": 0
+  },
+  "three_way_drift_matrix": [
+    {
+      "claim": "Every consequential runtime effect passes through the canonical authority gate",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "No runtime component can manufacture authority",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Model output cannot directly create authority",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Registration does not create authority",
+      "documentation": "ABSENT",
+      "implementation": "ABSENT",
+      "tests": "ABSENT",
+      "epistemic_state": "inconclusive",
+      "overall": "INCONCLUSIVE"
+    },
+    {
+      "claim": "Capability does not exceed authorization",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Credentials do not become authority",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Executor privilege does not become caller authority",
+      "documentation": "ABSENT",
+      "implementation": "ABSENT",
+      "tests": "ABSENT",
+      "epistemic_state": "inconclusive",
+      "overall": "INCONCLUSIVE"
+    },
+    {
+      "claim": "Epistemic evidence cannot silently become authorization",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation does not establish runtime behavior",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "SUPPORTED",
+      "epistemic_state": "inferred",
+      "overall": "GOOD"
+    },
+    {
+      "claim": "Tests do not establish runtime behavior",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "SUPPORTED",
+      "epistemic_state": "inferred",
+      "overall": "GOOD"
+    },
+    {
+      "claim": "Graph reachability does not establish semantic dependency",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "SUPPORTED",
+      "epistemic_state": "inferred",
+      "overall": "GOOD"
+    },
+    {
+      "claim": "Epistemic composition does not amplify authority",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Provenance is sufficient to reconstruct authority",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Revocation propagates correctly",
+      "documentation": "ABSENT",
+      "implementation": "ABSENT",
+      "tests": "ABSENT",
+      "epistemic_state": "inconclusive",
+      "overall": "INCONCLUSIVE"
+    },
+    {
+      "claim": "Temporal boundaries are preserved",
+      "documentation": "ABSENT",
+      "implementation": "ABSENT",
+      "tests": "ABSENT",
+      "epistemic_state": "inconclusive",
+      "overall": "INCONCLUSIVE"
+    },
+    {
+      "claim": "Domain boundaries are preserved",
+      "documentation": "ABSENT",
+      "implementation": "ABSENT",
+      "tests": "ABSENT",
+      "epistemic_state": "inconclusive",
+      "overall": "INCONCLUSIVE"
+    },
+    {
+      "claim": "Capability replay is prevented",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "External consequential effects are identifiable",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "SUPPORTED",
+      "epistemic_state": "inferred",
+      "overall": "GOOD"
+    },
+    {
+      "claim": "All consequential interfaces are known",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "There are no undocumented authority roots",
+      "documentation": "ABSENT",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "inferred",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.core.config' not documented",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.dashboard.report' not documente",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.agents' not documented",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.provenance' not documente",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.broker' not documented",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.broker.adapter' not docum",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.execution_capa",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.experiment.protocol_linea",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.risk' not documented",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    },
+    {
+      "claim": "Documentation drift: Implemented dependency 'sas.quant.backtest' not documented",
+      "documentation": "SUPPORTED",
+      "implementation": "SUPPORTED",
+      "tests": "ABSENT",
+      "epistemic_state": "observed",
+      "overall": "IMPLEMENTED_ONLY"
+    }
+  ],
+  "key_findings": [
+    "Found 415 undocumented dependencies in implementation",
+    "Identified 4 potential authority escape paths",
+    "5 architectural claims remain INCONCLUSIVE",
+    "66 architectural claims lack test coverage"
+  ],
+  "recommendations": [
+    "Update documentation to reflect implementation",
+    "Investigate potential authority escape paths",
+    "Design experiments to resolve inconclusive claims",
+    "Add tests for architectural invariants",
+    "Run periodic self-audits to detect drift"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LedgerEntry",
+  "type": "object",
+  "required": ["entry_id", "order_id", "customer_id", "amount", "currency", "entry_type"],
+  "properties": {
+    "entry_id": { "type": "string" },
+    "order_id": { "type": "string" },
+    "customer_id": { "type": "string" },
+    "amount": { "type": "number" },
+    "currency": { "type": "string" },
+    "entry_type": { "type": "string", "enum": ["payment", "refund", "adjustment"] },
+    "tax_amount": { "type": "number", "minimum": 0 },
+    "created_at": { "type": "string", "format": "date-time" }
+  }
+}

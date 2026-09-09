@@ -1,0 +1,1463 @@
+{
+  "agent_count": 3,
+  "total_trajectory_length": 68,
+  "disagreement_count": 4,
+  "agreement_count": 0,
+  "unresolved_disagreements": 4,
+  "evidence_independence_rate": 1.0,
+  "authority_race_count": 10,
+  "trajectories": {
+    "researcher_001": {
+      "agent_id": "researcher_001",
+      "agent_role": "researcher",
+      "trajectory_length": 23,
+      "hypotheses_count": 0,
+      "evidence_analyzed_count": 0,
+      "propositions_count": 0,
+      "disagreements_initiated": 0,
+      "disagreements_received": 0,
+      "entries": [
+        {
+          "entry_id": "entry_97bea9c075a2",
+          "timestamp": "2026-09-09T16:36:43.358104",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 0,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_a"
+          },
+          "world_state_id": 0,
+          "provenance": [
+            "state_0"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_001ab0b7fb31",
+          "timestamp": "2026-09-09T16:36:43.358113",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider documented as A, actual is B",
+            "confidence": 0.85,
+            "evidence": [
+              "runtime_traces",
+              "static_analysis"
+            ]
+          },
+          "world_state_id": 0,
+          "provenance": [
+            "runtime_traces"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_bff1ee1ae6ce",
+          "timestamp": "2026-09-09T16:36:43.358118",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 0,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_46f0703a1152",
+          "timestamp": "2026-09-09T16:36:43.358125",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 0,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_1e95aeda4ffd",
+          "timestamp": "2026-09-09T16:36:43.358167",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 1,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_b"
+          },
+          "world_state_id": 1,
+          "provenance": [
+            "state_1"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_2bda9b7a5303",
+          "timestamp": "2026-09-09T16:36:43.358171",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider documented as A, actual is B",
+            "confidence": 0.85,
+            "evidence": [
+              "runtime_traces",
+              "static_analysis"
+            ]
+          },
+          "world_state_id": 1,
+          "provenance": [
+            "runtime_traces"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_a46755f4a8c5",
+          "timestamp": "2026-09-09T16:36:43.358174",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 1,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_baf68310f8ca",
+          "timestamp": "2026-09-09T16:36:43.358177",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 1,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_da14c45a7f23",
+          "timestamp": "2026-09-09T16:36:43.358210",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 2,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_b"
+          },
+          "world_state_id": 2,
+          "provenance": [
+            "state_2"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_5e33114f4d96",
+          "timestamp": "2026-09-09T16:36:43.358214",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider documented as A, actual is B",
+            "confidence": 0.85,
+            "evidence": [
+              "runtime_traces",
+              "static_analysis"
+            ]
+          },
+          "world_state_id": 2,
+          "provenance": [
+            "runtime_traces"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_b637e19c8f3e",
+          "timestamp": "2026-09-09T16:36:43.358217",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 2,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_300ca27a0261",
+          "timestamp": "2026-09-09T16:36:43.358220",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 2,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_b98c35d09f40",
+          "timestamp": "2026-09-09T16:36:43.358252",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 3,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_b"
+          },
+          "world_state_id": 3,
+          "provenance": [
+            "state_3"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_2012819b53d3",
+          "timestamp": "2026-09-09T16:36:43.358255",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider documented as A, actual is B",
+            "confidence": 0.85,
+            "evidence": [
+              "runtime_traces",
+              "static_analysis"
+            ]
+          },
+          "world_state_id": 3,
+          "provenance": [
+            "runtime_traces"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_fca5b8913c59",
+          "timestamp": "2026-09-09T16:36:43.358258",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 3,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_d76c6479993c",
+          "timestamp": "2026-09-09T16:36:43.358260",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 3,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_daa858b14023",
+          "timestamp": "2026-09-09T16:36:43.358292",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 4,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_a"
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "state_4"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_a7dcc2a31d65",
+          "timestamp": "2026-09-09T16:36:43.358295",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider documented as A, actual is B",
+            "confidence": 0.85,
+            "evidence": [
+              "runtime_traces",
+              "static_analysis"
+            ]
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "runtime_traces"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_ae6b3827549c",
+          "timestamp": "2026-09-09T16:36:43.358298",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 4,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_4f79729cb054",
+          "timestamp": "2026-09-09T16:36:43.358301",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_79cfc32b8e07",
+          "timestamp": "2026-09-09T16:36:43.358379",
+          "entry_type": "disagreement",
+          "content": {
+            "proposition": "Dependency X is operationally required",
+            "my_position": "required",
+            "other_agent": "auditor_001",
+            "confidence": 0.85
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "runtime_traces",
+            "static_analysis"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_779b230ffd99",
+          "timestamp": "2026-09-09T16:36:43.358386",
+          "entry_type": "disagreement",
+          "content": {
+            "proposition": "Provider B is the active provider",
+            "my_position": "active",
+            "other_agent": "auditor_001",
+            "confidence": 0.9
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "runtime_traces"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_db29122761ee",
+          "timestamp": "2026-09-09T16:36:43.358401",
+          "entry_type": "disagreement",
+          "content": {
+            "proposition": "Historical evidence supports this action",
+            "my_position": "supports",
+            "other_agent": "auditor_001",
+            "confidence": 0.75
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "historical_snapshot"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        }
+      ]
+    },
+    "auditor_001": {
+      "agent_id": "auditor_001",
+      "agent_role": "auditor",
+      "trajectory_length": 24,
+      "hypotheses_count": 0,
+      "evidence_analyzed_count": 0,
+      "propositions_count": 0,
+      "disagreements_initiated": 0,
+      "disagreements_received": 0,
+      "entries": [
+        {
+          "entry_id": "entry_fadbd266e1db",
+          "timestamp": "2026-09-09T16:36:43.358130",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 0,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_a"
+          },
+          "world_state_id": 0,
+          "provenance": [
+            "state_0"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_e41a3d60f056",
+          "timestamp": "2026-09-09T16:36:43.358133",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider B is not authorized by current policy",
+            "confidence": 0.9,
+            "evidence": [
+              "policy_documentation",
+              "configuration"
+            ]
+          },
+          "world_state_id": 0,
+          "provenance": [
+            "policy_documentation"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_915e32fc65a7",
+          "timestamp": "2026-09-09T16:36:43.358136",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 0,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_aa0a68c06263",
+          "timestamp": "2026-09-09T16:36:43.358142",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 0,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_753fbab48b9e",
+          "timestamp": "2026-09-09T16:36:43.358180",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 1,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_b"
+          },
+          "world_state_id": 1,
+          "provenance": [
+            "state_1"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_04020553a4b0",
+          "timestamp": "2026-09-09T16:36:43.358183",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider B is not authorized by current policy",
+            "confidence": 0.9,
+            "evidence": [
+              "policy_documentation",
+              "configuration"
+            ]
+          },
+          "world_state_id": 1,
+          "provenance": [
+            "policy_documentation"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_8cc54d98253f",
+          "timestamp": "2026-09-09T16:36:43.358186",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 1,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_cbdc52645ed5",
+          "timestamp": "2026-09-09T16:36:43.358189",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 1,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_425727e57cf8",
+          "timestamp": "2026-09-09T16:36:43.358223",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 2,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_b"
+          },
+          "world_state_id": 2,
+          "provenance": [
+            "state_2"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_29db032efb9b",
+          "timestamp": "2026-09-09T16:36:43.358226",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider B is not authorized by current policy",
+            "confidence": 0.9,
+            "evidence": [
+              "policy_documentation",
+              "configuration"
+            ]
+          },
+          "world_state_id": 2,
+          "provenance": [
+            "policy_documentation"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_38d9c6fce6ce",
+          "timestamp": "2026-09-09T16:36:43.358229",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 2,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_0016f31df285",
+          "timestamp": "2026-09-09T16:36:43.358232",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 2,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_59bb0d4df225",
+          "timestamp": "2026-09-09T16:36:43.358263",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 3,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_b"
+          },
+          "world_state_id": 3,
+          "provenance": [
+            "state_3"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_6c605fc42524",
+          "timestamp": "2026-09-09T16:36:43.358266",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider B is not authorized by current policy",
+            "confidence": 0.9,
+            "evidence": [
+              "policy_documentation",
+              "configuration"
+            ]
+          },
+          "world_state_id": 3,
+          "provenance": [
+            "policy_documentation"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_a4ff2abe0071",
+          "timestamp": "2026-09-09T16:36:43.358269",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 3,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_9be3fafe2f89",
+          "timestamp": "2026-09-09T16:36:43.358272",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 3,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_894a86157587",
+          "timestamp": "2026-09-09T16:36:43.358304",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 4,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_a"
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "state_4"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_9eba4ca3dff1",
+          "timestamp": "2026-09-09T16:36:43.358307",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Provider B is not authorized by current policy",
+            "confidence": 0.9,
+            "evidence": [
+              "policy_documentation",
+              "configuration"
+            ]
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "policy_documentation"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_5af6009f6d8e",
+          "timestamp": "2026-09-09T16:36:43.358310",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 4,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_b484de39a98f",
+          "timestamp": "2026-09-09T16:36:43.358313",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_3bc596736ba1",
+          "timestamp": "2026-09-09T16:36:43.358383",
+          "entry_type": "disagreement",
+          "content": {
+            "proposition": "Dependency X is operationally required",
+            "my_position": "optional",
+            "other_agent": "researcher_001",
+            "confidence": 0.75
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "documentation",
+            "configuration"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_168aeb649919",
+          "timestamp": "2026-09-09T16:36:43.358389",
+          "entry_type": "disagreement",
+          "content": {
+            "proposition": "Provider B is the active provider",
+            "my_position": "configured_not_active",
+            "other_agent": "researcher_001",
+            "confidence": 0.8
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "configuration"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_930b7cdc269f",
+          "timestamp": "2026-09-09T16:36:43.358398",
+          "entry_type": "disagreement",
+          "content": {
+            "proposition": "Existing authorization permits remediation",
+            "my_position": "stale",
+            "other_agent": "operator_001",
+            "confidence": 0.85
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "temporal_snapshot",
+            "revocation_log"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_b5f728deec2c",
+          "timestamp": "2026-09-09T16:36:43.358405",
+          "entry_type": "disagreement",
+          "content": {
+            "proposition": "Historical evidence supports this action",
+            "my_position": "not_current_authority",
+            "other_agent": "researcher_001",
+            "confidence": 0.9
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "current_state",
+            "temporal_rules"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        }
+      ]
+    },
+    "operator_001": {
+      "agent_id": "operator_001",
+      "agent_role": "operator",
+      "trajectory_length": 21,
+      "hypotheses_count": 0,
+      "evidence_analyzed_count": 0,
+      "propositions_count": 0,
+      "disagreements_initiated": 0,
+      "disagreements_received": 0,
+      "entries": [
+        {
+          "entry_id": "entry_545ecf52acfa",
+          "timestamp": "2026-09-09T16:36:43.358146",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 0,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_a"
+          },
+          "world_state_id": 0,
+          "provenance": [
+            "state_0"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_61623dff5388",
+          "timestamp": "2026-09-09T16:36:43.358150",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Remediation requires authorization refresh",
+            "confidence": 0.75,
+            "evidence": [
+              "authorization_record"
+            ]
+          },
+          "world_state_id": 0,
+          "provenance": [
+            "authorization_record"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_dac917d5a546",
+          "timestamp": "2026-09-09T16:36:43.358153",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 0,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_8b76859709da",
+          "timestamp": "2026-09-09T16:36:43.358157",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 0,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_de74d1771de1",
+          "timestamp": "2026-09-09T16:36:43.358192",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 1,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_b"
+          },
+          "world_state_id": 1,
+          "provenance": [
+            "state_1"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_536b4cfd1126",
+          "timestamp": "2026-09-09T16:36:43.358195",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Remediation requires authorization refresh",
+            "confidence": 0.75,
+            "evidence": [
+              "authorization_record"
+            ]
+          },
+          "world_state_id": 1,
+          "provenance": [
+            "authorization_record"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_59f1ed194929",
+          "timestamp": "2026-09-09T16:36:43.358198",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 1,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_02d074f72e2c",
+          "timestamp": "2026-09-09T16:36:43.358201",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 1,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_f8c785c88c87",
+          "timestamp": "2026-09-09T16:36:43.358235",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 2,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_b"
+          },
+          "world_state_id": 2,
+          "provenance": [
+            "state_2"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_61a2d29d7347",
+          "timestamp": "2026-09-09T16:36:43.358238",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Remediation requires authorization refresh",
+            "confidence": 0.75,
+            "evidence": [
+              "authorization_record"
+            ]
+          },
+          "world_state_id": 2,
+          "provenance": [
+            "authorization_record"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_7a17920b68b9",
+          "timestamp": "2026-09-09T16:36:43.358241",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 2,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_ae3fb400c0f5",
+          "timestamp": "2026-09-09T16:36:43.358244",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 2,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_dc892ae84f65",
+          "timestamp": "2026-09-09T16:36:43.358275",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 3,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_b"
+          },
+          "world_state_id": 3,
+          "provenance": [
+            "state_3"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_2cb8601e4b54",
+          "timestamp": "2026-09-09T16:36:43.358278",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Remediation requires authorization refresh",
+            "confidence": 0.75,
+            "evidence": [
+              "authorization_record"
+            ]
+          },
+          "world_state_id": 3,
+          "provenance": [
+            "authorization_record"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_65ab6adcd7c1",
+          "timestamp": "2026-09-09T16:36:43.358282",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 3,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_d6dab696ea93",
+          "timestamp": "2026-09-09T16:36:43.358285",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 3,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_823b568eafe7",
+          "timestamp": "2026-09-09T16:36:43.358317",
+          "entry_type": "observation",
+          "content": {
+            "action": "observe",
+            "world_state_id": 4,
+            "documented_provider": "provider_a",
+            "actual_provider": "provider_a"
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "state_4"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_a587704f3be1",
+          "timestamp": "2026-09-09T16:36:43.358320",
+          "entry_type": "hypothesis",
+          "content": {
+            "hypothesis": "Remediation requires authorization refresh",
+            "confidence": 0.75,
+            "evidence": [
+              "authorization_record"
+            ]
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "authorization_record"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_021ecb0eba22",
+          "timestamp": "2026-09-09T16:36:43.358323",
+          "entry_type": "evidence_request",
+          "content": {
+            "action": "request_evidence",
+            "evidence_type": "dependency_verification"
+          },
+          "world_state_id": 4,
+          "provenance": [],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_8b4871518660",
+          "timestamp": "2026-09-09T16:36:43.358327",
+          "entry_type": "evidence_analysis",
+          "content": {
+            "action": "analyze",
+            "evidence_findings": "provider_drift_detected"
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "evidence_001"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        },
+        {
+          "entry_id": "entry_45feda4e72e8",
+          "timestamp": "2026-09-09T16:36:43.358393",
+          "entry_type": "disagreement",
+          "content": {
+            "proposition": "Existing authorization permits remediation",
+            "my_position": "valid",
+            "other_agent": "auditor_001",
+            "confidence": 0.7
+          },
+          "world_state_id": 4,
+          "provenance": [
+            "authorization_record"
+          ],
+          "authority_basis": null,
+          "authorization_ref": null,
+          "capability_ref": null,
+          "parent_entry_id": null
+        }
+      ]
+    }
+  },
+  "disagreement_events": [
+    {
+      "disagreement_id": "disagreement_e5e887106e3f",
+      "timestamp": "2026-09-09T16:36:43.358344",
+      "agent_a_id": "researcher_001",
+      "agent_b_id": "auditor_001",
+      "proposition": "Dependency X is operationally required",
+      "agent_a_position": "required",
+      "agent_b_position": "optional",
+      "evidence_overlap": [
+        "runtime_traces"
+      ],
+      "evidence_independent": [
+        "documentation",
+        "configuration",
+        "static_analysis"
+      ],
+      "resolution": null,
+      "resolution_mechanism": null
+    },
+    {
+      "disagreement_id": "disagreement_e26bf0f17440",
+      "timestamp": "2026-09-09T16:36:43.358355",
+      "agent_a_id": "researcher_001",
+      "agent_b_id": "auditor_001",
+      "proposition": "Provider B is the active provider",
+      "agent_a_position": "active",
+      "agent_b_position": "configured_not_active",
+      "evidence_overlap": [],
+      "evidence_independent": [
+        "runtime_traces",
+        "configuration"
+      ],
+      "resolution": null,
+      "resolution_mechanism": null
+    },
+    {
+      "disagreement_id": "disagreement_c25f1023e011",
+      "timestamp": "2026-09-09T16:36:43.358364",
+      "agent_a_id": "operator_001",
+      "agent_b_id": "auditor_001",
+      "proposition": "Existing authorization permits remediation",
+      "agent_a_position": "valid",
+      "agent_b_position": "stale",
+      "evidence_overlap": [
+        "authorization_record"
+      ],
+      "evidence_independent": [
+        "temporal_snapshot",
+        "revocation_log"
+      ],
+      "resolution": null,
+      "resolution_mechanism": null
+    },
+    {
+      "disagreement_id": "disagreement_8a2f5b433e74",
+      "timestamp": "2026-09-09T16:36:43.358373",
+      "agent_a_id": "researcher_001",
+      "agent_b_id": "auditor_001",
+      "proposition": "Historical evidence supports this action",
+      "agent_a_position": "supports",
+      "agent_b_position": "not_current_authority",
+      "evidence_overlap": [
+        "historical_snapshot"
+      ],
+      "evidence_independent": [
+        "current_state",
+        "temporal_rules"
+      ],
+      "resolution": null,
+      "resolution_mechanism": null
+    }
+  ],
+  "authority_race_events": [
+    {
+      "race_id": "race_7ac1b66a12ac",
+      "timestamp": "2026-09-09T16:36:43.358434",
+      "agent_id": "operator_001",
+      "race_type": "toctou",
+      "description": "Authorization valid at request, revoked before execution",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "protocol_correct",
+      "protocol_response": "blocked"
+    },
+    {
+      "race_id": "race_14715590f40c",
+      "timestamp": "2026-09-09T16:36:43.358441",
+      "agent_id": "operator_001",
+      "race_type": "revocation_during_execution",
+      "description": "Revocation happens while execution is in progress",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "protocol_correct",
+      "protocol_response": "blocked"
+    },
+    {
+      "race_id": "race_73592c7a8ee5",
+      "timestamp": "2026-09-09T16:36:43.358445",
+      "agent_id": "operator_001",
+      "race_type": "policy_change_during_execution",
+      "description": "Policy changes from allow to prohibit during execution",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "protocol_correct",
+      "protocol_response": "blocked"
+    },
+    {
+      "race_id": "race_d74d30436e52",
+      "timestamp": "2026-09-09T16:36:43.358491",
+      "agent_id": "operator_001",
+      "race_type": "delegation_expiration_during_execution",
+      "description": "Delegation expires during execution",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "protocol_correct",
+      "protocol_response": "blocked"
+    },
+    {
+      "race_id": "race_f4405b680097",
+      "timestamp": "2026-09-09T16:36:43.358496",
+      "agent_id": "operator_001",
+      "race_type": "resource_identity_change",
+      "description": "Resource identity changes between authorization and execution",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "protocol_correct",
+      "protocol_response": "blocked"
+    },
+    {
+      "race_id": "race_3d747590e76c",
+      "timestamp": "2026-09-09T16:36:43.358500",
+      "agent_id": "operator_001",
+      "race_type": "capability_staleness",
+      "description": "Capability becomes stale before execution",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "protocol_correct",
+      "protocol_response": "blocked"
+    },
+    {
+      "race_id": "race_90ee07f47ad8",
+      "timestamp": "2026-09-09T16:36:43.358504",
+      "agent_id": "operator_001",
+      "race_type": "concurrent_remediation",
+      "description": "Agent A replaces provider, Agent B disables feature flag",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "conflicting_remediation",
+      "protocol_response": "blocked"
+    },
+    {
+      "race_id": "race_dbccf87a8f97",
+      "timestamp": "2026-09-09T16:36:43.358512",
+      "agent_id": "operator_001",
+      "race_type": "evidence_discovery_after_authorization",
+      "description": "New evidence discovered after authorization granted",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "inconclusive",
+      "protocol_response": "allowed"
+    },
+    {
+      "race_id": "race_99c4583332a6",
+      "timestamp": "2026-09-09T16:36:43.358517",
+      "agent_id": "operator_001",
+      "race_type": "authorization_during_world_transition",
+      "description": "Authorization requested during world state transition",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "protocol_correct",
+      "protocol_response": "allowed"
+    },
+    {
+      "race_id": "race_21a17b680b8a",
+      "timestamp": "2026-09-09T16:36:43.358522",
+      "agent_id": "operator_001",
+      "race_type": "capability_materialization_race",
+      "description": "Capability materialization races with revocation",
+      "time_of_check": "T0",
+      "time_of_use": "T1",
+      "outcome": "protocol_correct",
+      "protocol_response": "blocked"
+    }
+  ]
+}

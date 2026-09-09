@@ -1,0 +1,666 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-09T13:59:08.583950",
+    "repository": ".",
+    "total_classifications": 10
+  },
+  "classifications": [
+    {
+      "classification_id": "cls_hyp_0001",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0001",
+        "source": "src/sas/registry.py",
+        "target": "open(",
+        "dependency_type": "filesystem_call",
+        "consequence_type": "filesystem_mutation",
+        "severity": "medium",
+        "claim": "Potential Filesystem Mutation escape: open( in src/sas/registry.py",
+        "static_evidence": "gins\": []}\n        self._load()\n\n    def _load(self) -> None:\n        \"\"\"Load registry from disk, creating if missing.\"\"\"\n        if self.registry_path.exists():\n            try:\n                with open(self.registry_path) as f:\n                    self._data = json.load(f)\n            except (json.JSONDecodeError, OSError):\n                self._data = {\"version\": REGISTRY_VERSION, \"plugins\": []}\n  ",
+        "source_location": "src/sas/registry.py",
+        "target_location": "line 76",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of open( without authorization",
+        "created_at": "2026-09-09T13:59:08.086286"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0001_reach",
+          "hypothesis_id": "hyp_0001",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/registry.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.580153"
+        }
+      ],
+      "intervention": "Static analysis of open(",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to open(",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0001",
+      "created_at": "2026-09-09T13:59:08.580181"
+    },
+    {
+      "classification_id": "cls_hyp_0002",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0002",
+        "source": "src/sas/registry.py",
+        "target": "open(",
+        "dependency_type": "filesystem_call",
+        "consequence_type": "filesystem_mutation",
+        "severity": "medium",
+        "claim": "Potential Filesystem Mutation escape: open( in src/sas/registry.py",
+        "static_evidence": "ERSION, \"plugins\": []}\n            self._save()\n\n    def _save(self) -> None:\n        \"\"\"Persist registry to disk.\"\"\"\n        self.registry_path.parent.mkdir(parents=True, exist_ok=True)\n        with open(self.registry_path, \"w\") as f:\n            json.dump(self._data, f, indent=2)\n\n    def publish(self, entry: RegistryEntry) -> None:\n        \"\"\"Publish a plugin entry to the registry.\n\n        If a plu",
+        "source_location": "src/sas/registry.py",
+        "target_location": "line 87",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of open( without authorization",
+        "created_at": "2026-09-09T13:59:08.087955"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0002_reach",
+          "hypothesis_id": "hyp_0002",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/registry.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.580339"
+        }
+      ],
+      "intervention": "Static analysis of open(",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to open(",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0002",
+      "created_at": "2026-09-09T13:59:08.580346"
+    },
+    {
+      "classification_id": "cls_hyp_0003",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0003",
+        "source": "src/sas/argopack.py",
+        "target": "subprocess.",
+        "dependency_type": "process_execution",
+        "consequence_type": "process_execution",
+        "severity": "critical",
+        "claim": "Potential Subprocess Execution escape: subprocess. in src/sas/argopack.py",
+        "static_evidence": "tion\"],\n    },\n}\n\n\ndef _run_sas(args: list[str], **kwargs) -> dict:\n    \"\"\"Run an SAS CLI command and return parsed result.\"\"\"\n    cmd = [sys.executable, \"-m\", \"sas\"] + args\n    try:\n        result = subprocess.run(\n            cmd,\n            capture_output=True,\n            text=True,\n            timeout=30,\n            **kwargs,\n        )\n        return {\n            \"ok\": result.returncode == 0,\n       ",
+        "source_location": "src/sas/argopack.py",
+        "target_location": "line 119",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of subprocess. without authorization",
+        "created_at": "2026-09-09T13:59:08.089437"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0003_reach",
+          "hypothesis_id": "hyp_0003",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/argopack.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.580669"
+        }
+      ],
+      "intervention": "Static analysis of subprocess.",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to subprocess.",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0003",
+      "created_at": "2026-09-09T13:59:08.580684"
+    },
+    {
+      "classification_id": "cls_hyp_0004",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0004",
+        "source": "src/sas/__main__.py",
+        "target": "open(",
+        "dependency_type": "filesystem_call",
+        "consequence_type": "filesystem_mutation",
+        "severity": "medium",
+        "claim": "Potential Filesystem Mutation escape: open( in src/sas/__main__.py",
+        "static_evidence": "       report = _format_markdown_report(result)\n            if args.output != \"both\":\n                print(report)\n\n        # Write to file if requested\n        if args.output_file:\n            with open(args.output_file, \"w\") as f:\n                if args.output in (\"json\", \"both\"):\n                    import json\n                    f.write(json.dumps(result.to_dict(), indent=2, default=str))\n      ",
+        "source_location": "src/sas/__main__.py",
+        "target_location": "line 460",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of open( without authorization",
+        "created_at": "2026-09-09T13:59:08.099539"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0004_reach",
+          "hypothesis_id": "hyp_0004",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/__main__.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.581306"
+        }
+      ],
+      "intervention": "Static analysis of open(",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to open(",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0004",
+      "created_at": "2026-09-09T13:59:08.581322"
+    },
+    {
+      "classification_id": "cls_hyp_0005",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0005",
+        "source": "src/sas/quant/broker/adapter.py",
+        "target": "class BrokerAdapter",
+        "dependency_type": "direct_call",
+        "consequence_type": "broker_access",
+        "severity": "high",
+        "claim": "Potential BrokerAdapter Direct Access escape: class BrokerAdapter in src/sas/quant/broker/adapter.py",
+        "static_evidence": "uture__ import annotations\n\nfrom abc import ABC, abstractmethod\nfrom typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from sas.quant.broker import Order\n    from sas.quant.risk import TradeIntent\n\n\nclass BrokerAdapter(ABC):\n    \"\"\"Abstract broker adapter.\n\n    The orchestrator calls ``submit_trade`` with an approved\n    ``TradeIntent``.  The adapter is responsible for translating that\n    intent into a broker-spec",
+        "source_location": "src/sas/quant/broker/adapter.py",
+        "target_location": "line 28",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of class BrokerAdapter without authorization",
+        "created_at": "2026-09-09T13:59:08.182941"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0005_reach",
+          "hypothesis_id": "hyp_0005",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/quant/broker/adapter.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.581585"
+        }
+      ],
+      "intervention": "Static analysis of class BrokerAdapter",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to class BrokerAdapter",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0005",
+      "created_at": "2026-09-09T13:59:08.581596"
+    },
+    {
+      "classification_id": "cls_hyp_0006",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0006",
+        "source": "src/sas/quant/broker/alpaca.py",
+        "target": "requests.",
+        "dependency_type": "network_call",
+        "consequence_type": "network_mutation",
+        "severity": "high",
+        "claim": "Potential Network Mutation escape: requests. in src/sas/quant/broker/alpaca.py",
+        "static_evidence": "_data = {\n            \"symbol\": symbol,\n            \"qty\": qty,\n            \"side\": side,\n            \"type\": \"market\",\n            \"time_in_force\": \"day\",\n        }\n\n        try:\n            resp = _requests.post(\n                f\"{self._base_url}/v2/orders\",\n                json=order_data,\n                headers=headers,\n                timeout=30,\n            )\n        except Exception as e:\n        ",
+        "source_location": "src/sas/quant/broker/alpaca.py",
+        "target_location": "line 133",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of requests. without authorization",
+        "created_at": "2026-09-09T13:59:08.186030"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0006_reach",
+          "hypothesis_id": "hyp_0006",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/quant/broker/alpaca.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.581886"
+        }
+      ],
+      "intervention": "Static analysis of requests.",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to requests.",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0006",
+      "created_at": "2026-09-09T13:59:08.581898"
+    },
+    {
+      "classification_id": "cls_hyp_0007",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0007",
+        "source": "src/sas/quant/cli/__init__.py",
+        "target": "open(",
+        "dependency_type": "filesystem_call",
+        "consequence_type": "filesystem_mutation",
+        "severity": "medium",
+        "claim": "Potential Filesystem Mutation escape: open( in src/sas/quant/cli/__init__.py",
+        "static_evidence": "n (\"markdown\", \"both\"):\n        report = _format_markdown_report(result)\n        if output != \"both\":\n            click.echo(report)\n\n    # Write to file if requested\n    if output_file:\n        with open(output_file, \"w\") as f:\n            if output in (\"json\", \"both\"):\n                f.write(json.dumps(result.to_dict(), indent=2, default=str))\n            else:\n                f.write(_format_markdo",
+        "source_location": "src/sas/quant/cli/__init__.py",
+        "target_location": "line 221",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of open( without authorization",
+        "created_at": "2026-09-09T13:59:08.214344"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0007_reach",
+          "hypothesis_id": "hyp_0007",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/quant/cli/__init__.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.582272"
+        }
+      ],
+      "intervention": "Static analysis of open(",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to open(",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0007",
+      "created_at": "2026-09-09T13:59:08.582283"
+    },
+    {
+      "classification_id": "cls_hyp_0008",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0008",
+        "source": "src/sas/quant/experiment/epistemic_calibration.py",
+        "target": "open(",
+        "dependency_type": "filesystem_call",
+        "consequence_type": "filesystem_mutation",
+        "severity": "medium",
+        "claim": "Potential Filesystem Mutation escape: open( in src/sas/quant/experiment/epistemic_calibration.py",
+        "static_evidence": "_evidence,\n            \"avg_authority_violations\": s.avg_authority_violations,\n            \"expected_status\": s.expected_status,\n            \"actual_statuses\": s.actual_statuses,\n        })\n\n    with open(path / \"calibration_results.json\", \"w\") as f:\n        json.dump(data, f, indent=2)\n\n\n# ---------------------------------------------------------------------------\n# Report Generation\n# ---------------",
+        "source_location": "src/sas/quant/experiment/epistemic_calibration.py",
+        "target_location": "line 533",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of open( without authorization",
+        "created_at": "2026-09-09T13:59:08.357111"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0008_reach",
+          "hypothesis_id": "hyp_0008",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/quant/experiment/epistemic_calibration.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.582787"
+        }
+      ],
+      "intervention": "Static analysis of open(",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to open(",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0008",
+      "created_at": "2026-09-09T13:59:08.582804"
+    },
+    {
+      "classification_id": "cls_hyp_0009",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0009",
+        "source": "src/sas/quant/experiment/evidence_accumulation.py",
+        "target": "open(",
+        "dependency_type": "filesystem_call",
+        "consequence_type": "filesystem_mutation",
+        "severity": "medium",
+        "claim": "Potential Filesystem Mutation escape: open( in src/sas/quant/experiment/evidence_accumulation.py",
+        "static_evidence": "plication.independence_score,\n            },\n            \"established\": r.established,\n            \"not_established\": r.not_established,\n            \"limitations\": r.limitations,\n        })\n\n    with open(path / \"evidence_accumulation_results.json\", \"w\") as f:\n        json.dump(data, f, indent=2)\n\n\n# ---------------------------------------------------------------------------\n# Report Generation\n# -----",
+        "source_location": "src/sas/quant/experiment/evidence_accumulation.py",
+        "target_location": "line 292",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of open( without authorization",
+        "created_at": "2026-09-09T13:59:08.432021"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0009_reach",
+          "hypothesis_id": "hyp_0009",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/quant/experiment/evidence_accumulation.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.583328"
+        }
+      ],
+      "intervention": "Static analysis of open(",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to open(",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0009",
+      "created_at": "2026-09-09T13:59:08.583341"
+    },
+    {
+      "classification_id": "cls_hyp_0010",
+      "hypothesis": {
+        "hypothesis_id": "hyp_0010",
+        "source": "src/sas/core/config.py",
+        "target": "open(",
+        "dependency_type": "filesystem_call",
+        "consequence_type": "filesystem_mutation",
+        "severity": "medium",
+        "claim": "Potential Filesystem Mutation escape: open( in src/sas/core/config.py",
+        "static_evidence": "one = None\n\n\ndef parse_sas_yaml(path: Path) -> SASConfig:\n    \"\"\"Parse sas.yaml into a SASConfig dataclass.\"\"\"\n    if not path.exists():\n        # Return defaults\n        return SASConfig()\n\n    with open(path) as f:\n        raw: dict[str, Any] = yaml.safe_load(f) or {}\n\n    config = SASConfig()\n\n    # Model\n    model = raw.get(\"model\", {})\n    primary = model.get(\"primary\", {})\n    if primary:\n       ",
+        "source_location": "src/sas/core/config.py",
+        "target_location": "line 77",
+        "alternatives": [
+          "Path is wrapped by capability-bound executor",
+          "Path is only reachable from trusted computing base",
+          "Path is test-only and not reachable in production",
+          "Path is informational (read-only)"
+        ],
+        "required_experiment": "Attempt direct invocation of open( without authorization",
+        "created_at": "2026-09-09T13:59:08.464151"
+      },
+      "classification": "real_escape",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "evidence_id": "ev_hyp_0010_reach",
+          "hypothesis_id": "hyp_0010",
+          "evidence_type": "reachability_analysis",
+          "description": "Path is reachable without capability enforcement",
+          "source": "src/sas/core/config.py",
+          "result": "REACHABLE",
+          "raw_output": "",
+          "created_at": "2026-09-09T13:59:08.583735"
+        }
+      ],
+      "intervention": "Static analysis of open(",
+      "scope": "SAS codebase",
+      "environment": "all",
+      "temporal_boundary": "static",
+      "remediation": "Add capability enforcement to open(",
+      "verification_result": "",
+      "provenance_id": "prov_hyp_0010",
+      "created_at": "2026-09-09T13:59:08.583752"
+    }
+  ],
+  "tcb_inventory": [
+    {
+      "component_id": "tcb_001",
+      "name": "capability_bound_broker",
+      "privilege": "Wrap broker adapter with capability enforcement",
+      "consequence_types": [
+        "trade",
+        "external_api_call"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Wrap broker adapter with capability enforcement",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/runtime_enforcement.py",
+      "attack_surface": "minimal",
+      "can_create_authority": false,
+      "can_bypass_capability": false,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_002",
+      "name": "capability_bound_substrate",
+      "privilege": "Wrap substrate execution with capability enforcement",
+      "consequence_types": [
+        "process_execution",
+        "compute_execution"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Wrap substrate execution with capability enforcement",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/capability_bound_substrate.py",
+      "attack_surface": "minimal",
+      "can_create_authority": false,
+      "can_bypass_capability": false,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_003",
+      "name": "capability_bound_auth",
+      "privilege": "Wrap credential access with capability enforcement",
+      "consequence_types": [
+        "credential_access"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Wrap credential access with capability enforcement",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/capability_bound_auth.py",
+      "attack_surface": "minimal",
+      "can_create_authority": false,
+      "can_bypass_capability": false,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_004",
+      "name": "consequence_executor",
+      "privilege": "Execute consequential effects through protocol",
+      "consequence_types": [
+        "external_consequential",
+        "state_transforming"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Execute consequential effects through protocol",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/consequence_executor.py",
+      "attack_surface": "minimal",
+      "can_create_authority": false,
+      "can_bypass_capability": false,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_005",
+      "name": "capability_bound_broker",
+      "privilege": "Wrap broker adapter with capability enforcement",
+      "consequence_types": [
+        "trade",
+        "external_api_call"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Wrap broker adapter with capability enforcement",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/capability_bound_broker.py",
+      "attack_surface": "minimal",
+      "can_create_authority": false,
+      "can_bypass_capability": false,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_006",
+      "name": "capability_verifier",
+      "privilege": "Verify execution capabilities",
+      "consequence_types": [
+        "verification"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Verify execution capabilities",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/capability_verifier.py",
+      "attack_surface": "minimal",
+      "can_create_authority": false,
+      "can_bypass_capability": false,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_007",
+      "name": "runtime_authority_gate",
+      "privilege": "Gate all runtime authority decisions",
+      "consequence_types": [
+        "authority_management"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Gate all runtime authority decisions",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/runtime_authority_gate.py",
+      "attack_surface": "process_execution",
+      "can_create_authority": false,
+      "can_bypass_capability": false,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_008",
+      "name": "broker_adapter",
+      "privilege": "Direct broker access (lower-level)",
+      "consequence_types": [
+        "trade",
+        "external_api_call"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Direct broker access (lower-level)",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/broker/adapter.py",
+      "attack_surface": "minimal",
+      "can_create_authority": false,
+      "can_bypass_capability": true,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_009",
+      "name": "broker_adapter",
+      "privilege": "Direct broker access (lower-level)",
+      "consequence_types": [
+        "trade",
+        "external_api_call"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Direct broker access (lower-level)",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/broker/__init__.py",
+      "attack_surface": "minimal",
+      "can_create_authority": false,
+      "can_bypass_capability": true,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_010",
+      "name": "simulated_broker",
+      "privilege": "Simulated broker for testing",
+      "consequence_types": [
+        "trade"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Simulated broker for testing",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/broker/__init__.py",
+      "attack_surface": "minimal",
+      "can_create_authority": false,
+      "can_bypass_capability": true,
+      "can_mutate_authority_state": false
+    },
+    {
+      "component_id": "tcb_011",
+      "name": "broker_adapter",
+      "privilege": "Direct broker access (lower-level)",
+      "consequence_types": [
+        "trade",
+        "external_api_call"
+      ],
+      "callers": [],
+      "trust_assumption": "Component is trusted to enforce Direct broker access (lower-level)",
+      "authority_derivation": "Derived from formal protocol specification",
+      "verification_mechanism": "Static analysis + adversarial tests",
+      "provenance": "src/sas/quant/broker/alpaca.py",
+      "attack_surface": "network, environment",
+      "can_create_authority": false,
+      "can_bypass_capability": true,
+      "can_mutate_authority_state": false
+    }
+  ],
+  "summary": {
+    "classification_counts": {
+      "real_escape": 10
+    },
+    "severity_counts": {
+      "medium": 7,
+      "critical": 1,
+      "high": 2
+    },
+    "remediation_required": 10
+  }
+}

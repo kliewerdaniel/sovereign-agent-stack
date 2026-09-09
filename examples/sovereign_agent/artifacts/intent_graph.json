@@ -1,0 +1,162 @@
+{
+  "graph_id": "intent_bb18ad7e7d94",
+  "timestamp": "2026-09-09T16:56:19.368432",
+  "proposal_count": 5,
+  "edge_count": 2,
+  "conflict_count": 0,
+  "proposals": {
+    "prop_investigate_001": {
+      "proposal_id": "prop_investigate_001",
+      "agent_id": "researcher_001",
+      "action": "investigate",
+      "resource": "dependency_x",
+      "proposition": "Dependency X is operationally required",
+      "status": "proposed",
+      "evidence_dependencies": [
+        "runtime_traces",
+        "static_analysis"
+      ],
+      "resource_dependencies": [
+        "dependency_x"
+      ],
+      "prerequisite_actions": [],
+      "postconditions": [
+        "dependency_x_investigated"
+      ],
+      "assumptions": [
+        "dependency_x_exists"
+      ]
+    },
+    "prop_validate_001": {
+      "proposal_id": "prop_validate_001",
+      "agent_id": "auditor_001",
+      "action": "validate",
+      "resource": "dependency_x",
+      "proposition": "Dependency X is optional and should be removed",
+      "status": "proposed",
+      "evidence_dependencies": [
+        "documentation",
+        "configuration"
+      ],
+      "resource_dependencies": [
+        "dependency_x"
+      ],
+      "prerequisite_actions": [],
+      "postconditions": [
+        "dependency_x_validated"
+      ],
+      "assumptions": [
+        "dependency_x_exists"
+      ]
+    },
+    "prop_backup_001": {
+      "proposal_id": "prop_backup_001",
+      "agent_id": "operator_001",
+      "action": "backup",
+      "resource": "payment_database",
+      "proposition": "Database must be backed up before provider replacement",
+      "status": "proposed",
+      "evidence_dependencies": [
+        "database_schema"
+      ],
+      "resource_dependencies": [
+        "payment_database"
+      ],
+      "prerequisite_actions": [],
+      "postconditions": [
+        "database_backed_up"
+      ],
+      "assumptions": [
+        "database_exists",
+        "backup_storage_available"
+      ]
+    },
+    "prop_replace_001": {
+      "proposal_id": "prop_replace_001",
+      "agent_id": "operator_001",
+      "action": "replace",
+      "resource": "provider",
+      "proposition": "Provider A should be replaced with Provider B",
+      "status": "proposed",
+      "evidence_dependencies": [
+        "provider_metrics",
+        "cost_analysis"
+      ],
+      "resource_dependencies": [
+        "provider"
+      ],
+      "prerequisite_actions": [
+        "database_backed_up"
+      ],
+      "postconditions": [
+        "provider_replaced"
+      ],
+      "assumptions": [
+        "database_backed_up",
+        "provider_b_available"
+      ]
+    },
+    "prop_verify_001": {
+      "proposal_id": "prop_verify_001",
+      "agent_id": "operator_001",
+      "action": "verify",
+      "resource": "provider",
+      "proposition": "Replacement must be verified before production use",
+      "status": "proposed",
+      "evidence_dependencies": [
+        "test_results"
+      ],
+      "resource_dependencies": [
+        "provider"
+      ],
+      "prerequisite_actions": [
+        "provider_replaced"
+      ],
+      "postconditions": [
+        "provider_verified"
+      ],
+      "assumptions": [
+        "provider_replaced"
+      ]
+    }
+  },
+  "edges": [
+    {
+      "edge_id": "edge_a68280776007",
+      "source_id": "prop_backup_001",
+      "target_id": "prop_replace_001",
+      "relation": "sequential",
+      "condition": null,
+      "description": "prop_backup_001 must complete before prop_replace_001",
+      "conflict_type": null
+    },
+    {
+      "edge_id": "edge_9e3211d1e0e5",
+      "source_id": "prop_replace_001",
+      "target_id": "prop_verify_001",
+      "relation": "sequential",
+      "condition": null,
+      "description": "prop_replace_001 must complete before prop_verify_001",
+      "conflict_type": null
+    }
+  ],
+  "conflicts": [],
+  "independent_proposals": [
+    "prop_investigate_001",
+    "prop_validate_001",
+    "prop_backup_001"
+  ],
+  "sequential_chains": [
+    [
+      "prop_investigate_001"
+    ],
+    [
+      "prop_validate_001"
+    ],
+    [
+      "prop_backup_001",
+      "prop_replace_001",
+      "prop_verify_001"
+    ]
+  ]
+}

@@ -1,0 +1,140 @@
+version: "3.8"
+
+services:
+  checkout:
+    build: ./services/checkout
+    ports:
+      - "8080:8080"
+    environment:
+      - PAYMENTS_SERVICE_URL=http://payments:8080
+      - CUSTOMER_SERVICE_URL=http://customer-profile:8080
+    depends_on:
+      - payments
+      - customer-profile
+
+  payments:
+    build: ./services/payments
+    ports:
+      - "8081:8080"
+    environment:
+      - PAYMENTS_DATABASE_URL=postgresql://postgres:postgres@payments-db:5432/payments
+      - LEDGER_SERVICE_URL=http://ledger:8080
+      - FRAUD_SERVICE_URL=http://fraud:8080
+      - CUSTOMER_PROFILE_URL=http://customer-profile:8080
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - payments-db
+      - ledger
+      - fraud
+      - customer-profile
+      - redis
+
+  ledger:
+    build: ./services/ledger
+    ports:
+      - "8082:8080"
+    environment:
+      - LEDGER_DATABASE_URL=postgresql://postgres:postgres@ledger-db:5432/ledger
+    depends_on:
+      - ledger-db
+
+  refunds:
+    build: ./services/refunds
+    ports:
+      - "8083:8080"
+    environment:
+      - REFUNDS_DATABASE_URL=postgresql://postgres:postgres@refunds-db:5432/refunds
+      - PAYMENTS_SERVICE_URL=http://payments:8080
+      - LEDGER_SERVICE_URL=http://ledger:8080
+    depends_on:
+      - refunds-db
+      - payments
+      - ledger
+
+  notifications:
+    build: ./services/notifications
+    ports:
+      - "8084:8080"
+    environment:
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+
+  fraud:
+    build: ./services/fraud
+    ports:
+      - "8085:8080"
+    environment:
+      - ML_MODEL_URL=http://fraud-ml-model:8080
+    depends_on:
+      - fraud-ml-model
+
+  reconciliation:
+    build: ./services/reconciliation
+    ports:
+      - "8086:8080"
+    environment:
+      - RECONCILIATION_DATABASE_URL=postgresql://postgres:postgres@reconciliation-db:5432/reconciliation
+      - LEDGER_SERVICE_URL=http://ledger:8080
+      - PAYMENTS_SERVICE_URL=http://payments:8080
+    depends_on:
+      - reconciliation-db
+      - ledger
+      - payments
+
+  # Infrastructure services
+  payments-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=payments
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - payments-data:/var/lib/postgresql/data
+
+  ledger-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=ledger
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ledger-data:/var/lib/postgresql/data
+
+  refunds-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=refunds
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - refunds-data:/var/lib/postgresql/data
+
+  reconciliation-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=reconciliation
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - reconciliation-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # External services (mocked in development)
+  customer-profile:
+    image: mockserver/mockserver:latest
+    ports:
+      - "8087:8080"
+    environment:
+      - MOCKSERVER_INITIALIZATION_PATH_PATH=/config
+
+  fraud-ml-model:
+    image: mockserver/mockserver:latest
+    ports:
+      - "8088:8080"
+
+volumes:
+  payments-data:
+  ledger-data:
+  refunds-data:
+  reconciliation-data:

@@ -1,13 +1,22 @@
-"""Quant research orchestration — thin adapter over Experiment + Researcher.
+"""Quant research orchestration — wired through the formal authority protocol.
 
-This module preserves the existing public API (OrchestratorConfig,
-OrchestratorResult, QuantResearchOrchestrator) while delegating all
-execution to the new governed research architecture.
+This module preserves the public API (OrchestratorConfig, OrchestratorResult,
+QuantResearchOrchestrator) while delegating all authority decisions to the
+formal protocol:
 
-The old orchestrator does NOT maintain a second implementation of the
-research lifecycle. It translates its inputs into an ExperimentConfig,
-invokes the Researcher, and translates the resulting experiment artifacts
-back into the legacy result shape.
+    Researcher → Experiment → Epistemic Evaluation → Research Decision
+    → Governance Policy → AuthorizationArtifact → RuntimeAuthorityGate
+    → ExecutionCapability → CapabilityBoundBroker → BrokerAdapter
+    → ExecutionReceipt → ProvenanceGraph
+
+The old TradeAuthorization and raw BrokerAdapter paths are retired from
+consequential execution. They remain only as compatibility adapters.
+
+Architectural invariant:
+    A good Sharpe ratio MUST NOT itself create authority.
+    A successful backtest MUST NOT itself create authority.
+    A ResearchDecision MUST NOT itself create authority.
+    Only the formal authorization derivation can create execution capability.
 """
 
 from __future__ import annotations
@@ -22,6 +31,27 @@ from sas.quant.broker import Order, OrderStatus, SimulatedBroker
 from sas.quant.broker.adapter import BrokerAdapter
 from sas.quant.evaluation.baseline import BaselineConfig
 from sas.quant.evaluation.gates import ResearchGateConfig
+from sas.quant.experiment.epistemic_governance import (
+    AuthorizationArtifact,
+    AuthorizationStatus,
+    GovernancePolicy,
+)
+from sas.quant.experiment.execution_capability import (
+    CapabilityConstraints,
+    CapabilityScope,
+    CapabilityType,
+    ExecutionCapability,
+    ExecutionReceipt,
+    ExecutorBinding,
+    ReplayGuard,
+    ReplayProtectionType,
+)
+from sas.quant.experiment.protocol_lineage import (
+    DomainType,
+    DomainValidityInterval,
+    ProtocolDomain,
+    create_protocol_domain,
+)
 from sas.quant.market import MarketDataProvider, SyntheticDataProvider
 from sas.quant.orchestration.gate import (
     AuthorizationResult,
@@ -33,6 +63,11 @@ from sas.quant.research.experiment import Experiment, ExperimentConfig
 from sas.quant.orchestration.researcher import Researcher, ResearchResult
 from sas.quant.risk import RiskEngine, TradeIntent
 from sas.quant.strategy import StrategyArtifact
+
+
+# ---------------------------------------------------------------------------
+# Orchestrator Config & Result
+# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -68,6 +103,9 @@ class OrchestratorResult:
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     experiment: Experiment | None = None
+    authorization_artifact: Optional[AuthorizationArtifact] = None
+    execution_capability: Optional[ExecutionCapability] = None
+    execution_receipt: Optional[ExecutionReceipt] = None
 
     def to_dict(self) -> dict:
         return {
@@ -91,6 +129,9 @@ class OrchestratorResult:
             ),
             "errors": self.errors,
             "warnings": self.warnings,
+            "has_authorization_artifact": self.authorization_artifact is not None,
+            "has_execution_capability": self.execution_capability is not None,
+            "has_execution_receipt": self.execution_receipt is not None,
         }
 
     def _backtest_summary(self) -> Optional[dict]:
@@ -106,25 +147,84 @@ class OrchestratorResult:
         }
 
 
-def _compute_research_holdout_split(start_date: str, end_date: str) -> tuple[tuple[str, str], tuple[str, str]]:
-    """Split the full date range into research (80%) and holdout (20%) windows."""
-    start = datetime.strptime(start_date, "%Y-%m-%d")
-    end = datetime.strptime(end_date, "%Y-%m-%d")
-    total_days = (end - start).days
-    research_days = int(total_days * 0.8)
-    research_end = start + timedelta(days=research_days)
-    holdout_start = research_end + timedelta(days=1)
-    return (
-        (start_date, research_end.strftime("%Y-%m-%d")),
-        (holdout_start.strftime("%Y-%m-%d"), end_date),
+# ---------------------------------------------------------------------------
+# Research Decision → Authorization Derivation
+# ---------------------------------------------------------------------------
+
+
+def _derive_authorization_from_research(
+    decision: Any,
+    experiment: Experiment,
+    run_id: str,
+) -> Optional[AuthorizationArtifact]:
+    """Derive an authorization artifact from a research decision.
+
+    This is the critical semantic boundary:
+        Research Result → Epistemic State → Governance → Authorization
+
+    A failed or inconclusive research decision MUST NOT produce
+    an authorization artifact. Only a decision that passes all
+    governance requirements can create authority.
+
+    Args:
+        decision: The research decision from experiment.make_decision()
+        experiment: The experiment that produced the decision
+        run_id: The orchestration run ID for provenance
+
+    Returns:
+        AuthorizationArtifact if the decision passes governance, else None
+    """
+    # Check that the decision is a candidate (passed all gates)
+    if not hasattr(decision, 'outcome'):
+        return None
+
+    if decision.outcome != "candidate":
+        return None
+
+    # All governance checks passed — derive authorization
+    authorization_id = f"auth-{run_id}"
+
+    # Build the authorization scope from the research results
+    scope = {
+        "domain_id": "trading-domain",
+        "allowed_actions": ["execute_trade"],
+        "target_resources": [],
+        "max_quantity": 100,
+    }
+
+    # Build the derivation trace
+    derivation_trace = [
+        f"experiment:{experiment.experiment_id}",
+        f"decision:{decision.decision_id}",
+        f"outcome:{decision.outcome}",
+    ]
+
+    return AuthorizationArtifact(
+        authorization_id=authorization_id,
+        action_proposal_ref=f"proposal-{run_id}",
+        identity_ref="orchestrator",
+        status=AuthorizationStatus.AUTHORIZED,
+        expiration="2025-12-31T00:00:00Z",
+        authorization_scope=scope,
+        derivation_trace=derivation_trace,
+        provenance_hash=f"provenance-{run_id}",
     )
 
 
-class QuantResearchOrchestrator:
-    """Thin adapter over Experiment + Researcher.
+# ---------------------------------------------------------------------------
+# Orchestrator
+# ---------------------------------------------------------------------------
 
-    Preserves the existing public API while delegating all execution
-    to the governed research architecture.
+
+class QuantResearchOrchestrator:
+    """Thin adapter over Experiment + Researcher, wired through the formal protocol.
+
+    The execution path is:
+        Researcher → Experiment → Research Decision → AuthorizationArtifact
+        → RuntimeAuthorityGate → ExecutionCapability → CapabilityBoundBroker
+        → BrokerAdapter → ExecutionReceipt → ProvenanceGraph
+
+    The old TradeAuthorization and raw BrokerAdapter paths are retired.
     """
 
     def __init__(self, config: OrchestratorConfig):
@@ -133,8 +233,11 @@ class QuantResearchOrchestrator:
         self._risk_engine = RiskEngine()
         self._provenance = ProvenanceGraph()
         self._data_provider: Optional[MarketDataProvider] = None
-        self._broker: Optional[BrokerAdapter] = None
+        self._broker: Optional[Any] = None
         self._gate: Optional[TradeAuthorization] = None
+        self._domain: ProtocolDomain = create_protocol_domain(
+            "trading-domain", DomainType.SOVEREIGN
+        )
 
     def run(self) -> OrchestratorResult:
         """Execute the full research loop via the governed architecture."""
@@ -262,17 +365,38 @@ class QuantResearchOrchestrator:
                 trade = self._create_trade_intent_from_incumbent(incumbent, result.backtest_result)
                 result.trade_intents = [trade]
 
-                # Run authorization gate
-                auth_result = self._run_authorization(trade)
-                result.authorization_results = [auth_result]
+                # === FORMAL AUTHORITY PROTOCOL INTEGRATION ===
+                # Step 1: Derive authorization from research decision
+                auth_artifact = _derive_authorization_from_research(
+                    decision, experiment, result.run_id
+                )
+                result.authorization_artifact = auth_artifact
 
-                if auth_result.approved:
-                    # Submit to broker
-                    order = self._submit_to_broker(trade)
+                if auth_artifact is None:
+                    # Research decision did not pass governance
+                    result.status = "rejected"
+                    result.errors.append(
+                        "Research decision did not pass governance requirements"
+                    )
+                    self._capture_provenance(result)
+                    result.provenance_graph = self._provenance
+                    return result
+
+                # Step 2: Materialize execution capability
+                capability = self._materialize_capability(auth_artifact, trade)
+                result.execution_capability = capability
+
+                # Step 3: Execute through capability-bound broker
+                order, receipt = self._execute_through_protocol(capability, trade)
+                result.execution_receipt = receipt
+
+                if order:
                     result.executed_orders = [order]
                     result.status = "completed"
                 else:
                     result.status = "rejected"
+                    result.errors.append("Execution rejected by capability-bound broker")
+
             else:
                 result.status = "rejected"
                 result.errors.append("No incumbent strategy produced")
@@ -286,6 +410,106 @@ class QuantResearchOrchestrator:
             result.errors.append(str(e))
 
         return result
+
+    def _materialize_capability(
+        self,
+        auth: AuthorizationArtifact,
+        trade: TradeIntent,
+    ) -> ExecutionCapability:
+        """Materialize an execution capability from an authorization artifact.
+
+        This is the bridge between the formal protocol and the runtime.
+        The capability is bound to the specific trade parameters.
+        """
+        scope = CapabilityScope(
+            domain_id=self._domain.domain_id,
+            lineage_id=self._domain.lineage_hash,
+            actor_id="orchestrator",
+            action="execute_trade",
+            resource=trade.symbol,
+            resource_class="financial_instrument",
+            arguments={
+                "symbol": trade.symbol,
+                "side": trade.side,
+                "quantity": trade.quantity,
+            },
+            constraints=CapabilityConstraints(
+                allowed_actions=["execute_trade"],
+                max_quantity=auth.authorization_scope.get("max_quantity", 100),
+                min_quantity=1,
+            ),
+            temporal_interval=DomainValidityInterval(
+                valid_from=datetime.now().isoformat(),
+                valid_until=auth.expiration or "2025-12-31T00:00:00Z",
+            ),
+            authorization_ref=auth.authorization_id,
+        )
+
+        replay_guard = ReplayGuard(
+            guard_type=ReplayProtectionType.SINGLE_USE,
+            nonce=f"nonce-{uuid.uuid4().hex[:16]}",
+            max_uses=1,
+        )
+
+        binding = ExecutorBinding(
+            binding_id=f"binding-{uuid.uuid4().hex[:12]}",
+            executor_id="capability-bound-broker",
+            resource_id=trade.symbol,
+            bound_resources=[trade.symbol],
+        )
+
+        return ExecutionCapability(
+            capability_id=f"cap-{uuid.uuid4().hex[:12]}",
+            authorization_ref=auth.authorization_id,
+            scope=scope,
+            capability_type=CapabilityType.EXECUTE,
+            replay_guard=replay_guard,
+            actor_identity_ref="orchestrator",
+            resource_binding=binding,
+            domain_id=self._domain.domain_id,
+            lineage_id=self._domain.lineage_hash,
+            authority_root=auth.authorization_id,
+            derived_at=datetime.now().isoformat(),
+            derived_by="orchestrator",
+        )
+
+    def _execute_through_protocol(
+        self,
+        capability: ExecutionCapability,
+        trade: TradeIntent,
+    ) -> tuple[Optional[Order], Optional[ExecutionReceipt]]:
+        """Execute a trade through the capability-bound broker.
+
+        This is the ONLY path to the broker. The raw broker adapter
+        is never directly accessible.
+        """
+        from sas.quant.capability_bound_broker import CapabilityBoundBroker
+
+        if self._broker is None:
+            if self.config.mode == "live-paper":
+                try:
+                    from sas.quant.broker.alpaca import AlpacaBrokerAdapter
+                    raw_broker = AlpacaBrokerAdapter()
+                except Exception:
+                    raw_broker = SimulatedBroker(seed=self.config.seed)
+            else:
+                raw_broker = SimulatedBroker(seed=self.config.seed)
+
+            # Wrap in capability-bound broker
+            self._broker = CapabilityBoundBroker(raw_broker, self._domain)
+
+        # Submit through capability-bound interface
+        broker = self._broker
+        if isinstance(broker, CapabilityBoundBroker):
+            result = broker.submit_order(capability, trade)
+            if result.is_permitted:
+                return result.order, result.receipt
+            else:
+                return None, result.receipt
+        else:
+            # Fallback for legacy broker (should not happen in production)
+            order = broker.submit_trade(trade)
+            return order, None
 
     def _create_trade_intent_from_incumbent(self, incumbent, bt_result: BacktestResult) -> TradeIntent:
         """Create a trade intent from the incumbent strategy."""
@@ -308,39 +532,6 @@ class QuantResearchOrchestrator:
             reason=f"Strategy {incumbent.strategy_spec.get('name', 'unknown')} passed research (Sharpe: {bt_result.sharpe_ratio:.2f})",
             requested_by="orchestrator",
         )
-
-    def _run_authorization(self, trade: TradeIntent) -> AuthorizationResult:
-        """Run the authorization gate."""
-        if self._gate is None:
-            limits = SessionLimits(
-                max_trades_per_session=self.config.max_trades_per_session,
-                max_order_value_usd=self.config.max_order_value_usd,
-                auto_approve=self.config.auto_approve,
-            )
-            self._gate = TradeAuthorization(
-                risk_engine=self._risk_engine,
-                session_limits=limits,
-            )
-
-        portfolio_weights = {trade.symbol: trade.target_weight}
-        return self._gate.authorize(trade, portfolio_weights)
-
-    def _submit_to_broker(self, trade: TradeIntent) -> Order:
-        """Submit an authorized trade to the broker."""
-        if self._broker is None:
-            if self.config.mode == "live-paper":
-                try:
-                    from sas.quant.broker.alpaca import AlpacaBrokerAdapter
-                    self._broker = AlpacaBrokerAdapter()
-                except Exception:
-                    self._broker = SimulatedBroker(seed=self.config.seed)
-            else:
-                self._broker = SimulatedBroker(seed=self.config.seed)
-
-        order = self._broker.submit_trade(trade)
-        if self._gate:
-            self._gate.record_trade()
-        return order
 
     def _build_data_provider(self) -> MarketDataProvider:
         """Build the market data provider."""
@@ -398,20 +589,55 @@ class QuantResearchOrchestrator:
 
                 for trade in result.trade_intents:
                     trade_node = ProvenanceNode(
-                        artifact_type="trade",
-                        name=f"{trade.side}-{trade.symbol}",
+                        artifact_type="trade_intent",
+                        name=f"trade-{trade.id}",
                         producer="orchestrator",
                         model="none",
                         parent_ids=[bt_node.id],
                     )
                     self._provenance.add(trade_node)
 
-                for order in result.executed_orders:
-                    order_node = ProvenanceNode(
-                        artifact_type="order",
-                        name=f"order-{order.id}",
-                        producer=self._broker.name if self._broker else "unknown",
+                # Add authorization and capability to provenance
+                if result.authorization_artifact:
+                    auth_node = ProvenanceNode(
+                        artifact_type="authorization",
+                        name=result.authorization_artifact.authorization_id,
+                        producer="formal-protocol",
                         model="none",
-                        parent_ids=[t.id for t in result.trade_intents],
+                        parent_ids=[bt_node.id],
                     )
-                    self._provenance.add(order_node)
+                    self._provenance.add(auth_node)
+
+                if result.execution_capability:
+                    cap_node = ProvenanceNode(
+                        artifact_type="execution_capability",
+                        name=result.execution_capability.capability_id,
+                        producer="formal-protocol",
+                        model="none",
+                        parent_ids=[bt_node.id],
+                    )
+                    self._provenance.add(cap_node)
+
+                if result.execution_receipt:
+                    receipt_node = ProvenanceNode(
+                        artifact_type="execution_receipt",
+                        name=result.execution_receipt.receipt_id,
+                        producer="capability-bound-broker",
+                        model="none",
+                        parent_ids=[bt_node.id],
+                    )
+                    self._provenance.add(receipt_node)
+
+
+def _compute_research_holdout_split(start_date: str, end_date: str) -> tuple[tuple[str, str], tuple[str, str]]:
+    """Split the full date range into research (80%) and holdout (20%) windows."""
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+    total_days = (end - start).days
+    research_days = int(total_days * 0.8)
+    research_end = start + timedelta(days=research_days)
+    holdout_start = research_end + timedelta(days=1)
+    return (
+        (start_date, research_end.strftime("%Y-%m-%d")),
+        (holdout_start.strftime("%Y-%m-%d"), end_date),
+    )

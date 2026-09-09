@@ -1,0 +1,40 @@
+{
+  "policy_id": "governance-v1",
+  "name": "Acme Goods Operations Governance Policy",
+  "version": "1.0.0",
+  "effective_date": "2026-01-01T00:00:00Z",
+  "refund_policy": {
+    "automatic_authorization_threshold": 25.00,
+    "evidence_required_minimum": 3,
+    "evidence_required_threshold": 100.00,
+    "human_approval_threshold": 100.00,
+    "temporal_window_days": 30,
+    "capability_validity_hours": 24,
+    "prohibited_destinations": [],
+    "require_destination_match": true,
+    "require_customer_verification": true,
+    "require_prior_refund_check": true
+  },
+  "evidence_weights": {
+    "payment_transaction": 1.0,
+    "order_record": 1.0,
+    "fulfillment_record": 1.0,
+    "customer_record": 0.5,
+    "inventory_record": 0.5,
+    "prior_refund_check": 1.0
+  },
+  "epistemic_thresholds": {
+    "minimum_for_authorization": "PARTIALLY_SUPPORTED",
+    "minimum_for_execution": "SUPPORTED"
+  },
+  "credential_policy": {
+    "require_capability_for_access": true,
+    "allowed_credential_uses": ["payment_processing"],
+    "credential_expiry_seconds": 300
+  },
+  "provenance_policy": {
+    "record_all_attempts": true,
+    "include_rejections": true,
+    "include_credential_operations": false
+  }
+}

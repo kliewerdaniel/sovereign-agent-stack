@@ -1,0 +1,52 @@
+{
+  "agent_count": 3,
+  "world_state_count": 5,
+  "authority_laundering_checks": [
+    {
+      "is_laundering": false,
+      "checks": {
+        "agent_a_authorizes_agent_b": false,
+        "agent_b_authorizes_agent_a": false,
+        "agent_a_confidence_as_authority": false,
+        "agent_b_confidence_as_authority": false,
+        "mutual_agreement_as_authority": false,
+        "role_as_authority": false,
+        "proximity_as_authority": false
+      },
+      "action": "authorization_request",
+      "agent_a_id": "researcher_001",
+      "agent_b_id": "auditor_001"
+    },
+    {
+      "is_laundering": false,
+      "checks": {
+        "agent_a_authorizes_agent_b": false,
+        "agent_b_authorizes_agent_a": false,
+        "agent_a_confidence_as_authority": false,
+        "agent_b_confidence_as_authority": false,
+        "mutual_agreement_as_authority": false,
+        "role_as_authority": false,
+        "proximity_as_authority": false
+      },
+      "action": "authorization_request",
+      "agent_a_id": "researcher_001",
+      "agent_b_id": "operator_001"
+    },
+    {
+      "is_laundering": false,
+      "checks": {
+        "agent_a_authorizes_agent_b": false,
+        "agent_b_authorizes_agent_a": false,
+        "agent_a_confidence_as_authority": false,
+        "agent_b_confidence_as_authority": false,
+        "mutual_agreement_as_authority": false,
+        "role_as_authority": false,
+        "proximity_as_authority": false
+      },
+      "action": "authorization_request",
+      "agent_a_id": "auditor_001",
+      "agent_b_id": "operator_001"
+    }
+  ],
+  "protocol_escapes": 0
+}
