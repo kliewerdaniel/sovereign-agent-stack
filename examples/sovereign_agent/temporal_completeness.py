@@ -482,18 +482,29 @@ class TemporalCompletenessEngine:
         if not world_change:
             return frontier
 
-        # Extract changed components from the world change
+        # Recursively extract all leaf string values from the world change
+        # This handles nested structures like {"deps": ["E1", "E2"]}
+        def extract_strings(obj: Any) -> set[str]:
+            """Recursively extract all leaf string values from a nested structure."""
+            result: set[str] = set()
+            if isinstance(obj, str):
+                result.add(obj)
+            elif isinstance(obj, dict):
+                for k, v in obj.items():
+                    result.add(k)
+                    result.update(extract_strings(v))
+            elif isinstance(obj, (list, tuple)):
+                for item in obj:
+                    result.update(extract_strings(item))
+            elif isinstance(obj, (int, float, bool)):
+                result.add(str(obj))
+            return result
+
         changed_components: set[str] = set()
         if world_change.previous_state:
-            for k, v in world_change.previous_state.items():
-                changed_components.add(k)
-                if isinstance(v, str):
-                    changed_components.add(v)
+            changed_components.update(extract_strings(world_change.previous_state))
         if world_change.new_state:
-            for k, v in world_change.new_state.items():
-                changed_components.add(k)
-                if isinstance(v, str):
-                    changed_components.add(v)
+            changed_components.update(extract_strings(world_change.new_state))
 
         # Check dependency intersection
         affected_deps = [dep for dep in dependency_graph if dep in changed_components]
