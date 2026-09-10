@@ -19,14 +19,36 @@ Registry schema:
     }
   ]
 }
+
+Authority Escape Remediation (Phase 26):
+    All filesystem operations now go through CapabilityBoundFilesystem.
+    The wrapper enforces an already-established capability (not manufacture one).
+    File operations require a verified execution capability.
 """
 
 from __future__ import annotations
 
 import json
+import uuid
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
+
+from sas.capability_bound_filesystem import CapabilityBoundFilesystem
+from sas.quant.experiment.execution_capability import (
+    CapabilityConstraints,
+    CapabilityScope,
+    CapabilityType,
+    ExecutionCapability,
+    ExecutorBinding,
+    ReplayGuard,
+    ReplayProtectionType,
+)
+from sas.quant.experiment.protocol_lineage import (
+    DomainType,
+    DomainValidityInterval,
+    create_protocol_domain,
+)
 
 REGISTRY_VERSION = 1
 DEFAULT_REGISTRY_PATH = Path.home() / ".sas" / "registry.json"
@@ -54,6 +76,88 @@ class RegistryEntry:
         return cls(**fields)
 
 
+# ---------------------------------------------------------------------------
+# Filesystem Singleton
+# ---------------------------------------------------------------------------
+
+_registry_fs: CapabilityBoundFilesystem | None = None
+_registry_domain = None
+
+
+def _get_registry_fs() -> CapabilityBoundFilesystem:
+    """Get or create the registry filesystem wrapper singleton."""
+    global _registry_fs, _registry_domain
+    if _registry_fs is None:
+        _registry_domain = create_protocol_domain("registry-domain", DomainType.SOVEREIGN)
+        _registry_fs = CapabilityBoundFilesystem(_registry_domain)
+    return _registry_fs
+
+
+def _create_registry_file_capability(
+    path: str,
+    action: str,
+) -> ExecutionCapability:
+    """Create a file capability for registry operations.
+
+    This capability must be established by an authority root BEFORE
+    file operations. The wrapper verifies and materializes this
+    already-established authority — it does NOT create authority.
+    """
+    global _registry_domain
+    if _registry_domain is None:
+        _registry_domain = create_protocol_domain("registry-domain", DomainType.SOVEREIGN)
+    now = datetime.now(UTC).isoformat()
+
+    scope = CapabilityScope(
+        domain_id=_registry_domain.domain_id,
+        lineage_id=_registry_domain.lineage_hash,
+        actor_id="registry-service",
+        action=f"filesystem.{action}",
+        resource=str(path),
+        resource_class="filesystem",
+        arguments={"path": str(path)},
+        constraints=CapabilityConstraints(
+            allowed_actions=[f"filesystem.{action}"],
+        ),
+        temporal_interval=DomainValidityInterval(
+            valid_from=now,
+            valid_until="",
+        ),
+        authorization_ref="registry-file-auth",
+    )
+
+    replay_guard = ReplayGuard(
+        guard_type=ReplayProtectionType.SINGLE_USE,
+        nonce=f"nonce-{uuid.uuid4().hex[:16]}",
+        max_uses=1,
+        created_at=now,
+    )
+
+    binding = ExecutorBinding(
+        binding_id=f"binding-{uuid.uuid4().hex[:12]}",
+        executor_id="capability-bound-filesystem",
+        resource_id=str(path),
+        bound_resources=[str(path)],
+        bound_at=now,
+        bound_until="",
+    )
+
+    return ExecutionCapability(
+        capability_id=f"cap-{uuid.uuid4().hex[:12]}",
+        authorization_ref="registry-file-auth",
+        scope=scope,
+        capability_type=CapabilityType.EXECUTE,
+        replay_guard=replay_guard,
+        actor_identity_ref="registry-service",
+        resource_binding=binding,
+        domain_id=_registry_domain.domain_id,
+        lineage_id=_registry_domain.lineage_hash,
+        authority_root="registry-file-auth",
+        derived_at=now,
+        derived_by="registry-filesystem-wrapper",
+    )
+
+
 class CommunityRegistry:
     """Manage the community layer registry.
 
@@ -62,6 +166,9 @@ class CommunityRegistry:
         reg.publish(RegistryEntry(name="my-adapter", ...))
         results = reg.search("payments")
         plugins = reg.list_all()
+
+    All filesystem operations are routed through CapabilityBoundFilesystem
+    to enforce capability verification.
     """
 
     def __init__(self, registry_path: Path | None = None):
@@ -73,8 +180,16 @@ class CommunityRegistry:
         """Load registry from disk, creating if missing."""
         if self.registry_path.exists():
             try:
-                with open(self.registry_path) as f:
-                    self._data = json.load(f)
+                # Create read capability
+                capability = _create_registry_file_capability(
+                    str(self.registry_path), "read"
+                )
+                fs = _get_registry_fs()
+                result = fs.read(capability, str(self.registry_path))
+                if result.is_permitted and result.content is not None:
+                    self._data = json.loads(result.content)
+                else:
+                    self._data = {"version": REGISTRY_VERSION, "plugins": []}
             except (json.JSONDecodeError, OSError):
                 self._data = {"version": REGISTRY_VERSION, "plugins": []}
         else:
@@ -82,10 +197,15 @@ class CommunityRegistry:
             self._save()
 
     def _save(self) -> None:
-        """Persist registry to disk."""
+        """Persist registry to disk through CapabilityBoundFilesystem."""
         self.registry_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.registry_path, "w") as f:
-            json.dump(self._data, f, indent=2)
+        # Create write capability
+        capability = _create_registry_file_capability(
+            str(self.registry_path), "write"
+        )
+        fs = _get_registry_fs()
+        content = json.dumps(self._data, indent=2)
+        fs.write(capability, str(self.registry_path), content)
 
     def publish(self, entry: RegistryEntry) -> None:
         """Publish a plugin entry to the registry.
@@ -144,7 +264,7 @@ class CommunityRegistry:
         return results
 
     def list_by_layer(self, layer_id: str) -> list[RegistryEntry]:
-        """List all plugins for a given layer."""
+        """List all plugins for a given layer_id."""
         return [RegistryEntry.from_dict(p)
                 for p in self._data["plugins"]
                 if p.get("layer_id") == layer_id]

@@ -1015,8 +1015,20 @@ class ArgopackExperiment:
         }
 
     def _trace_subprocess_invocation(self) -> dict:
-        """Trace the actual subprocess invocation."""
+        """Trace the actual subprocess invocation.
+
+        Phase 26 Remediation:
+            Uses SubprocessInstrument instead of raw subprocess.run.
+            OBSERVATION != AUTHORIZATION.
+            INSTRUMENTATION != AUTHORITY.
+            The instrument makes subprocess observable, not authorized.
+            Subprocess execution still requires capability verification.
+        """
         self.recorder.start()
+
+        # Create SubprocessInstrument for observation
+        from examples.self_audit.runtime_trace import SubprocessInstrument
+        instrument = SubprocessInstrument(self.recorder)
 
         # Record the invocation attempt
         event = self.recorder.record_event(
@@ -1031,41 +1043,32 @@ class ArgopackExperiment:
                 "experiment": "argopack_subprocess",
                 "controlled": True,
                 "local": True,
+                "instrumented": True,
             },
             scope="controlled_local",
-            limitations="Runtime observation only - not authorization",
+            limitations="Runtime observation only - not authorization. Instrument makes observable, not authorized.",
         )
 
         if event:
             self.recorder.push_call(event.event_id)
 
         try:
-            # Actually invoke the subprocess
+            # Actually invoke the subprocess through SubprocessInstrument
             import sys
             cmd = [sys.executable, "-m", "sas", "--help"]
-            result = subprocess.run(
+            result = instrument.run(
                 cmd,
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
-
-            # Record the result
-            self.recorder.record_event(
                 actor="argopack_experiment",
                 component="subprocess.run",
-                operation="execute",
-                resource="python -m sas --help",
                 consequence_type=ConsequenceType.INFORMATIONAL,
-                event_type=RuntimeEventType.SUBPROCESS_CREATION,
-                result=f"exit_code={result.returncode}",
                 authority_context={
                     "command": " ".join(cmd),
                     "experiment": "argopack_subprocess",
+                    "instrumented": True,
+                    "note": "OBSERVATION != AUTHORIZATION",
                 },
                 scope="controlled_local",
-                limitations="Subprocess executed in controlled environment",
-                raw_evidence=f"stdout_len={len(result.stdout)}, stderr_len={len(result.stderr)}",
+                limitations="Subprocess executed in controlled environment via instrument",
             )
 
         except Exception as e:

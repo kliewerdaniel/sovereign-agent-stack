@@ -267,6 +267,13 @@ class RuntimeAuthorityGate:
                 f"request has '{request.action}'"
             )
 
+        # 4b. Verify actor binding
+        if capability.actor_identity_ref and capability.actor_identity_ref != request.actor_id:
+            conflicts.append(
+                f"Actor mismatch: capability bound to '{capability.actor_identity_ref}', "
+                f"request from '{request.actor_id}'"
+            )
+
         # 5. Verify resource binding
         if capability.resource_binding:
             if not capability.resource_binding.binds_resource(request.resource):

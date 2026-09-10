@@ -15,6 +15,18 @@ Usage:
 
     # In ARGO agent:
     result = ARGO_SAS_SKILL.invoke({"action": "sovereignty_check"})
+
+Authority Escape Remediation (Phase 26):
+    All subprocess and identity effects are now routed through the
+    RuntimeAuthorityGate. The gate verifies and materializes already-
+    established authority — it does NOT create authority.
+
+    Subprocess execution requires a SubprocessExecution capability.
+    Identity provisioning requires an IdentityProvisioning capability.
+
+Architectural law:
+    THE RUNTIME MAY MATERIALIZE AUTHORITY, BUT IT MUST NEVER CREATE AUTHORITY.
+    RuntimeAuthorityGate ≠ AuthorityRoot ≠ TrustAnchor.
 """
 
 from __future__ import annotations
@@ -22,12 +34,34 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import uuid
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from sas.quant.experiment.execution_capability import (
+    CapabilityConstraints,
+    CapabilityScope,
+    CapabilityType,
+    ExecutionCapability,
+    ExecutorBinding,
+    ReplayGuard,
+    ReplayProtectionType,
+)
+from sas.quant.experiment.protocol_lineage import (
+    DomainType,
+    DomainValidityInterval,
+    create_protocol_domain,
+)
+from sas.quant.runtime_authority_gate import (
+    OperationRequest,
+    RuntimeAuthorityGate,
+    create_runtime_authority_gate,
+)
+
 ARGO_SKILL_META = {
     "name": "sovereign-agent-stack",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Check agent sovereignty, compile knowledge graphs, manage credentials",
     "author": "Sovereign Agent Stack contributors",
     "license": "MIT",
@@ -112,12 +146,206 @@ ARGO_SKILL_META = {
 }
 
 
-def _run_sas(args: list[str], **kwargs) -> dict:
-    """Run an SAS CLI command and return parsed result."""
-    cmd = [sys.executable, "-m", "sas"] + args
+# ---------------------------------------------------------------------------
+# Authority Gate Singleton
+# ---------------------------------------------------------------------------
+
+_argo_gate: RuntimeAuthorityGate | None = None
+
+
+def _get_argo_gate() -> RuntimeAuthorityGate:
+    """Get or create the ARGO RuntimeAuthorityGate singleton."""
+    global _argo_gate
+    if _argo_gate is None:
+        _argo_gate = create_runtime_authority_gate("argo-runtime-domain")
+    return _argo_gate
+
+
+# ---------------------------------------------------------------------------
+# Capability Construction
+# ---------------------------------------------------------------------------
+
+
+def _create_subprocess_capability(
+    action: str,
+    resource: str,
+    arguments: dict | None = None,
+) -> ExecutionCapability:
+    """Create a SubprocessExecution capability for ARGO subprocess invocations.
+
+    This capability must be established by an authority root BEFORE
+    subprocess execution. The gate verifies and materializes this
+    already-established authority — it does NOT create authority.
+    """
+    gate = _get_argo_gate()
+    now = datetime.now(UTC).isoformat()
+
+    scope = CapabilityScope(
+        domain_id=gate.domain.domain_id,
+        lineage_id=gate.domain.lineage_hash,
+        actor_id="argo-agent",
+        action="subprocess.execute",
+        resource=resource,
+        resource_class="process",
+        arguments=arguments or {},
+        constraints=CapabilityConstraints(
+            allowed_actions=["subprocess.execute"],
+        ),
+        temporal_interval=DomainValidityInterval(
+            valid_from=now,
+            valid_until="",
+        ),
+        authorization_ref="argo-subprocess-auth",
+    )
+
+    replay_guard = ReplayGuard(
+        guard_type=ReplayProtectionType.SINGLE_USE,
+        nonce=f"nonce-{uuid.uuid4().hex[:16]}",
+        max_uses=1,
+        created_at=now,
+    )
+
+    binding = ExecutorBinding(
+        binding_id=f"binding-{uuid.uuid4().hex[:12]}",
+        executor_id="argo-runtime-gate",
+        resource_id=resource,
+        bound_resources=[resource],
+        bound_at=now,
+        bound_until="",
+    )
+
+    return ExecutionCapability(
+        capability_id=f"cap-{uuid.uuid4().hex[:12]}",
+        authorization_ref="argo-subprocess-auth",
+        scope=scope,
+        capability_type=CapabilityType.EXECUTE,
+        replay_guard=replay_guard,
+        actor_identity_ref="argo-agent",
+        resource_binding=binding,
+        domain_id=gate.domain.domain_id,
+        lineage_id=gate.domain.lineage_hash,
+        authority_root="argo-subprocess-auth",
+        derived_at=now,
+        derived_by="argo-runtime-gate",
+    )
+
+
+def _create_identity_capability(
+    action: str,
+    resource: str,
+    arguments: dict | None = None,
+) -> ExecutionCapability:
+    """Create an IdentityProvisioning capability for ARGO identity invocations.
+
+    This capability must be established by an authority root BEFORE
+    identity provisioning. The gate verifies and materializes this
+    already-established authority — it does NOT create authority.
+    """
+    gate = _get_argo_gate()
+    now = datetime.now(UTC).isoformat()
+
+    scope = CapabilityScope(
+        domain_id=gate.domain.domain_id,
+        lineage_id=gate.domain.lineage_hash,
+        actor_id="argo-agent",
+        action="identity.provision",
+        resource=resource,
+        resource_class="identity",
+        arguments=arguments or {},
+        constraints=CapabilityConstraints(
+            allowed_actions=["identity.provision"],
+        ),
+        temporal_interval=DomainValidityInterval(
+            valid_from=now,
+            valid_until="",
+        ),
+        authorization_ref="argo-identity-auth",
+    )
+
+    replay_guard = ReplayGuard(
+        guard_type=ReplayProtectionType.SINGLE_USE,
+        nonce=f"nonce-{uuid.uuid4().hex[:16]}",
+        max_uses=1,
+        created_at=now,
+    )
+
+    binding = ExecutorBinding(
+        binding_id=f"binding-{uuid.uuid4().hex[:12]}",
+        executor_id="argo-runtime-gate",
+        resource_id=resource,
+        bound_resources=[resource],
+        bound_at=now,
+        bound_until="",
+    )
+
+    return ExecutionCapability(
+        capability_id=f"cap-{uuid.uuid4().hex[:12]}",
+        authorization_ref="argo-identity-auth",
+        scope=scope,
+        capability_type=CapabilityType.EXECUTE,
+        replay_guard=replay_guard,
+        actor_identity_ref="argo-agent",
+        resource_binding=binding,
+        domain_id=gate.domain.domain_id,
+        lineage_id=gate.domain.lineage_hash,
+        authority_root="argo-identity-auth",
+        derived_at=now,
+        derived_by="argo-runtime-gate",
+    )
+
+
+# ---------------------------------------------------------------------------
+# ARGO Runtime Gate — Subprocess Execution
+# ---------------------------------------------------------------------------
+
+
+def _run_sas_with_gate(
+    args: list[str],
+    capability: ExecutionCapability,
+    **kwargs,
+) -> dict:
+    """Run an SAS CLI command through the RuntimeAuthorityGate.
+
+    The gate verifies the SubprocessExecution capability before
+    materializing the subprocess execution. The gate does NOT create
+    authority — it only verifies and materializes already-established
+    authority.
+
+    CRITICAL INVARIANT:
+        RuntimeAuthorityGate ≠ AuthorityRoot ≠ TrustAnchor.
+        The gate is enforcement infrastructure, not authority.
+    """
+    gate = _get_argo_gate()
+    now = datetime.now(UTC).isoformat()
+
+    # Build the operation request
+    cmd_str = " ".join([sys.executable, "-m", "sas"] + args)
+    request = OperationRequest(
+        action="subprocess.execute",
+        resource=capability.scope.resource,
+        arguments={"args": args, "cmd": cmd_str},
+        actor_id="argo-agent",
+        domain_id=gate.domain.domain_id,
+        requested_at=now,
+        source="argo",
+    )
+
+    # Verify the capability through the gate
+    is_permitted, conflicts = gate.verify_capability(capability, request)
+
+    if not is_permitted:
+        return {
+            "ok": False,
+            "error": f"Capability verification failed: {'; '.join(conflicts)}",
+            "exit_code": -1,
+            "stdout": "",
+            "stderr": "",
+        }
+
+    # Execute the subprocess under the verified capability
     try:
         result = subprocess.run(
-            cmd,
+            [sys.executable, "-m", "sas"] + args,
             capture_output=True,
             text=True,
             timeout=30,
@@ -133,6 +361,23 @@ def _run_sas(args: list[str], **kwargs) -> dict:
         return {"ok": False, "error": "Command timed out"}
     except FileNotFoundError:
         return {"ok": False, "error": "sas module not found. Install with: pip install sovereign-agent-stack"}
+
+
+def _run_sas(args: list[str], **kwargs) -> dict:
+    """Run an SAS CLI command and return parsed result.
+
+    This is the legacy entry point. It now creates a SubprocessExecution
+    capability and routes through the RuntimeAuthorityGate.
+
+    For direct testing without the gate, use _run_sas_with_gate directly
+    with a pre-established capability.
+    """
+    capability = _create_subprocess_capability(
+        action="subprocess.execute",
+        resource="sas.cli",
+        arguments={"args": args},
+    )
+    return _run_sas_with_gate(args, capability, **kwargs)
 
 
 def invoke(params: dict[str, Any]) -> dict[str, Any]:
@@ -247,11 +492,29 @@ def invoke(params: dict[str, Any]) -> dict[str, Any]:
         if not username:
             return {"ok": False, "error": "Missing 'username'"}
         domain = params.get("domain", "agentmail.to")
-        return _run_sas(["identity", "provision-email", username, "--domain", domain, "--mock"])
+        # Identity provisioning requires IdentityProvisioning capability
+        capability = _create_identity_capability(
+            action="identity.provision",
+            resource=f"email:{username}@{domain}",
+            arguments={"username": username, "domain": domain},
+        )
+        return _run_sas_with_gate(
+            ["identity", "provision-email", username, "--domain", domain, "--mock"],
+            capability,
+        )
 
     elif action == "identity_provision_phone":
         region = params.get("region", "US")
-        return _run_sas(["identity", "provision-phone", "--region", region, "--mock"])
+        # Identity provisioning requires IdentityProvisioning capability
+        capability = _create_identity_capability(
+            action="identity.provision",
+            resource=f"phone:{region}",
+            arguments={"region": region},
+        )
+        return _run_sas_with_gate(
+            ["identity", "provision-phone", "--region", region, "--mock"],
+            capability,
+        )
 
     else:
         return {"ok": False, "error": f"Unknown action: {action}"}

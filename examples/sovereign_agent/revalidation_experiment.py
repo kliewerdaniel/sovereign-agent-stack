@@ -43,6 +43,7 @@ class WorldChange:
     description: str
     added_dependencies: list[str] = field(default_factory=list)
     removed_dependencies: list[str] = field(default_factory=list)
+    changed_dependencies: list[str] = field(default_factory=list)  # Mutated dependencies
     changed_propositions: list[str] = field(default_factory=list)
     changed_authorizations: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -228,23 +229,44 @@ def compute_actual_affected_set(
     It is computed independently from the protocol's frontier computation.
     
     The algorithm:
-    1. Find all dependencies that were added or removed
-    2. Find all entities that depend on those dependencies
+    1. Find all dependencies that were added, removed, or mutated
+    2. Find all entities that depend on those dependencies (transitively)
     3. Find all propositions that depend on affected entities
     4. Find all authorizations that depend on affected propositions
     """
-    affected_deps = set(change.added_dependencies + change.removed_dependencies)
+    affected_deps = set(change.added_dependencies + change.removed_dependencies + change.changed_dependencies)
     affected_entities = set()
     affected_propositions = set()
     affected_authorizations = set()
     affected_completeness_claims = set()
     affected_epistemic_states = set()
 
-    # Find entities that depend on affected dependencies
-    for entity, deps in dependency_graph.items():
-        if any(dep in affected_deps for dep in deps):
-            affected_entities.add(entity)
-            affected_completeness_claims.add(f"claim_{entity}")
+    # Find entities that depend on affected dependencies (transitively)
+    def find_affected_entities(deps: set[str], graph: dict[str, list[str]]) -> set[str]:
+        """Find all entities transitively dependent on the given dependencies."""
+        affected = set()
+        # Find direct dependents
+        for entity, entity_deps in graph.items():
+            if any(dep in deps for dep in entity_deps):
+                affected.add(entity)
+        # Find transitive dependents (ancestors)
+        changed = True
+        while changed:
+            changed = False
+            for entity, entity_deps in graph.items():
+                if entity not in affected:
+                    # Check if this entity depends on an affected entity
+                    for dep in entity_deps:
+                        if dep in affected:
+                            affected.add(entity)
+                            changed = True
+        return affected
+
+    affected_entities = find_affected_entities(affected_deps, dependency_graph)
+    
+    # Add completeness claims for affected entities
+    for entity in affected_entities:
+        affected_completeness_claims.add(f"claim_{entity}")
 
     # Find propositions that depend on affected entities
     for prop, entities in propositions.items():
