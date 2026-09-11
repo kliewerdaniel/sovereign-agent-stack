@@ -5,7 +5,7 @@ that the architecture detects and bounds such amplification.
 """
 
 import pytest
-from examples.sovereign_agent.uncertainty_policy_authority import (
+from research.examples.sovereign_agent.uncertainty_policy_authority import (
     UncertaintyPolicyAuthorityEngine,
     UncertaintyPolicyResult,
     run_all_phase21_experiments,
@@ -228,7 +228,7 @@ class TestBoundedCompleteness:
     """Test bounded completeness semantics."""
 
     def test_bounded_complete(self):
-        from examples.sovereign_agent.uncertainty_policy_authority import BoundedCompleteness
+        from research.examples.sovereign_agent.uncertainty_policy_authority import BoundedCompleteness
         bc = BoundedCompleteness(
             state="complete",
             scope="production",
@@ -240,7 +240,7 @@ class TestBoundedCompleteness:
         assert bc.is_observation_bounded()
 
     def test_unbounded_complete(self):
-        from examples.sovereign_agent.uncertainty_policy_authority import BoundedCompleteness
+        from research.examples.sovereign_agent.uncertainty_policy_authority import BoundedCompleteness
         bc = BoundedCompleteness(
             state="complete",
             scope="*",

@@ -5,7 +5,7 @@ which edge types permit impact propagation, and which explicitly prohibit it.
 """
 
 import pytest
-from examples.sovereign_agent.frontier_impact_propagation import (
+from research.examples.sovereign_agent.frontier_impact_propagation import (
     ImpactPropagationResult,
     PropagationRule,
     analyze_propagation_results,
@@ -17,7 +17,7 @@ from examples.sovereign_agent.frontier_impact_propagation import (
     test_selective_propagation,
     test_shared_dependency_propagation,
 )
-from examples.sovereign_agent.authorization_dependencies import (
+from research.examples.sovereign_agent.authorization_dependencies import (
     DependencyType,
     DependencyStrength,
 )

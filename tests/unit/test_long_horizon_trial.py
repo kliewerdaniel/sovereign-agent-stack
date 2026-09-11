@@ -2,31 +2,31 @@
 
 import pytest
 
-from examples.sovereign_agent.confidently_wrong_agent import (
+from research.examples.sovereign_agent.confidently_wrong_agent import (
     ConfidenceType,
     ConfidentlyWrongAgent,
     run_confidently_wrong_suite,
 )
-from examples.sovereign_agent.interfaces import (
+from research.examples.sovereign_agent.interfaces import (
     CombinedSovereignInterface,
     ResponseType,
 )
-from examples.sovereign_agent.long_horizon_trial import (
+from research.examples.sovereign_agent.long_horizon_trial import (
     LongHorizonTrial,
     run_confidently_wrong_trial,
     run_long_horizon_trial,
 )
-from examples.sovereign_agent.trajectory import (
+from research.examples.sovereign_agent.trajectory import (
     AgentTrajectory,
     TrajectoryEntryType,
 )
-from examples.sovereign_agent.trial_environment import (
+from research.examples.sovereign_agent.trial_environment import (
     TrialEnvironment,
     WorldState,
     build_world_states,
     get_world_state_transitions,
 )
-from examples.sovereign_agent.trial_metrics import (
+from research.examples.sovereign_agent.trial_metrics import (
     TrialMetrics,
     compute_authority_preserving_autonomy,
     compute_epistemic_integrity,
@@ -479,8 +479,8 @@ class TestLongHorizonInvariants:
 
     def test_model_output_not_directly_connected_to_authority(self):
         """MODEL_OUTPUT → AUTHORITY must be structurally impossible."""
-        from examples.sovereign_agent.agent import SovereignAgent, AgentPolicy
-        from examples.sovereign_agent.environment import build_hostile_payment_environment
+        from research.examples.sovereign_agent.agent import SovereignAgent, AgentPolicy
+        from research.examples.sovereign_agent.environment import build_hostile_payment_environment
 
         interface = CombinedSovereignInterface()
         agent = SovereignAgent("agent_001", AgentPolicy.CONFIDENCE_ESCALATION, interface)

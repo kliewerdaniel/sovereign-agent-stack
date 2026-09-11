@@ -8,7 +8,7 @@ import time
 
 import pytest
 
-from examples.self_audit.runtime_trace import (
+from research.examples.self_audit.runtime_trace import (
     AuthorizationInstrument,
     BrokerInstrument,
     CapabilityInstrument,

@@ -6,14 +6,14 @@ from pathlib import Path
 
 import pytest
 
-from examples.payment_dependency_auditor.dependency_types import (
+from research.examples.payment_dependency_auditor.dependency_types import (
     DependencyEdge,
     DependencyType,
     EpistemicState,
     ObservationMethod,
     PropositionType,
 )
-from examples.payment_dependency_auditor.epistemic_composition import (
+from research.examples.payment_dependency_auditor.epistemic_composition import (
     CompositionOperator,
     CompositionValidity,
     EpistemicCompositionEngine,

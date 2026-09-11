@@ -1,7 +1,7 @@
 """Tests for Phase 34: Temporal Effective Authority Graph Divergence Detection."""
 
 import pytest
-from examples.sovereign_agent.temporal_authority_divergence import (
+from research.examples.sovereign_agent.temporal_authority_divergence import (
     AdversarialWorldGenerator,
     DivergenceDetectionEngine,
     Phase34Experiment,
@@ -9,7 +9,7 @@ from examples.sovereign_agent.temporal_authority_divergence import (
     TemporalDivergenceWorld,
     TemporalOrderStatus,
 )
-from examples.sovereign_agent.authority_path_graph_reconciliation import (
+from research.examples.sovereign_agent.authority_path_graph_reconciliation import (
     GraphCompletenessStatus,
 )
 

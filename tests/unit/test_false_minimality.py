@@ -6,17 +6,17 @@ Tests whether the existing completeness semantics can distinguish:
 """
 
 import pytest
-from examples.sovereign_agent.dependency_completeness import (
+from research.examples.sovereign_agent.dependency_completeness import (
     CompletenessMethod,
     CompletenessStatus,
     IntersectionStatus,
     create_completeness_scope,
 )
-from examples.sovereign_agent.false_minimality_experiment import (
+from research.examples.sovereign_agent.false_minimality_experiment import (
     analyze_completeness_semantics,
     run_false_minimality_matrix,
 )
-from examples.sovereign_agent.revalidation_experiment import (
+from research.examples.sovereign_agent.revalidation_experiment import (
     FrontierClassification,
     FrontierSoundness,
 )

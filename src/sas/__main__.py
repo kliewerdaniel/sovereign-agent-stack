@@ -161,6 +161,30 @@ def _cmd_identity(args: argparse.Namespace) -> int:
 
 def _cmd_dashboard(args: argparse.Namespace) -> int:
     """Run the sovereignty dashboard."""
+    if args.dashboard_command == "serve":
+        # Start the web server
+        return _cmd_dashboard_serve(args)
+    else:
+        # Default: score report
+        return _cmd_dashboard_score(args)
+
+
+def _cmd_dashboard_serve(args: argparse.Namespace) -> int:
+    """Start the web dashboard server."""
+    import uvicorn
+
+    uvicorn.run(
+        "sas.dashboard.server:app",
+        host="127.0.0.1",
+        port=8080,
+        reload=False,
+        log_level="info",
+    )
+    return 0
+
+
+def _cmd_dashboard_score(args: argparse.Namespace) -> int:
+    """Run the sovereignty score report."""
     config_path = Path(args.config).resolve()
     cache_dir = Path(args.cache).resolve()
 
@@ -869,6 +893,12 @@ def main(argv: list[str] | None = None) -> int:
         "--json",
         action="store_true",
         help="Output JSON instead of markdown",
+    )
+    dash_parser.add_argument(
+        "dashboard_command",
+        nargs="?",
+        default="serve",
+        help="Dashboard action: serve (start web server) or score (sovereignty report)",
     )
 
     # Init command

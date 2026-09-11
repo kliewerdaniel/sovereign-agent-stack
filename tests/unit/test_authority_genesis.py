@@ -6,7 +6,7 @@ implicit authority source.
 """
 
 import pytest
-from examples.sovereign_agent.authority_genesis import (
+from research.examples.sovereign_agent.authority_genesis import (
     AuthorityGenesisEngine,
     AuthorityGraphNode,
     AuthoritySourceType,

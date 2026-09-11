@@ -3,7 +3,34 @@
 > *"The model becoming free doesn't mean intelligence becomes sovereign. It just relocates the rent."*
 > — Daniel Kliewer, [The Rented Sovereign](https://www.danielkliewer.com/blog/2026-09-04-the-rented-sovereign-agent-agency-stack)
 
-**SAS is a local-first, compile-time AI agent framework.** It implements an 8-layer sovereignty model that scores how much of your agent infrastructure you actually own vs. rent.
+**SAS is a local-first AI agent framework** that implements an 8-layer sovereignty model. It scores how much of your agent infrastructure you actually own vs. rent, and enforces that boundary at runtime.
+
+---
+
+## Quick Start (3-minute demo)
+
+```bash
+# Clone and enter the repo
+cd sovereign-agent-stack
+
+# Install with dashboard dependencies
+pip install -e ".[dashboard]"
+
+# Start the dashboard
+python -m sas dashboard serve
+
+# Open http://localhost:8080
+```
+
+### What you'll see
+
+1. **Sovereignty Score** — Load `sas.yaml` and see a real score with plain-English reasoning for each layer's owned/rented status.
+
+2. **Quant Research Pipeline** — Click "Run" on a quant world and watch, live via SSE, as an LLM proposes a strategy, gets backtested, passes through the deterministic authorization gate, executes against the (paper) broker, and lands in a provenance graph you can inspect.
+
+3. **Agent Chat** — Ask the agent a question and get a real model response (via local Ollama) grounded in the compiled knowledge graph.
+
+4. **Provenance/Audit Trail** — See the chain of what happened and why the trade was or wasn't approved — concrete proof this isn't theater.
 
 ---
 
@@ -24,23 +51,6 @@
 **7. Quant research pipeline.** Self-contained professional evaluation worlds: data → research → backtest → risk → report → provenance.
 
 **8. Community ecosystem.** Plugin system + community registry + ARGO skill pack for harness integration.
-
----
-
-## Quick Start
-
-```bash
-pip install sovereign-agent-stack
-
-# Initialize config
-python -m sas init --output sas.yaml
-
-# Run sovereignty audit
-python -m sas dashboard --config examples/agency-worker/sas.yaml --verbose
-
-# Or JSON output
-python -m sas dashboard --config examples/agency-worker/sas.yaml --cache ~/.sas --json
-```
 
 ---
 
@@ -76,6 +86,7 @@ python -m sas dashboard --config examples/agency-worker/sas.yaml --cache ~/.sas 
 # Core
 python -m sas init [-o OUTPUT]                          # Create template sas.yaml
 python -m sas dashboard [-c CONFIG] [--json] [--verbose] # Sovereignty audit
+python -m sas dashboard serve                            # Launch the live dashboard
 
 # Knowledge
 python -m sas knowledge compile <source> [--store PATH]  # Compile markdown → graph
@@ -157,7 +168,7 @@ QuantResearchOrchestrator.run()
          │
          ├── 1. Assemble QuantWorld (data + policies + agents + tools)
          ├── 2. Run LLM research loop (propose_strategy tool → strategy artifact)
-         ├── 3. BacktestEngine.run() → BacktestResult
+         ├── 3. QuantEngine.run() → BacktestResult
          ├── 4. Create TradeIntent from strategy
          ├── 5. TradeAuthorization gate (deterministic, LLM cannot bypass)
          │      ├── RiskEngine.evaluate_trade() → RiskEvaluation
@@ -188,24 +199,43 @@ Two implementations ship with SAS:
 
 Credentials are sourced from `APCA_API_KEY_ID` / `APCA_API_SECRET_KEY` environment variables or the local auth broker vault. They are **never logged, never serialized to provenance, and never exposed in error messages**.
 
-### Python API
+---
 
-```python
-from sas.quant.orchestration import OrchestratorConfig, QuantResearchOrchestrator
+## Dashboard
 
-config = OrchestratorConfig(
-    universe=["AAPL", "MSFT"],
-    mode="backtest-only",
-    auto_approve=True,
-)
-orchestrator = QuantResearchOrchestrator(config)
-result = orchestrator.run()
+The dashboard is a FastAPI + vanilla JS single-page app that demonstrates all SAS capabilities live.
 
-print(result.status)           # "completed"
-print(result.strategy.name)    # "default-momentum"
-print(result.backtest_result.sharpe_ratio)
-print(result.provenance_graph.to_dict())
+```bash
+# Start the server
+python -m sas dashboard serve
+
+# Open in browser
+open http://localhost:8080
 ```
+
+### Features
+
+- **Sovereignty tab** — Load `sas.yaml`, see score + per-layer reasoning
+- **Pipeline tab** — Run quant worlds live with SSE progress streaming
+- **Worlds tab** — Browse available evaluation worlds
+- **Knowledge tab** — Query the compiled knowledge graph
+- **Agent tab** — Chat with a local LLM grounded in knowledge graph
+- **Provenance tab** — Inspect the full audit trail of every trade decision
+
+### API Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/health` | GET | Server status |
+| `/api/layers` | GET | Sovereignty score + layer breakdown |
+| `/api/pipeline/run` | POST | Start a pipeline run |
+| `/api/pipeline/stream` | GET | SSE stream of pipeline events |
+| `/api/knowledge` | GET | Query knowledge graph |
+| `/api/agent/chat` | POST | Chat with the agent |
+
+---
+
+## Python API
 
 ### Sovereignty
 
@@ -288,60 +318,25 @@ number = phone.provision("US")
 phone.sms(number, "Integration test")
 ```
 
----
+### Quant Pipeline
 
-## Quant Research Pipeline
+```python
+from sas.quant.orchestration import OrchestratorConfig, QuantResearchOrchestrator
 
-Self-contained professional evaluation worlds. Each QuantWorld is: data + documents + portfolio + strategies + policies + agents + tools + task + rubric + gold output.
+config = OrchestratorConfig(
+    universe=["AAPL", "MSFT"],
+    mode="backtest-only",
+    auto_approve=True,
+)
+orchestrator = QuantResearchOrchestrator(config)
+result = orchestrator.run()
 
-**Portfolio Intelligence World** (`qw-portfolio-intel-001`): 10 tech stocks, $500K portfolio, 5 risk policies, 3 strategies, 15 rubric criteria — all passing.
-
-```
-QuantWorld + Task + Rubric
-         │
-         ▼
-  QuantToolbox (22 tools: market data, computation, backtest, risk, report, provenance)
-         │
-         ▼
-  ModelAdapter.run_loop()  ← ReAct: model calls tools → records trajectory + artifacts
-         │
-         ▼
-  RunEvaluator.evaluate()  ← rubric criteria + sovereignty checks + provenance
-         │
-         ▼
-  RunEvaluation: Pass@1, mean_score, sovereignty_passed
-```
-
-### Real Data Providers
-
-| Provider | Endpoint | Cache |
-|----------|----------|-------|
-| YFinance | `yfinance.Ticker.history()` | `~/.sas/yf_cache/` |
-| Stooq | Free CSV endpoint | `~/.sas/stooq_cache/` |
-| Alpaca | Data API v2 (paper/live) | `~/.sas/alpaca_cache/` |
-
-All providers implement `MarketDataProvider`: `get_prices(symbol, start, end)`, `validate()`, `source_info()`.
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  CLI: dashboard | init | knowledge | auth | payments | substrate | ...  │
-├─────────────────────────────────────────────────────────────────────────┤
-│  Layer Registry (single source of truth for 8 sovereignty layers)        │
-├─────────────────────────────────────────────────────────────────────────┤
-│  Layers: model | harness | compute | identity | memory | knowledge |    │
-│          auth | payments                                                │
-├─────────────────────────────────────────────────────────────────────────┤
-│  Quant: engine | strategy | backtest | risk | broker | market |         │
-│         provenance | reports | lifecycle | agents | knowledge            │
-├─────────────────────────────────────────────────────────────────────────┤
-│  Runtime: AgentRuntime | FleetCoordinator | Orchestrator                 │
-├─────────────────────────────────────────────────────────────────────────┤
-│  Ecosystem: Plugin system | Community registry | ARGO skill pack         │
-└─────────────────────────────────────────────────────────────────────────┘
+print(result.status)           # "completed"
+print(result.strategy.name)    # "default-momentum"
+print(result.backtest_result.sharpe_ratio)
+print(result.backtest_result.total_return)
+print(result.backtest_result.max_drawdown)
+print(result.provenance_graph.to_dict())
 ```
 
 ---
@@ -394,8 +389,6 @@ identity:
     region: US
 ```
 
-Example configs: [`examples/agency-worker/`](examples/agency-worker/) (6/6 owned), [`examples/personal-assistant/`](examples/personal-assistant/), [`examples/industry-analyst/`](examples/industry-analyst/).
-
 ---
 
 ## Plugin System
@@ -436,7 +429,96 @@ python -m pytest tests/unit/ tests/integration/ -q \
   --ignore=tests/integration/test_rust_extension.py
 ```
 
-**445 tests passing.** Coverage includes: all 8 layers, quant pipeline (15/15 criteria), real data providers (YFinance/Stooq/Alpaca), plugin system, community registry, ARGO skill pack, full stack integration.
+**3,175 tests passing.** Coverage includes: all 8 layers, quant pipeline, real data providers (YFinance/Stooq/Alpaca), plugin system, community registry, ARGO skill pack, full stack integration, runtime authority enforcement, capability-bound substrates, and 35 phases of authority/epistemic graph research.
+
+---
+
+## Architecture
+
+### Source Layout
+
+```
+src/sas/
+├── __main__.py         # CLI entry point
+├── __init__.py
+├── argopack.py         # ARGO skill pack
+├── capability_bound_database.py  # Database enforcement
+├── capability_bound_filesystem.py  # Filesystem enforcement
+├── mcp_server.py       # MCP server entry
+├── plugins.py          # Plugin system
+├── registry.py         # Community registry
+├── core/               # Sovereignty scoring, config parsing
+│   ├── config.py
+│   └── scoring.py
+├── layers/             # 8-layer model implementations
+│   ├── model_providers.py    # Ollama, OpenAI adapters
+│   ├── knowledge.py          # Compile-time knowledge graph
+│   ├── auth.py               # Local auth broker + vault
+│   ├── payments.py           # Virtual card adapter
+│   ├── identity.py           # Email/phone adapters
+│   ├── substrate.py          # Compute substrate
+│   ├── memory.py             # Short-term memory
+│   ├── harness.py            # Harness integration
+│   └── registry.py           # Layer registry + scoring
+├── quant/              # Quant research pipeline
+│   ├── orchestration/            # QuantResearchOrchestrator + gate + researcher
+│   ├── engine/__init__.py    # Backtest engine
+│   ├── risk/__init__.py      # Risk evaluation
+│   ├── policy/__init__.py    # Trading policies
+│   ├── strategy/__init__.py  # Strategy definitions
+│   ├── reports/__init__.py   # Report generation
+│   ├── market/               # Data providers (Alpaca, YFinance, Stooq)
+│   ├── broker/               # Broker adapters
+│   ├── provenance/           # Provenance graph
+│   ├── research/             # Research loop (trial, reflection, temporal)
+│   ├── statistics/           # Sharpe, PBO, CSCV, deflated Sharpe
+│   ├── evaluation/           # Gate ablation, baseline, gates
+│   ├── experiment/           # 40+ experiment modules (epistemic, authority, etc.)
+│   ├── runtime_authority_gate.py  # Runtime enforcement
+│   ├── capability_verifier.py     # Capability verification
+│   ├── capability_bound_*.py      # 5 capability-bound wrappers
+│   ├── consequence_executor.py    # Consequence protocol
+│   ├── consequence_types.py       # Effect taxonomy
+│   ├── worlds/               # Evaluation worlds + runner
+│   └── cli_transport.py      # CLI transport enforcement
+├── runtime/            # Agent runtime
+│   ├── agent_runtime.py      # Core agent loop
+│   ├── orchestrator.py       # Runtime orchestrator
+│   ├── cli.py                # Runtime CLI
+│   ├── capability_bound_agent.py  # Capability-bound runtime
+│   └── mcp_server.py         # MCP server
+├── dashboard/          # Live dashboard
+│   ├── server.py             # FastAPI server
+│   ├── report.py             # Report generation
+│   └── static/               # Frontend (HTML/JS/CSS)
+└── rust_bridge/        # Rust extension bridge
+```
+
+### Runtime Authority Enforcement
+
+SAS enforces a strict separation between intelligence and authority:
+
+```
+MODEL OUTPUT ≠ AUTHORIZATION
+CREDENTIAL ≠ AUTHORIZATION ≠ CAPABILITY
+REGISTRATION ≠ AUTHORITY
+PERFORMANCE ≠ AUTHORITY
+```
+
+The `RuntimeAuthorityGate` is the single enforcement point. Every consequential operation (tool invoke, trade, payment, credential access, subprocess execution, compute execution, filesystem mutation, network mutation, plugin execution) passes through it. The gate is deterministic and cannot be bypassed by the LLM.
+
+### Capability Boundaries
+
+| Boundary | Component | Status |
+|----------|-----------|--------|
+| Tool execution | `CapabilityBoundAgentRuntime` | ✅ Closed |
+| Credential access | `CapabilityBoundAuthBroker` | ✅ Closed |
+| Compute substrate | `CapabilityBoundSubstrate` | ✅ Closed |
+| Plugin execution | `CapabilityBoundPluginExecutor` | ✅ Closed |
+| CLI transport | `cli_transport.py` | ✅ Closed |
+| Filesystem | `CapabilityBoundFilesystem` | ✅ Closed |
+| Database | `CapabilityBoundDatabase` | ✅ Closed |
+| Broker | `CapabilityBoundBroker` | ✅ Closed |
 
 ---
 
@@ -445,8 +527,37 @@ python -m pytest tests/unit/ tests/integration/ -q \
 | Document | Purpose |
 |----------|---------|
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | 8-phase development plan |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Full architecture reference |
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Production deployment guide |
 | [`docs/RUNBOOK.md`](docs/RUNBOOK.md) | Operations runbook |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | Security model |
+| [`docs/SOVEREIGNTY.md`](docs/SOVEREIGNTY.md) | Sovereignty model reference |
+| [`docs/LAYERS.md`](docs/LAYERS.md) | Layer model reference |
+| [`docs/PLUGINS.md`](docs/PLUGINS.md) | Plugin system reference |
+| [`docs/ARGO_SKILL_PACK.md`](docs/ARGO_SKILL_PACK.md) | ARGO skill pack reference |
+| [`docs/LAYER_REGISTRY.md`](docs/LAYER_REGISTRY.md) | Layer registry reference |
+| [`docs/PACKAGES.md`](docs/PACKAGES.md) | Package structure |
+| [`docs/ADAPTER_GAPS.md`](docs/ADAPTER_GAPS.md) | Adapter gap analysis |
+| [`docs/demo-report.md`](docs/demo-report.md) | Demo walkthrough report |
+
+---
+
+## Research
+
+Exploratory work on authority/epistemic graph theory lives in [`research/`](research/). It is independent of the shipping product and intentionally excluded from the demo path.
+
+The research directory contains 35+ phases of formal work on:
+
+- **Authority genesis** — Where does authority originate? How is the root represented?
+- **Trust anchors** — Multi-domain trust without global authority
+- **Authority graphs** — Construction, completeness, and reconciliation
+- **Effect boundaries** — What effects can authority actually cover?
+- **Temporal authority** — How does authority change over time?
+- **Authority path reconstruction** — Can observed effects be traced back to their authorizing path?
+- **Graph reconciliation** — Do declared authority graphs match reconstructed paths?
+- **Temporal closure** — How do reconciliations survive authority changes?
+
+Each phase includes an implementation module, adversarial test suite, and experimental report.
 
 ---
 

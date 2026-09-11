@@ -63,7 +63,8 @@ class OllamaProvider(ModelProvider):
                 for t in tools
             ]
 
-        async with aiohttp.ClientSession() as session, session.post(
+        timeout = aiohttp.ClientTimeout(total=120)
+        async with aiohttp.ClientSession(timeout=timeout) as session, session.post(
             f"{self._base_url}/api/chat", json=payload
         ) as resp:
             data = await resp.json()

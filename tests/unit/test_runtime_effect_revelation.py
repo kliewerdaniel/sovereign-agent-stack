@@ -1,7 +1,7 @@
 """Tests for Phase 30: Runtime Effect Revelation and Epistemic Promotion."""
 
 import pytest
-from examples.sovereign_agent.runtime_effect_revelation import (
+from research.examples.sovereign_agent.runtime_effect_revelation import (
     AdversarialWorldGenerator,
     AttributionStatus,
     AuthorityPathStatus,

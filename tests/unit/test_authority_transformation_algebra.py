@@ -6,7 +6,7 @@ transformation types.
 """
 
 import pytest
-from examples.sovereign_agent.authority_transformation_algebra import (
+from research.examples.sovereign_agent.authority_transformation_algebra import (
     AuthorityTransformation,
     TransformationAlgebraEngine,
     TransformationClass,

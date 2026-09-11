@@ -1,46 +1,46 @@
 """Tests for Sovereign Multi-Agent Authority Competition."""
 
 import pytest
-from examples.sovereign_agent.agent import AgentPolicy, AgentResult, SovereignAgent
-from examples.sovereign_agent.agent_composition import (
+from research.examples.sovereign_agent.agent import AgentPolicy, AgentResult, SovereignAgent
+from research.examples.sovereign_agent.agent_composition import (
     AgentCompositionEngine,
     CompositionType,
     build_composition_scenarios,
 )
-from examples.sovereign_agent.intent_graph import (
+from research.examples.sovereign_agent.intent_graph import (
     ActionProposal,
     IntentGraph,
     IntentRelation,
     build_intent_graph,
 )
-from examples.sovereign_agent.agent_disagreement import (
+from research.examples.sovereign_agent.agent_disagreement import (
     AgentDisagreementEngine,
     AgentPosition,
     DisagreementType,
     ResolutionMechanism,
     build_deliberate_disagreements,
 )
-from examples.sovereign_agent.authority_races import (
+from research.examples.sovereign_agent.authority_races import (
     AuthorityRaceEngine,
     RaceOutcome,
     RaceType,
     build_race_scenarios,
 )
-from examples.sovereign_agent.environment import build_hostile_payment_environment
-from examples.sovereign_agent.interfaces import CombinedSovereignInterface
-from examples.sovereign_agent.multi_agent_environment import (
+from research.examples.sovereign_agent.environment import build_hostile_payment_environment
+from research.examples.sovereign_agent.interfaces import CombinedSovereignInterface
+from research.examples.sovereign_agent.multi_agent_environment import (
     AgentRole,
     MultiAgentEnvironment,
     WorldState,
     build_multi_agent_environment,
 )
-from examples.sovereign_agent.multi_agent_metrics import MultiAgentMetrics
-from examples.sovereign_agent.multi_agent_trajectory import (
+from research.examples.sovereign_agent.multi_agent_metrics import MultiAgentMetrics
+from research.examples.sovereign_agent.multi_agent_trajectory import (
     AgentTrajectory,
     MultiAgentTrajectory,
     TrajectoryEntryType,
 )
-from examples.sovereign_agent.multi_agent_trial import MultiAgentTrial, run_multi_agent_trial
+from research.examples.sovereign_agent.multi_agent_trial import MultiAgentTrial, run_multi_agent_trial
 
 
 class TestMultiAgentEnvironment:

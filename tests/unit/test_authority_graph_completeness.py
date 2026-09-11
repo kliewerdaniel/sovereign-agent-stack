@@ -8,7 +8,7 @@ INCOMPLETE does NOT imply unauthorized.
 """
 
 import pytest
-from examples.sovereign_agent.authority_graph_completeness import (
+from research.examples.sovereign_agent.authority_graph_completeness import (
     AuthorityGraphCompletenessEngine,
     CompletenessDimension,
     CompletenessResult,

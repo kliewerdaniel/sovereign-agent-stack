@@ -1,7 +1,7 @@
 """Tests for Phase 31: Observed Effect → Authority Path Reconstruction."""
 
 import pytest
-from examples.sovereign_agent.authority_path_reconstruction import (
+from research.examples.sovereign_agent.authority_path_reconstruction import (
     AdversarialWorldGenerator,
     AttributionStatus,
     AuthorityPathNode,

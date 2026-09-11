@@ -4,14 +4,14 @@ Tests validate the ScopeProvenanceEngine's decisions about scope propagation.
 """
 
 import pytest
-from examples.sovereign_agent.authorization_dependencies import (
+from research.examples.sovereign_agent.authorization_dependencies import (
     DependencyStrength,
     DependencyType,
 )
-from examples.sovereign_agent.dependency_completeness import (
+from research.examples.sovereign_agent.dependency_completeness import (
     create_completeness_scope,
 )
-from examples.sovereign_agent.scope_provenance_experiment import (
+from research.examples.sovereign_agent.scope_provenance_experiment import (
     ScopeAuthority,
     ScopeProvenanceEngine,
     ScopeProvenanceResult,

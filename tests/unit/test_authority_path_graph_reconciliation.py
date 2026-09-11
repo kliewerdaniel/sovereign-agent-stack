@@ -1,7 +1,7 @@
 """Tests for Phase 32: Reconstructed Authority Path → Declared Authority Graph Reconciliation."""
 
 import pytest
-from examples.sovereign_agent.authority_path_graph_reconciliation import (
+from research.examples.sovereign_agent.authority_path_graph_reconciliation import (
     AdversarialWorldGenerator,
     ActorReconciliationStatus,
     AttributionStatus,
@@ -125,7 +125,7 @@ def graph_complete() -> DeclaredAuthorityGraph:
         source_type=AuthoritySourceType.POLICY,
         trust_anchor_id="ta-001",
     ))
-    from examples.sovereign_agent.authority_path_graph_reconciliation import DeclaredAuthorityEdge
+    from research.examples.sovereign_agent.authority_path_graph_reconciliation import DeclaredAuthorityEdge
     graph.add_edge(DeclaredAuthorityEdge(edge_id="e1", source_node_id="ta-001", target_node_id="del-001"))
     graph.add_edge(DeclaredAuthorityEdge(edge_id="e2", source_node_id="del-001", target_node_id="pol-001"))
     graph.add_edge(DeclaredAuthorityEdge(edge_id="e3", source_node_id="pol-001", target_node_id="gov-001"))
@@ -414,7 +414,7 @@ class TestReconciliationEngine:
             source_type=AuthoritySourceType.DELEGATION,
             trust_anchor_id="ta-001",
         ))
-        from examples.sovereign_agent.authority_path_graph_reconciliation import DeclaredAuthorityEdge
+        from research.examples.sovereign_agent.authority_path_graph_reconciliation import DeclaredAuthorityEdge
         cyclic_graph.add_edge(DeclaredAuthorityEdge(edge_id="e1", source_node_id="ta-001", target_node_id="del-001"))
         cyclic_graph.add_edge(DeclaredAuthorityEdge(edge_id="e2", source_node_id="del-001", target_node_id="ta-001"))
 
@@ -1049,13 +1049,13 @@ class TestOracleEvaluation:
 
 class TestPhase32Experiment:
     def test_runs_all_worlds(self):
-        from examples.sovereign_agent.authority_path_graph_reconciliation import Phase32Experiment
+        from research.examples.sovereign_agent.authority_path_graph_reconciliation import Phase32Experiment
         exp = Phase32Experiment()
         results = exp.run_all()
         assert results["total_worlds"] == 35
 
     def test_summary_generated(self):
-        from examples.sovereign_agent.authority_path_graph_reconciliation import Phase32Experiment
+        from research.examples.sovereign_agent.authority_path_graph_reconciliation import Phase32Experiment
         exp = Phase32Experiment()
         exp.run_all()
         summary = exp.summary()
@@ -1063,7 +1063,7 @@ class TestPhase32Experiment:
         assert summary["total_reconciliations"] == 35
 
     def test_false_authorizations_count(self):
-        from examples.sovereign_agent.authority_path_graph_reconciliation import Phase32Experiment
+        from research.examples.sovereign_agent.authority_path_graph_reconciliation import Phase32Experiment
         exp = Phase32Experiment()
         exp.run_all()
         summary = exp.summary()
@@ -1071,7 +1071,7 @@ class TestPhase32Experiment:
         assert summary["false_authorizations"] >= 0
 
     def test_false_escapes_count(self):
-        from examples.sovereign_agent.authority_path_graph_reconciliation import Phase32Experiment
+        from research.examples.sovereign_agent.authority_path_graph_reconciliation import Phase32Experiment
         exp = Phase32Experiment()
         exp.run_all()
         summary = exp.summary()

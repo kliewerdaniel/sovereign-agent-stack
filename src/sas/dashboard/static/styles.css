@@ -557,6 +557,145 @@ body {
     margin-top: 0.25rem;
 }
 
+/* Provenance / Audit Trail */
+.provenance-section {
+    margin-bottom: 1.25rem;
+}
+
+.provenance-section:last-child {
+    margin-bottom: 0;
+}
+
+.provenance-section h4 {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.provenance-chain {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.chain-node {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.65rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+}
+
+.chain-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+}
+
+.chain-label {
+    color: var(--text-primary);
+    text-transform: capitalize;
+}
+
+.chain-arrow {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0 0.15rem;
+}
+
+.provenance-artifacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.artifact-tag {
+    padding: 0.25rem 0.6rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.provenance-tools {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.tool-count {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 1.1rem;
+}
+
+.provenance-criteria {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.criterion-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.criterion-status {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.criterion-pass {
+    background: #065f46;
+    color: var(--success);
+}
+
+.criterion-fail {
+    background: #991b1b;
+    color: var(--error);
+}
+
+.criterion-name {
+    flex: 1;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.criterion-score {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.provenance-empty {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .header {

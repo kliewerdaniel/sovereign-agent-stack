@@ -6,7 +6,7 @@ at architectural boundaries.
 """
 
 import pytest
-from examples.sovereign_agent.authority_escape_remediation import (
+from research.examples.sovereign_agent.authority_escape_remediation import (
     ArchitecturalCause,
     RemediationEngine,
     RemediationPlan,

@@ -8,7 +8,7 @@ subject to the same governance as downstream authority.
 """
 
 import pytest
-from examples.sovereign_agent.authority_root import (
+from research.examples.sovereign_agent.authority_root import (
     AuthorityRootEngine,
     AuthorityRootExperimentResult,
     AuthorityRootType,

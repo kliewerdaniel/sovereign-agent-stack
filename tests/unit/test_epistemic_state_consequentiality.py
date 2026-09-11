@@ -5,7 +5,7 @@ the consequential authority surface.
 """
 
 import pytest
-from examples.sovereign_agent.epistemic_state_consequentiality import (
+from research.examples.sovereign_agent.epistemic_state_consequentiality import (
     EpistemicStateMachine,
     EpistemicStateConsequentialityEngine,
     EpistemicTransitionConsequence,
@@ -162,7 +162,7 @@ class TestEpistemicTransitionClassifier:
     """Test epistemic transition classifier."""
 
     def test_gain_knowledge(self):
-        from examples.sovereign_agent.epistemic_state_consequentiality import EpistemicStateTransition
+        from research.examples.sovereign_agent.epistemic_state_consequentiality import EpistemicStateTransition
         transition = EpistemicStateTransition(
             transition_id="test",
             from_state="unknown",
@@ -174,7 +174,7 @@ class TestEpistemicTransitionClassifier:
         assert classify_epistemic_transition(transition) == EpistemicTransitionConsequence.CREATES_AUTHORITY
 
     def test_lose_knowledge(self):
-        from examples.sovereign_agent.epistemic_state_consequentiality import EpistemicStateTransition
+        from research.examples.sovereign_agent.epistemic_state_consequentiality import EpistemicStateTransition
         transition = EpistemicStateTransition(
             transition_id="test",
             from_state="complete",
@@ -186,7 +186,7 @@ class TestEpistemicTransitionClassifier:
         assert classify_epistemic_transition(transition) == EpistemicTransitionConsequence.CONSTRAINS_AUTHORITY
 
     def test_no_change(self):
-        from examples.sovereign_agent.epistemic_state_consequentiality import EpistemicStateTransition
+        from research.examples.sovereign_agent.epistemic_state_consequentiality import EpistemicStateTransition
         transition = EpistemicStateTransition(
             transition_id="test",
             from_state="complete",

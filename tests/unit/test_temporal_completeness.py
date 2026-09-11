@@ -1,19 +1,19 @@
 """Tests for Temporal Completeness Drift and Revalidation."""
 
 import pytest
-from examples.self_audit.authority_drift import (
+from research.examples.self_audit.authority_drift import (
     AuthorityDriftEvent,
     DriftClassification,
     DriftType,
 )
-from examples.self_audit.continuous_reconciliation import WorldState
-from examples.sovereign_agent.dependency_completeness import (
+from research.examples.self_audit.continuous_reconciliation import WorldState
+from research.examples.sovereign_agent.dependency_completeness import (
     CompletenessMethod,
     CompletenessStatus,
     IntersectionStatus,
     create_completeness_scope,
 )
-from examples.sovereign_agent.temporal_completeness import (
+from research.examples.sovereign_agent.temporal_completeness import (
     CompletenessDriftFinding,
     CompletenessDriftType,
     CompletenessValidityInterval,

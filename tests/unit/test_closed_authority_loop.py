@@ -8,7 +8,7 @@ The current architecture lacks a second authority boundary over policy effects.
 """
 
 import pytest
-from examples.sovereign_agent.closed_authority_loop import (
+from research.examples.sovereign_agent.closed_authority_loop import (
     AttackClass,
     ClosedAuthorityLoopEngine,
     ClosedLoopResult,
@@ -310,7 +310,7 @@ class TestTransitionStep:
 
     def test_authority_conserved_same_capability(self):
         """Test that authority is conserved when capability class is the same."""
-        from examples.sovereign_agent.closed_authority_loop import (
+        from research.examples.sovereign_agent.closed_authority_loop import (
             AuthorityToken,
             TransitionStep,
         )
@@ -348,7 +348,7 @@ class TestTransitionStep:
 
     def test_authority_amplified_different_capability(self):
         """Test that authority is amplified when capability class differs."""
-        from examples.sovereign_agent.closed_authority_loop import (
+        from research.examples.sovereign_agent.closed_authority_loop import (
             AuthorityToken,
             TransitionStep,
         )
@@ -386,7 +386,7 @@ class TestTransitionStep:
 
     def test_authority_amplified_scope_expansion(self):
         """Test that authority is amplified when scope expands."""
-        from examples.sovereign_agent.closed_authority_loop import (
+        from research.examples.sovereign_agent.closed_authority_loop import (
             AuthorityToken,
             TransitionStep,
         )

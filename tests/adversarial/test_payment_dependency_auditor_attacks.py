@@ -13,13 +13,13 @@ from pathlib import Path
 
 import pytest
 
-from examples.payment_dependency_auditor.auditor import (
+from research.examples.payment_dependency_auditor.auditor import (
     DependencyGraphBuilder,
     LocalIngester,
     PaymentDependencyAuditor,
     generate_dependency_report,
 )
-from examples.payment_dependency_auditor.dependency_types import (
+from research.examples.payment_dependency_auditor.dependency_types import (
     DependencyEdge,
     DependencyType,
     DocumentationDrift,

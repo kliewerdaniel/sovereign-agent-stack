@@ -17,8 +17,8 @@ Key invariants tested:
 """
 
 import pytest
-from examples.sovereign_agent.dependency_completeness import create_completeness_scope
-from examples.sovereign_agent.policy_governance import (
+from research.examples.sovereign_agent.dependency_completeness import create_completeness_scope
+from research.examples.sovereign_agent.policy_governance import (
     PolicyAuthorityType,
     PolicyLifecycleOperation,
     PolicyLifecycleState,
@@ -235,7 +235,7 @@ class TestPolicyVersionRecord:
 
     def test_version_record_immutability(self):
         """Test that version records are immutable."""
-        from examples.sovereign_agent.policy_governance import PolicyVersionRecord
+        from research.examples.sovereign_agent.policy_governance import PolicyVersionRecord
         
         record = PolicyVersionRecord(
             version_id="ver_001",
@@ -255,7 +255,7 @@ class TestPolicyVersionRecord:
 
     def test_version_record_addressability(self):
         """Test that all version records are addressable."""
-        from examples.sovereign_agent.policy_governance import PolicyVersionRecord
+        from research.examples.sovereign_agent.policy_governance import PolicyVersionRecord
         
         record = PolicyVersionRecord(
             version_id="ver_001",
@@ -336,7 +336,7 @@ class TestPolicyLifecycleEvent:
 
     def test_event_immutability(self):
         """Test that lifecycle events are immutable."""
-        from examples.sovereign_agent.policy_governance import PolicyLifecycleEvent
+        from research.examples.sovereign_agent.policy_governance import PolicyLifecycleEvent
         
         event = PolicyLifecycleEvent(
             event_id="evt_001",
@@ -356,7 +356,7 @@ class TestPolicyLifecycleEvent:
 
     def test_event_state_transition_detection(self):
         """Test that event correctly detects state transitions."""
-        from examples.sovereign_agent.policy_governance import PolicyLifecycleEvent
+        from research.examples.sovereign_agent.policy_governance import PolicyLifecycleEvent
         
         # State transition
         event1 = PolicyLifecycleEvent(
@@ -394,7 +394,7 @@ class TestPolicyLifecycleReceipt:
 
     def test_receipt_validity(self):
         """Test that receipt validity is correctly determined."""
-        from examples.sovereign_agent.policy_governance import (
+        from research.examples.sovereign_agent.policy_governance import (
             PolicyLifecycleEvent,
             PolicyLifecycleReceipt,
         )

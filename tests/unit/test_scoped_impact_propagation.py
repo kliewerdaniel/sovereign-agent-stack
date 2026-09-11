@@ -4,27 +4,27 @@ Tests validate the ScopedImpactPropagationEngine against semantic requirements.
 """
 
 import pytest
-from examples.self_audit.authority_drift import AuthorityDriftEvent
-from examples.sovereign_agent.authorization_dependencies import (
+from research.examples.self_audit.authority_drift import AuthorityDriftEvent
+from research.examples.sovereign_agent.authorization_dependencies import (
     AuthorizationDependency,
     AuthorizationDependencyGraph,
     DependencyStrength,
     DependencyType,
     build_authorization_dependency_graph,
 )
-from examples.sovereign_agent.dependency_completeness import (
+from research.examples.sovereign_agent.dependency_completeness import (
     CompletenessStatus,
     IntersectionStatus,
     create_completeness_scope,
 )
-from examples.sovereign_agent.scoped_impact_propagation import (
+from research.examples.sovereign_agent.scoped_impact_propagation import (
     ScopedFrontier,
     ScopedFrontierMember,
     ScopedImpactPropagationEngine,
     create_scoped_authorization_graph,
     create_scoped_proposition_graph,
 )
-from examples.sovereign_agent.scoped_propagation_experiment import (
+from research.examples.sovereign_agent.scoped_propagation_experiment import (
     PropagationExperimentResult,
     run_all_propagation_experiments,
     run_scope_mismatch_experiment,

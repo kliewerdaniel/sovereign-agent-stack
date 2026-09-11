@@ -5,25 +5,25 @@ review without becoming authorization itself.
 """
 
 import pytest
-from examples.self_audit.authority_drift import AuthorityDriftEvent
-from examples.self_audit.continuous_reconciliation import WorldState
-from examples.sovereign_agent.authorization_dependencies import (
+from research.examples.self_audit.authority_drift import AuthorityDriftEvent
+from research.examples.self_audit.continuous_reconciliation import WorldState
+from research.examples.sovereign_agent.authorization_dependencies import (
     build_authorization_dependency_graph,
 )
-from examples.sovereign_agent.dependency_completeness import (
+from research.examples.sovereign_agent.dependency_completeness import (
     create_completeness_scope,
 )
-from examples.sovereign_agent.scoped_impact_propagation import (
+from research.examples.sovereign_agent.scoped_impact_propagation import (
     create_scoped_authorization_graph,
     create_scoped_proposition_graph,
 )
-from examples.sovereign_agent.authority_frontier_integration import (
+from research.examples.sovereign_agent.authority_frontier_integration import (
     AuthorityFrontierIntegrator,
     AuthorityFrontierResult,
     GovernanceAction,
     run_authority_frontier_experiments,
 )
-from examples.sovereign_agent.temporal_frontier_experiment import (
+from research.examples.sovereign_agent.temporal_frontier_experiment import (
     TemporalFrontierEngine,
 )
 

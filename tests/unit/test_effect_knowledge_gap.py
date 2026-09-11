@@ -1,7 +1,7 @@
 """Tests for Phase 29: Effect Knowledge Gap Discovery."""
 
 import pytest
-from examples.sovereign_agent.effect_knowledge_gap import (
+from research.examples.sovereign_agent.effect_knowledge_gap import (
     AdversarialWorldGenerator,
     AdversarialWorld,
     ArchitecturalBoundaryAnalysis,

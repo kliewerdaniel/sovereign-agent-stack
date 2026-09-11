@@ -1,7 +1,7 @@
 """Tests for Phase 33: Effective Authority Graph Closure Under Authority Change."""
 
 import pytest
-from examples.sovereign_agent.effective_authority_graph_temporal_closure import (
+from research.examples.sovereign_agent.effective_authority_graph_temporal_closure import (
     AdversarialWorldGenerator,
     AuthorityChangeType,
     AuthorityState,

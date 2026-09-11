@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from examples.sovereign_agent.effect_graph_completeness import (
+from research.examples.sovereign_agent.effect_graph_completeness import (
     AdversarialWorldGenerator,
     AuthorityPathStatus,
     CompletenessEngine,
@@ -261,7 +261,7 @@ class TestCompletenessEngine:
         inv = self._make_inventory([effect])
 
         # Create a minimal world with no hidden effects
-        from examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
+        from research.examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
         world = AdversarialWorld(
             world_id="test",
             description="test",
@@ -288,7 +288,7 @@ class TestCompletenessEngine:
         # Observed inventory only has declared (misses hidden)
         observed_inv = self._make_inventory([declared])
 
-        from examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
+        from research.examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
         world = AdversarialWorld(
             world_id="test",
             description="test",
@@ -318,7 +318,7 @@ class TestCompletenessEngine:
         observed_inv = self._make_inventory([declared, hidden1])
         ground_truth_inv = self._make_inventory([declared, hidden1, hidden2])
 
-        from examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
+        from research.examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
         world = AdversarialWorld(
             world_id="test",
             description="test",
@@ -345,7 +345,7 @@ class TestCompletenessEngine:
         observed_inv = self._make_inventory([declared, hidden])
         ground_truth_inv = self._make_inventory([declared, hidden])
 
-        from examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
+        from research.examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
         world = AdversarialWorld(
             world_id="test",
             description="test",
@@ -370,7 +370,7 @@ class TestCompletenessEngine:
         observed_inv = self._make_inventory([declared])
         ground_truth_inv = self._make_inventory([declared, hidden])
 
-        from examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
+        from research.examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
         world = AdversarialWorld(
             world_id="test",
             description="test",
@@ -396,7 +396,7 @@ class TestCompletenessEngine:
         observed_inv = self._make_inventory([declared, false_positive])
         ground_truth_inv = self._make_inventory([declared])
 
-        from examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
+        from research.examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
         world = AdversarialWorld(
             world_id="test",
             description="test",
@@ -561,7 +561,7 @@ class TestPhase27Invariants:
             generated_by="test",
         )
 
-        from examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
+        from research.examples.sovereign_agent.effect_graph_completeness import AdversarialWorld
         world = AdversarialWorld(
             world_id="test",
             description="test",

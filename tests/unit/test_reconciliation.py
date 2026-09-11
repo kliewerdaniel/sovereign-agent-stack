@@ -2,7 +2,7 @@
 
 import pytest
 
-from examples.self_audit.reconciliation import (
+from research.examples.self_audit.reconciliation import (
     AuthorityGraphEdge,
     EpistemicState,
     ReconciliationClassification,

@@ -2,7 +2,7 @@
 
 import pytest
 
-from examples.self_audit.consequential_authority import (
+from research.examples.self_audit.consequential_authority import (
     AuthorityCondition,
     AuthorityCutSet,
     AuthorityDisposition,
@@ -571,7 +571,7 @@ class TestPaymentFixture:
     """Tests for the payment fixture."""
 
     def test_load_production_config(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             load_environment_config,
         )
         config = load_environment_config("production")
@@ -580,7 +580,7 @@ class TestPaymentFixture:
         assert config.api_endpoint == "https://api.payment-provider.com/v1"
 
     def test_load_staging_config(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             load_environment_config,
         )
         config = load_environment_config("staging")
@@ -588,7 +588,7 @@ class TestPaymentFixture:
         assert config.debug is True
 
     def test_load_development_config(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             load_environment_config,
         )
         config = load_environment_config("development")
@@ -596,7 +596,7 @@ class TestPaymentFixture:
         assert config.debug is True
 
     def test_feature_flags_differ_by_environment(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             load_environment_config,
         )
         prod = load_environment_config("production")
@@ -612,7 +612,7 @@ class TestPaymentFixture:
         assert dev.feature_flags["new_fraud_service"] is False
 
     def test_checkout_service_creation(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             CheckoutService,
             load_environment_config,
         )
@@ -621,7 +621,7 @@ class TestPaymentFixture:
         assert checkout is not None
 
     def test_payment_gateway_creation(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             PaymentGateway,
             load_environment_config,
         )
@@ -630,7 +630,7 @@ class TestPaymentFixture:
         assert gateway is not None
 
     def test_fraud_service_creation(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             FraudService,
             load_environment_config,
         )
@@ -639,7 +639,7 @@ class TestPaymentFixture:
         assert fraud is not None
 
     def test_admin_service_creation(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             AdminService,
             load_environment_config,
         )
@@ -648,7 +648,7 @@ class TestPaymentFixture:
         assert admin is not None
 
     def test_background_worker_creation(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             BackgroundWorker,
             load_environment_config,
         )
@@ -657,7 +657,7 @@ class TestPaymentFixture:
         assert worker is not None
 
     def test_fixture_builder(self):
-        from examples.payment_dependency_auditor.authority_fixture.fixture import (
+        from research.examples.payment_dependency_auditor.authority_fixture.fixture import (
             PaymentFixtureBuilder,
         )
         builder = PaymentFixtureBuilder("production")
@@ -674,7 +674,7 @@ class TestAuthorityTopologyIntegrator:
     """Tests for the authority topology integrator."""
 
     def test_integrate_dependencies(self):
-        from examples.payment_dependency_auditor.authority_fixture.integration import (
+        from research.examples.payment_dependency_auditor.authority_fixture.integration import (
             AuthorityTopologyIntegrator,
             DependencyObservation,
         )
@@ -693,7 +693,7 @@ class TestAuthorityTopologyIntegrator:
         assert len(graph.edges) == 1
 
     def test_integrate_runtime(self):
-        from examples.payment_dependency_auditor.authority_fixture.integration import (
+        from research.examples.payment_dependency_auditor.authority_fixture.integration import (
             AuthorityTopologyIntegrator,
             RuntimeObservation,
         )
@@ -712,7 +712,7 @@ class TestAuthorityTopologyIntegrator:
         assert len(graph.edges) == 1
 
     def test_integrate_authority(self):
-        from examples.payment_dependency_auditor.authority_fixture.integration import (
+        from research.examples.payment_dependency_auditor.authority_fixture.integration import (
             AuthorityDeclaration,
             AuthorityTopologyIntegrator,
         )
@@ -733,7 +733,7 @@ class TestAuthorityTopologyIntegrator:
         assert graph.edges[0].edge_type == EdgeType.AUTHORITY
 
     def test_full_integration(self):
-        from examples.payment_dependency_auditor.authority_fixture.integration import (
+        from research.examples.payment_dependency_auditor.authority_fixture.integration import (
             AuthorityDeclaration,
             AuthorityTopologyIntegrator,
             DependencyObservation,

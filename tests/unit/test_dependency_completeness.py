@@ -5,7 +5,7 @@ across multiple dimensions and edge cases.
 """
 
 import pytest
-from examples.sovereign_agent.dependency_completeness import (
+from research.examples.sovereign_agent.dependency_completeness import (
     CompletenessAssessment,
     CompletenessClaim,
     CompletenessDimension,
@@ -17,7 +17,7 @@ from examples.sovereign_agent.dependency_completeness import (
     IntersectionStatus,
     create_completeness_scope,
 )
-from examples.sovereign_agent.completeness_experiment import (
+from research.examples.sovereign_agent.completeness_experiment import (
     CompletenessExperiment,
     ExperimentalCondition,
     WorldDependency,

@@ -9,7 +9,7 @@ concept of POLICY EFFECT AUTHORITY.
 """
 
 import pytest
-from examples.sovereign_agent.effect_boundary import (
+from research.examples.sovereign_agent.effect_boundary import (
     AuthorityEnvelope,
     AuthoritySurface,
     AuthorityTransformationType,

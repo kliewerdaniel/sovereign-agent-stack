@@ -5,24 +5,24 @@ dependence on rich frontier information.
 """
 
 import pytest
-from examples.self_audit.authority_drift import AuthorityDriftEvent
-from examples.self_audit.continuous_reconciliation import WorldState
-from examples.sovereign_agent.authority_frontier_integration import (
+from research.examples.self_audit.authority_drift import AuthorityDriftEvent
+from research.examples.self_audit.continuous_reconciliation import WorldState
+from research.examples.sovereign_agent.authority_frontier_integration import (
     AuthorityFrontierIntegrator,
     GovernanceAction,
 )
-from examples.sovereign_agent.authorization_dependencies import (
+from research.examples.sovereign_agent.authorization_dependencies import (
     build_authorization_dependency_graph,
 )
-from examples.sovereign_agent.dependency_completeness import (
+from research.examples.sovereign_agent.dependency_completeness import (
     create_completeness_scope,
 )
-from examples.sovereign_agent.frontier_composition_semantics import (
+from research.examples.sovereign_agent.frontier_composition_semantics import (
     CompositionOperation,
     FrontierCompositionSemanticsEngine,
     SemanticDisagreementType,
 )
-from examples.sovereign_agent.rich_frontier_governance import (
+from research.examples.sovereign_agent.rich_frontier_governance import (
     GovernanceInputContract,
     GovernanceInputType,
     GovernanceSemanticDependence,
@@ -42,7 +42,7 @@ from examples.sovereign_agent.rich_frontier_governance import (
     run_controlled_semantic_contrasts,
     run_malicious_agreement_tests,
 )
-from examples.sovereign_agent.scoped_impact_propagation import (
+from research.examples.sovereign_agent.scoped_impact_propagation import (
     create_scoped_authorization_graph,
     create_scoped_proposition_graph,
 )
@@ -298,7 +298,7 @@ class TestPhase10Classification:
 
     def test_classification_is_projection_sufficient(self):
         """Test that the classification is GOVERNANCE_PROJECTION_SUFFICIENT."""
-        from examples.sovereign_agent.rich_frontier_governance import run_all_phase10_experiments
+        from research.examples.sovereign_agent.rich_frontier_governance import run_all_phase10_experiments
         
         results = run_all_phase10_experiments()
         classification = classify_phase10_result(results)

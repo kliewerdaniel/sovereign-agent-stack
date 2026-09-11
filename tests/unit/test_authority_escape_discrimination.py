@@ -5,7 +5,7 @@ discriminated as real escapes, false positives, or controlled escapes.
 """
 
 import pytest
-from examples.sovereign_agent.authority_escape_discrimination import (
+from research.examples.sovereign_agent.authority_escape_discrimination import (
     AuthorityEscapeDiscriminationEngine,
     AuthorityEscapeHypothesis,
     EscapeClassification,

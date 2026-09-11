@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from examples.sovereign_agent.consequential_effect_closure import (
+from research.examples.sovereign_agent.consequential_effect_closure import (
     ClosureStatus,
     EffectGovernance,
     EffectInventoryBuilder,
@@ -130,7 +130,7 @@ class TestEffectInventoryAfter:
 
         Remediation: runtime_topology.py now uses SubprocessInstrument.
         """
-        from examples.self_audit.runtime_topology import ArgopackExperiment
+        from research.examples.self_audit.runtime_topology import ArgopackExperiment
         import inspect
         source = inspect.getsource(ArgopackExperiment._trace_subprocess_invocation)
         assert "SubprocessInstrument" in source

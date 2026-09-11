@@ -2,12 +2,12 @@
 
 import pytest
 
-from examples.self_audit.authority_adjudication import (
+from research.examples.self_audit.authority_adjudication import (
     AdjudicationContext,
     ArgopackScenarioBuilder,
     AuthorityBoundaryAdjudicator,
 )
-from examples.self_audit.authority_boundary import (
+from research.examples.self_audit.authority_boundary import (
     AuthorityBasis,
     AuthorityBoundary,
     AuthorityBoundaryGraph,

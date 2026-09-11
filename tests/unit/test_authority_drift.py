@@ -2,7 +2,7 @@
 
 import pytest
 
-from examples.self_audit.authority_drift import (
+from research.examples.self_audit.authority_drift import (
     AuthorityDelta,
     AuthorityDebt,
     AuthorityDebtItem,
@@ -23,11 +23,11 @@ from examples.self_audit.authority_drift import (
     RuntimeDelta,
     TopologyDelta,
 )
-from examples.self_audit.continuous_reconciliation import (
+from research.examples.self_audit.continuous_reconciliation import (
     ContinuousAuthorityReconciler,
     WorldState,
 )
-from examples.self_audit.temporal_evolution import build_temporal_versions
+from research.examples.self_audit.temporal_evolution import build_temporal_versions
 
 
 class TestAuthoritySnapshot:

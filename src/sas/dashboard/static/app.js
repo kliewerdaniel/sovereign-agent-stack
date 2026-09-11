@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const pipelineConsole = document.getElementById('pipeline-console');
     const resultsCard = document.getElementById('results-card');
     const resultsGrid = document.getElementById('results-grid');
+    const provenanceCard = document.getElementById('provenance-card');
+    const provenanceContent = document.getElementById('provenance-content');
     const layersList = document.getElementById('layers-list');
     const chatMessages = document.getElementById('chat-messages');
     const knowledgeResults = document.getElementById('knowledge-results');
@@ -157,6 +159,92 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultsGrid.appendChild(item);
             });
         }
+
+        // Provenance / Audit Trail
+        renderProvenance(data);
+    }
+
+    // ── Render Provenance Trail ─────────────────────────────────────────────────
+    function renderProvenance(data) {
+        provenanceCard.style.display = 'block';
+        provenanceContent.innerHTML = '';
+
+        // Pipeline chain
+        const chainSection = document.createElement('div');
+        chainSection.className = 'provenance-section';
+        chainSection.innerHTML = '<h4>Pipeline Chain</h4>';
+        const chain = document.createElement('div');
+        chain.className = 'provenance-chain';
+        const stages = ['dataset', 'strategy', 'backtest', 'evaluation', 'report'];
+        stages.forEach((stage, i) => {
+            const node = document.createElement('div');
+            node.className = 'chain-node';
+            node.innerHTML = `<span class="chain-dot"></span><span class="chain-label">${stage}</span>`;
+            chain.appendChild(node);
+            if (i < stages.length - 1) {
+                const arrow = document.createElement('span');
+                arrow.className = 'chain-arrow';
+                arrow.textContent = '→';
+                chain.appendChild(arrow);
+            }
+        });
+        chainSection.appendChild(chain);
+        provenanceContent.appendChild(chainSection);
+
+        // Artifacts
+        const artifactsSection = document.createElement('div');
+        artifactsSection.className = 'provenance-section';
+        artifactsSection.innerHTML = '<h4>Artifacts</h4>';
+        const artifactList = document.createElement('div');
+        artifactList.className = 'provenance-artifacts';
+        if (data.artifacts && data.artifacts.length > 0) {
+            data.artifacts.forEach(a => {
+                const tag = document.createElement('span');
+                tag.className = 'artifact-tag';
+                tag.textContent = a;
+                artifactList.appendChild(tag);
+            });
+        } else {
+            artifactList.innerHTML = '<span class="provenance-empty">No artifacts</span>';
+        }
+        artifactsSection.appendChild(artifactList);
+        provenanceContent.appendChild(artifactsSection);
+
+        // Tool calls
+        const toolsSection = document.createElement('div');
+        toolsSection.className = 'provenance-section';
+        toolsSection.innerHTML = '<h4>Tool Calls</h4>';
+        const toolsInfo = document.createElement('div');
+        toolsInfo.className = 'provenance-tools';
+        const toolCount = data.tool_calls || 0;
+        toolsInfo.innerHTML = `<span class="tool-count">${toolCount}</span> tool call${toolCount !== 1 ? 's' : ''} executed`;
+        toolsSection.appendChild(toolsInfo);
+        provenanceContent.appendChild(toolsSection);
+
+        // Criterion results with pass/fail
+        const criteriaSection = document.createElement('div');
+        criteriaSection.className = 'provenance-section';
+        criteriaSection.innerHTML = '<h4>Criteria</h4>';
+        const criteriaList = document.createElement('div');
+        criteriaList.className = 'provenance-criteria';
+        if (data.criterion_results && data.criterion_results.length > 0) {
+            data.criterion_results.forEach(cr => {
+                const row = document.createElement('div');
+                row.className = 'criterion-row';
+                const statusClass = cr.passed ? 'criterion-pass' : 'criterion-fail';
+                const statusIcon = cr.passed ? '✓' : '✗';
+                row.innerHTML = `
+                    <span class="criterion-status ${statusClass}">${statusIcon}</span>
+                    <span class="criterion-name">${cr.criterion_name}</span>
+                    <span class="criterion-score">${cr.score.toFixed(2)}</span>
+                `;
+                criteriaList.appendChild(row);
+            });
+        } else {
+            criteriaList.innerHTML = '<span class="provenance-empty">No criteria evaluated</span>';
+        }
+        criteriaSection.appendChild(criteriaList);
+        provenanceContent.appendChild(criteriaSection);
     }
 
     // ── Load Layers ────────────────────────────────────────────────────────────
@@ -242,6 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function runPipeline(worldId) {
         clearConsole();
         resultsCard.style.display = 'none';
+        provenanceCard.style.display = 'none';
         logToConsole(`Starting pipeline for ${worldId}...`);
 
         try {

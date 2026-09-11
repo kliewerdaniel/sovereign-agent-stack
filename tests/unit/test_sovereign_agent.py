@@ -2,18 +2,18 @@
 
 import pytest
 
-from examples.sovereign_agent.agent import (
+from research.examples.sovereign_agent.agent import (
     AdversarialAgentPolicy,
     AgentPolicy,
     AgentResult,
     SovereignAgent,
 )
-from examples.sovereign_agent.environment import (
+from research.examples.sovereign_agent.environment import (
     PaymentInfrastructureEnvironment,
     PaymentInfrastructureState,
     build_hostile_payment_environment,
 )
-from examples.sovereign_agent.interfaces import (
+from research.examples.sovereign_agent.interfaces import (
     CombinedSovereignInterface,
     RejectionReason,
     ResponseType,

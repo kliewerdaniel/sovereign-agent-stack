@@ -314,7 +314,7 @@ class TestSubprocessInstrumentBypass:
         CRITICAL: INSTRUMENTATION != AUTHORITY.
         The instrument records; it does not grant authority.
         """
-        from examples.self_audit.runtime_trace import RuntimeTraceRecorder, SubprocessInstrument
+        from research.examples.self_audit.runtime_trace import RuntimeTraceRecorder, SubprocessInstrument
 
         recorder = RuntimeTraceRecorder("test-scope", scope="controlled_local")
         recorder.start()
@@ -340,7 +340,7 @@ class TestSubprocessInstrumentBypass:
 
         This proves the escape detection gap that the instrument closes.
         """
-        from examples.self_audit.runtime_trace import RuntimeTraceRecorder
+        from research.examples.self_audit.runtime_trace import RuntimeTraceRecorder
 
         recorder = RuntimeTraceRecorder("test-scope", scope="controlled_local")
         recorder.start()

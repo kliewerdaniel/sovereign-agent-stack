@@ -1,7 +1,7 @@
 """Tests for Authorization Dependencies, Epistemic Invalidation, and Epistemic Cycles."""
 
 import pytest
-from examples.sovereign_agent.authorization_dependencies import (
+from research.examples.sovereign_agent.authorization_dependencies import (
     AuthorizationDependency,
     AuthorizationDependencyGraph,
     AuthorizationStatus,
@@ -11,25 +11,25 @@ from examples.sovereign_agent.authorization_dependencies import (
     StalenessType,
     build_authorization_dependency_graph,
 )
-from examples.sovereign_agent.dependency_intersection import (
+from research.examples.sovereign_agent.dependency_intersection import (
     DependencyIntersectionEvaluator,
     Evidence,
     EvidenceRelation,
     EvidenceType,
     evaluate_evidence_against_authorization,
 )
-from examples.sovereign_agent.epistemic_invalidation import (
+from research.examples.sovereign_agent.epistemic_invalidation import (
     EpistemicInvalidationEngine,
     InvalidationDecision,
     InvalidationReason,
     run_invalidations,
 )
-from examples.sovereign_agent.epistemic_cycles import (
+from research.examples.sovereign_agent.epistemic_cycles import (
     CycleType,
     EpistemicCycleDetector,
     detect_epistemic_cycles,
 )
-from examples.sovereign_agent.partial_invalidation import (
+from research.examples.sovereign_agent.partial_invalidation import (
     ComponentStatus,
     PartialInvalidationEngine,
     run_partial_invalidation,
@@ -370,7 +370,7 @@ class TestPartialInvalidation:
     """Tests for partial invalidation."""
 
     def test_partial_invalidation_preserves_independent(self):
-        from examples.sovereign_agent.intent_graph import ActionProposal, build_intent_graph
+        from research.examples.sovereign_agent.intent_graph import ActionProposal, build_intent_graph
         proposals = [
             ActionProposal(
                 proposal_id="p1",

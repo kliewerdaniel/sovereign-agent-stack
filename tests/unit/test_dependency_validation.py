@@ -1,7 +1,7 @@
 """Tests for Dependency Discovery, Validation, and Adversarial Scenarios."""
 
 import pytest
-from examples.sovereign_agent.dependency_status import (
+from research.examples.sovereign_agent.dependency_status import (
     DependencyAttestation,
     DependencyDiscoveryMethod,
     DependencyEpistemicState,
@@ -10,19 +10,19 @@ from examples.sovereign_agent.dependency_status import (
     DependencyScope,
     create_attestation,
 )
-from examples.sovereign_agent.dependency_discovery import (
+from research.examples.sovereign_agent.dependency_discovery import (
     DependencyDiscoveryEngine,
     DependencyValidationEngine,
     DiscoveryResult,
     ValidationResult,
     run_discovery_and_validation,
 )
-from examples.sovereign_agent.adversarial_validation import (
+from research.examples.sovereign_agent.adversarial_validation import (
     AdversarialScenario,
     AdversarialValidationEngine,
     run_all_adversarial_scenarios,
 )
-from examples.sovereign_agent.epistemic_invalidation import InvalidationDecision
+from research.examples.sovereign_agent.epistemic_invalidation import InvalidationDecision
 
 
 class TestDependencyEpistemicState:

@@ -1,21 +1,21 @@
 """Tests for Sovereign Intent Graph."""
 
 import pytest
-from examples.sovereign_agent.intent_graph import (
+from research.examples.sovereign_agent.intent_graph import (
     ActionProposal,
     IntentEdge,
     IntentGraph,
     IntentRelation,
     build_intent_graph,
 )
-from examples.sovereign_agent.agent_composition import AgentCompositionEngine, CompositionType
-from examples.sovereign_agent.multi_agent_trajectory import (
+from research.examples.sovereign_agent.agent_composition import AgentCompositionEngine, CompositionType
+from research.examples.sovereign_agent.multi_agent_trajectory import (
     AgentTrajectory,
     MultiAgentTrajectory,
     TrajectoryEntryType,
 )
-from examples.sovereign_agent.intent_graph_trial import run_intent_graph_trial
-from examples.counterexamples.counterexample_corpus import (
+from research.examples.sovereign_agent.intent_graph_trial import run_intent_graph_trial
+from research.examples.counterexamples.counterexample_corpus import (
     build_initial_counterexamples,
     CounterexampleType,
     ResolutionStatus,

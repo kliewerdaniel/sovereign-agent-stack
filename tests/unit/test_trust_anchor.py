@@ -12,7 +12,7 @@ without explicit prevention.
 """
 
 import pytest
-from examples.sovereign_agent.trust_anchor import (
+from research.examples.sovereign_agent.trust_anchor import (
     AnchorStatus,
     AnchorType,
     AuthorityDomain,

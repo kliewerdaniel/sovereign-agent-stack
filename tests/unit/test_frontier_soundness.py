@@ -4,15 +4,15 @@ Tests whether protocol classifications match experimental ground truth.
 """
 
 import pytest
-from examples.sovereign_agent.dependency_completeness import (
+from research.examples.sovereign_agent.dependency_completeness import (
     CompletenessStatus,
     IntersectionStatus,
 )
-from examples.sovereign_agent.frontier_soundness_experiment import (
+from research.examples.sovereign_agent.frontier_soundness_experiment import (
     analyze_soundness_results,
     run_all_frontier_soundness_experiments,
 )
-from examples.sovereign_agent.revalidation_experiment import (
+from research.examples.sovereign_agent.revalidation_experiment import (
     FrontierClassification,
     FrontierSoundness,
 )

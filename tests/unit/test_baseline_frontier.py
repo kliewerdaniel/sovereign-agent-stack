@@ -14,10 +14,10 @@ are needed to make the frontier sound.
 """
 
 import pytest
-from examples.sovereign_agent.baseline_frontier_experiment import (
+from research.examples.sovereign_agent.baseline_frontier_experiment import (
     run_baseline_frontier_soundness,
 )
-from examples.sovereign_agent.revalidation_experiment import (
+from research.examples.sovereign_agent.revalidation_experiment import (
     FrontierClassification,
     FrontierSoundness,
 )

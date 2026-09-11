@@ -1,7 +1,7 @@
 """Tests for Phase 28: Continuous Effect Reconciliation."""
 
 import pytest
-from examples.sovereign_agent.continuous_effect_reconciliation import (
+from research.examples.sovereign_agent.continuous_effect_reconciliation import (
     AuthorityPathStatus,
     ChangeType,
     CompletenessClaim,

@@ -5,7 +5,7 @@ Documents the gap between expected scoped behavior and current implementation.
 """
 
 import pytest
-from examples.sovereign_agent.scoped_frontier_experiment import (
+from research.examples.sovereign_agent.scoped_frontier_experiment import (
     ScopeDimension,
     ScopedFrontierResult,
     analyze_scoped_results,
@@ -18,7 +18,7 @@ from examples.sovereign_agent.scoped_frontier_experiment import (
     test_temporal_scope,
     test_unknown_scope,
 )
-from examples.sovereign_agent.frontier_impact_propagation import (
+from research.examples.sovereign_agent.frontier_impact_propagation import (
     PropagationRule,
 )
 

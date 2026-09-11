@@ -1,7 +1,7 @@
 """Tests for Phase 35: Independent Authority Reconstruction Reconciliation."""
 
 import pytest
-from examples.sovereign_agent.independent_reconstruction_reconciliation import (
+from research.examples.sovereign_agent.independent_reconstruction_reconciliation import (
     AdversarialWorldGenerator,
     ConflictType,
     EvidenceReconciliationEngine,

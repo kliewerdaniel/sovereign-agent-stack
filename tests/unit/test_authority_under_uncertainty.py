@@ -10,7 +10,7 @@ policy decisions about uncertainty.
 """
 
 import pytest
-from examples.sovereign_agent.authority_under_uncertainty import (
+from research.examples.sovereign_agent.authority_under_uncertainty import (
     AuthorityUnderUncertaintyEngine,
     AuthorityUnderUncertaintyResult,
     CompletenessState,

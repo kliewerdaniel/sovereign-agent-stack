@@ -5,7 +5,7 @@ all externally consequential operations in the codebase.
 """
 
 import pytest
-from examples.sovereign_agent.consequential_effect_closure import (
+from research.examples.sovereign_agent.consequential_effect_closure import (
     ConsequentialEffectClosureEngine,
     EffectGovernance,
     EffectInventory,

@@ -209,7 +209,7 @@ def _sync_pipeline_run(run_id: str, world_id: str, emit) -> None:
         RISK_PARITY_TASK,
         RISK_PARITY_WORLD,
     )
-    from tests.integration.test_quant_pipeline import (
+    from sas.quant.worlds.runner import (
         create_momentum_script,
         create_portfolio_intelligence_script,
         create_risk_parity_script,
@@ -318,23 +318,101 @@ async def agent_chat(request: Request) -> JSONResponse:
         message = body.get("message", "")
         session_id = body.get("session_id", None)
 
+        # ── Knowledge grounding: query graph, inject top-3 nodes ──────────
+        try:
+            from sas.layers.knowledge_resolver import compile_source, resolve_knowledge_backend
+
+            adapter, _kind = resolve_knowledge_backend(store_path=":memory:")
+
+            knowledge_dir = Path(__file__).resolve().parent.parent.parent / "knowledge"
+            if knowledge_dir.exists():
+                graph = compile_source(adapter, knowledge_dir)
+            else:
+                graph = adapter.load()
+
+            results = adapter.query(graph, message)
+            if results:
+                top = results[:3]
+                ctx_lines = []
+                for r in top:
+                    label = getattr(r, "label", "")
+                    content = (
+                        r.properties.get("content", "")[:200]
+                        if hasattr(r, "properties")
+                        else ""
+                    )
+                    ctx_lines.append(f"- {label}: {content}")
+                if ctx_lines:
+                    message = "Relevant context:\n" + "\n".join(ctx_lines) + "\n\n" + message
+        except Exception:
+            pass  # Best-effort knowledge grounding
+
+        # ── Resolve model provider at point of use ────────────────────────
         from sas.layers.memory_providers import InMemoryMemory
-        from sas.layers.model_providers import StubModelProvider
-        from sas.runtime.agent_runtime import AgentRuntime
+        from sas.layers.model import Message
 
-        model = StubModelProvider(response="I am a sovereign AI assistant. How can I help you?")
-        memory = InMemoryMemory()
-        runtime = AgentRuntime(model=model, memory=memory)
+        import os
 
-        if session_id is None:
-            session_id = await runtime.create_session("web-user")
+        model = None
 
-        response = await runtime.run(session_id, message)
+        # 1) Try OllamaProvider (local) — pick first available model
+        try:
+            from sas.layers.model_providers import OllamaProvider
 
-        return JSONResponse({
-            "response": response,
-            "session_id": session_id,
-        })
+            # Get available models
+            import urllib.request
+            resp = urllib.request.urlopen("http://localhost:11434/api/tags", timeout=2)
+            data = json.loads(resp.read())
+            available = [m.get("name","") for m in data.get("models",[])]
+
+            # Pick first preferred model that's available
+            for model_name in ["llama3.2:latest", "qwen3:4b", "llama3.1:8b"]:
+                if model_name in available:
+                    model = OllamaProvider(model=model_name, base_url="http://localhost:11434")
+                    break
+        except Exception:
+            pass
+
+        # 2) Fall back to OpenAIProvider if OPENAI_API_KEY is set
+        if model is None and os.environ.get("OPENAI_API_KEY"):
+            try:
+                from sas.layers.model_providers import OpenAIProvider
+
+                model = OpenAIProvider()
+            except Exception:
+                pass
+
+        # 3) If neither works, return a clear error (not a stub)
+        if model is None:
+            return JSONResponse(
+                {
+                    "response": (
+                        "No model configured — set up Ollama (ollama run llama3.2) "
+                        "or set OPENAI_API_KEY in sas.yaml"
+                    ),
+                    "session_id": None,
+                }
+            )
+
+        # Call the model directly (simpler than AgentRuntime for chat)
+        try:
+            messages = [Message(role="user", content=message)]
+            completion = await model.complete(messages, [])
+            response = completion.content or ""
+        except Exception as e:
+            return JSONResponse(
+                {
+                    "response": f"Model error: {e!s}",
+                    "session_id": None,
+                }
+            )
+
+        return JSONResponse(
+            {
+                "response": response,
+                "session_id": None,
+            }
+        )
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
